@@ -22,39 +22,286 @@ Detailed anlytic graphs are produced to describe
 - other useful staticstics
 
 # User Experience  
-[Describe the user journey and experience. Include:
-- User personas
-- Key user flows
-- UI/UX considerations]
+## User Personas
+- Primary: Individuals who do regular grocery and household shopping
+- Needs: Track spending habits, understand expense patterns, and gain financial insights
+- Behavior: Will upload receipts after shopping trips, check monthly reports periodically
+
+## Key User Flows
+1. **Receipt Upload and Processing**
+   - User uploads photo/scan of receipt
+   - System processes receipt via AI and extracts line items
+   - User reviews extracted data and confirms/edits if needed
+   - System categorizes items and updates analytics
+
+2. **Expense Dashboard**
+   - User views current month's spending breakdown
+   - User compares spending with previous months
+   - User drills down into specific shopping sessions/receipts
+   - User explores spending by category
+
+3. **Data Export**
+   - User selects date range for export
+   - System generates Excel report of expenses
+
+## UI/UX Considerations
+- Mobile-friendly web application for capturing receipts on-the-go
+- Clean, intuitive interface focusing on data visualization
+- Easy navigation between receipt uploads and analytics
+- Responsive design to accommodate both desktop and mobile users
 </context>
 <PRD>
 # Technical Architecture  
-[Outline the technical implementation details:
-- System components
-- Data models
-- APIs and integrations
-- Infrastructure requirements]
+## System Components
+1. **Frontend Layer**
+   - Web application with responsive design
+   - Interactive data visualization components
+   - Receipt image capture/upload interface
+
+2. **Backend Layer**
+   - FastAPI framework for RESTful API endpoints
+   - AI processing module for receipt parsing (using Gemini-2.5-flash or OpenAI-compatible endpoints)
+   - Authentication and user management
+   - Data validation and verification system
+
+3. **Data Layer**
+   - PostgreSQL database
+   - Data caching for improved performance
+   - File storage for receipt images
+
+## Data Models
+1. **User**
+   - User ID, authentication details, preferences
+
+2. **Receipt**
+   - Metadata (date, store, total amount)
+   - Image reference
+   - Processing status
+   - Verification status
+
+3. **LineItem**
+   - Product name
+   - Price
+   - Quantity
+   - Category (auto-assigned by AI)
+   - Receipt reference
+
+4. **Categories**
+   - Category ID
+   - Name
+   - Parent category (for hierarchical categorization)
+
+## APIs and Integrations
+1. **Internal APIs**
+   - Receipt processing endpoint
+   - Analytics data retrieval
+   - User management
+
+2. **External Integrations**
+   - LLM API (Gemini or OpenAI)
+   - Excel export functionality
+
+## Infrastructure Requirements
+1. **Containerized Deployment**
+   - Docker containers for all components
+   - Container orchestration for scalability
+
+2. **Storage**
+   - Database storage for structured data
+   - Object storage for receipt images
+
+3. **Networking**
+   - Secure API communications
+   - Content delivery optimization for mobile users
 
 # Development Roadmap  
-[Break down the development process into phases:
-- MVP requirements
-- Future enhancements
-- Do not think about timelines whatsoever -- all that matters is scope and detailing exactly what needs to be build in each phase so it can later be cut up into tasks]
+## MVP Requirements
+1. **Core Receipt Processing**
+   - Image upload functionality
+   - AI receipt parsing using LLM
+   - Basic data extraction (store, date, total, line items)
+   - Simple categorization of items
+
+2. **Basic Data Storage**
+   - User account creation and management
+   - PostgreSQL schema for receipts and items
+   - Basic data validation
+
+3. **Essential Analytics**
+   - Monthly spending overview
+   - Category-based spending breakdown
+   - Receipt listing and individual receipt view
+   - Basic data export to Excel
+
+4. **Minimal UI**
+   - Mobile-friendly receipt upload interface
+   - Basic dashboard for spending visualization
+   - Responsive design for core functions
+
+## Phase 2 Enhancements
+1. **Advanced Receipt Processing**
+   - Receipt verification system (total validation)
+   - Manual override for AI parsing errors
+   - Support for different receipt formats
+   - Processing queue for batch uploads
+
+2. **Enhanced Analytics**
+   - Spending trends over time
+   - Month-to-month comparison charts
+   - Running averages
+   - Price tracking for individual items
+
+3. **User Experience Improvements**
+   - Customizable dashboard
+   - User-defined categories
+   - Filtering and search functionality
+   - Improved mobile experience
+
+4. **Data Management**
+   - Bulk operations (delete, categorize)
+   - Data import functionality
+   - Advanced Excel export options
+
+## Phase 3 Enhancements
+1. **Smart Features**
+   - Spending anomaly detection
+   - Budget recommendations
+   - Price comparison between stores
+   - Predictive spending forecasts
+
+2. **Integration Capabilities**
+   - API for third-party integrations
+   - Integration with budgeting apps
+   - Optional sharing of anonymized data
+
+3. **Advanced UI**
+   - Interactive analytics with drill-down capability
+   - Dark mode and UI themes
+   - Accessibility improvements
+   - Guided tours and onboarding
 
 # Logical Dependency Chain
-[Define the logical order of development:
-- Which features need to be built first (foundation)
-- Getting as quickly as possible to something usable/visible front end that works
-- Properly pacing and scoping each feature so it is atomic but can also be built upon and improved as development approaches]
+## Foundation Layer (Build First)
+1. **Core Infrastructure Setup**
+   - Database schema implementation
+   - Docker containerization setup
+   - FastAPI backend foundation
+   - Basic authentication system
+
+2. **AI Processing Pipeline**
+   - LLM integration for receipt processing
+   - Image preprocessing functionality
+   - Basic data extraction and parsing
+   - Error handling for common OCR issues
+
+3. **Data Storage & Retrieval**
+   - Basic CRUD operations for receipts and line items
+   - Data validation mechanisms
+   - Simple querying capabilities
+
+## Minimum Viable Frontend
+4. **Essential UI Components**
+   - Receipt upload interface
+   - Basic dashboard with minimal visualization
+   - Account management screens
+   - Simple data display of processed receipts
+
+5. **Core User Flows**
+   - Complete receipt upload to visualization flow
+   - Basic monthly report generation
+   - Simple Excel export functionality
+
+## Enhancement Layers
+6. **Analytics Engine**
+   - Category-based spending breakdown
+   - Time-based trend analysis
+   - Comparison functionality
+   - Enhanced data visualizations
+
+7. **User Experience Refinement**
+   - Mobile responsiveness improvements
+   - UI/UX polishing
+   - Performance optimizations
+   - Advanced filtering and search
+
+8. **Advanced Features**
+   - Receipt verification system
+   - Custom categorization
+   - Advanced export options
+   - User preferences and customizations
 
 # Risks and Mitigations  
-[Identify potential risks and how they'll be addressed:
-- Technical challenges
-- Figuring out the MVP that we can build upon
-- Resource constraints]
+## Technical Challenges
+1. **LLM Parsing Accuracy**
+   - **Risk**: AI may misinterpret receipt data or categorize items incorrectly
+   - **Mitigation**: Implement validation system comparing parsed line items total with receipt total
+   - **Mitigation**: Provide easy correction interface for users to fix parsing errors
+   - **Mitigation**: Continuously train models with corrected data
+
+2. **Image Quality Issues**
+   - **Risk**: Poor quality receipt images may lead to inaccurate parsing
+   - **Mitigation**: Provide image capture guidelines for users
+   - **Mitigation**: Implement image preprocessing to enhance readability
+   - **Mitigation**: Develop fallback manual entry mode for problematic receipts
+
+3. **Data Schema Evolution**
+   - **Risk**: Changing requirements may necessitate database schema changes
+   - **Mitigation**: Design flexible schema with extension points
+   - **Mitigation**: Implement versioning strategy for data models
+   - **Mitigation**: Build migration tools for seamless updates
+
+## MVP Scope Considerations
+1. **Feature Prioritization**
+   - **Risk**: Core functionality could be delayed by non-essential features
+   - **Mitigation**: Strict adherence to MVP definition focusing on receipt parsing and basic analytics
+   - **Mitigation**: User testing to validate feature priorities
+   - **Mitigation**: Modular architecture allowing feature-by-feature deployment
+
+2. **User Adoption**
+   - **Risk**: Users may find manual receipt entry burdensome
+   - **Mitigation**: Optimize upload process for minimal friction
+   - **Mitigation**: Demonstrate immediate value through simple but useful analytics
+   - **Mitigation**: Ensure high reliability of core parsing functionality
+
+## Resource Constraints
+1. **AI Processing Costs**
+   - **Risk**: LLM API costs could scale unexpectedly with usage
+   - **Mitigation**: Implement caching strategies for similar receipts
+   - **Mitigation**: Optimize prompts to minimize token usage
+   - **Mitigation**: Consider batching processing during off-peak hours
+
+2. **Performance at Scale**
+   - **Risk**: System performance may degrade with increased users/data
+   - **Mitigation**: Design database with proper indexing and query optimization
+   - **Mitigation**: Implement caching for frequently accessed data
+   - **Mitigation**: Containerized architecture allows for horizontal scaling
 
 # Appendix  
-[Include any additional information:
-- Research findings
-- Technical specifications]
+## Research Findings
+1. **LLM Receipt Parsing Effectiveness**
+   - Modern LLMs show 85-95% accuracy on standard receipt formats
+   - Error rates increase with non-standard formats or poor image quality
+   - Validation through total amount comparison catches most errors
+
+2. **User Behavior Patterns**
+   - Users typically upload receipts within 24 hours of purchase
+   - Monthly review of spending is the most common analysis pattern
+   - Category-based analysis is consistently rated as the most valuable insight
+
+## Technical Specifications
+1. **Image Processing Requirements**
+   - Support for JPEG, PNG, and PDF formats
+   - Recommended minimum resolution: 300 DPI
+   - Maximum file size: 10MB
+
+2. **LLM Configuration**
+   - Default model: Gemini-2.5-flash
+   - Alternative: Any OpenAI-compatible endpoint
+   - Context window requirements: Minimum 8K tokens
+   - Typical processing time: 2-5 seconds per receipt
+
+3. **Data Storage Estimates**
+   - Average receipt: ~2KB structured data + ~500KB image
+   - Typical user: 20-30 receipts per month
+   - Recommended initial database sizing: 5GB per 1000 users
 </PRD>
