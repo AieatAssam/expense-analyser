@@ -2,6 +2,16 @@
 
 This document provides guidance on using Alembic for database migrations in the Expense Analyser project.
 
+## Initial Migration Status
+
+The initial database migration has been created and applied, establishing the following tables:
+- `user`: For user authentication and management
+- `category`: For expense categorization with hierarchical structure
+- `receipt`: For storing receipt metadata and user relationships
+- `lineitem`: For individual items within receipts
+
+The migration script is located at `migrations/versions/a96b03e13043_initial.py`.
+
 ## Migration Setup
 
 The project uses Alembic for database schema migrations. The configuration is already set up with:
