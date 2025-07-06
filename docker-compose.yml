@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  db:
+    image: postgres:16
+    container_name: expense_analyser_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-expense_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-expense_password}
+      POSTGRES_DB: ${POSTGRES_DB:-expense_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - expense_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-expense_user} -d ${POSTGRES_DB:-expense_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend Service (will be uncommented when the backend is implemented)
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: expense_analyser_api
+  #   restart: always
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   environment:
+  #     DATABASE_URL: postgresql://${POSTGRES_USER:-expense_user}:${POSTGRES_PASSWORD:-expense_password}@db:5432/${POSTGRES_DB:-expense_db}
+  #     API_SECRET_KEY: ${API_SECRET_KEY:-supersecretkey}
+  #     ENVIRONMENT: ${ENVIRONMENT:-development}
+  #     GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+  #     OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  #     DEFAULT_LLM_PROVIDER: ${DEFAULT_LLM_PROVIDER:-gemini}
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./app:/app
+  #     - receipt_uploads:/app/uploads
+  #   networks:
+  #     - expense_network
+  #   command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
+    name: expense_analyser_postgres_data
+  receipt_uploads:
+    name: expense_analyser_receipt_uploads
+
+networks:
+  expense_network:
+    name: expense_analyser_network
+    driver: bridge
