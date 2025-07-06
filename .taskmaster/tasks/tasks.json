@@ -10,7 +10,61 @@
         "priority": "high",
         "dependencies": [],
         "status": "in-progress",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Docker Compose Configuration",
+            "description": "Set up Docker Compose with PostgreSQL container and environment configuration",
+            "dependencies": [],
+            "details": "Create docker-compose.yml file with PostgreSQL service, configure environment variables for database connection, set up volume mounts for persistent data storage, and define network configuration for service communication",
+            "status": "pending",
+            "testStrategy": "Verify containers start successfully and PostgreSQL is accessible on configured port"
+          },
+          {
+            "id": 2,
+            "title": "Initialize FastAPI Project Structure",
+            "description": "Create FastAPI application foundation with proper project organization",
+            "dependencies": [
+              1
+            ],
+            "details": "Initialize FastAPI project with main.py entry point, create directory structure (app/, models/, api/, core/), set up requirements.txt with FastAPI, SQLAlchemy, Alembic, and PostgreSQL dependencies, configure CORS and basic middleware",
+            "status": "pending",
+            "testStrategy": "Test FastAPI server starts and responds to health check endpoint"
+          },
+          {
+            "id": 3,
+            "title": "Implement Database Models",
+            "description": "Create SQLAlchemy models for User, Receipt, LineItem, and Categories with relationships",
+            "dependencies": [
+              2
+            ],
+            "details": "Define User model with authentication fields, Receipt model with user relationship and metadata, LineItem model with receipt relationship and item details, Categories model with hierarchical structure, implement proper foreign key relationships and database indexes for performance",
+            "status": "pending",
+            "testStrategy": "Validate model relationships and constraints work correctly in test database"
+          },
+          {
+            "id": 4,
+            "title": "Configure Alembic for Database Migrations",
+            "description": "Set up Alembic migration system with proper configuration",
+            "dependencies": [
+              3
+            ],
+            "details": "Initialize Alembic in project, configure alembic.ini with database URL, set up env.py to import models, configure migration script template, ensure proper connection to PostgreSQL container",
+            "status": "pending",
+            "testStrategy": "Test Alembic can connect to database and generate migration scripts"
+          },
+          {
+            "id": 5,
+            "title": "Create Initial Database Migration",
+            "description": "Generate and apply first migration script to create all tables",
+            "dependencies": [
+              4
+            ],
+            "details": "Generate initial migration script using Alembic autogenerate, review migration script for accuracy, apply migration to create all tables in PostgreSQL, verify all tables, indexes, and constraints are created correctly",
+            "status": "pending",
+            "testStrategy": "Verify all tables exist in database with correct schema and can perform basic CRUD operations"
+          }
+        ]
       },
       {
         "id": 2,

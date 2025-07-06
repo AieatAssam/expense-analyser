@@ -1,0 +1,93 @@
+{
+	"meta": {
+		"generatedAt": "2025-07-06T14:43:25.595Z",
+		"tasksAnalyzed": 10,
+		"totalTasks": 10,
+		"analysisCount": 10,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": false
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Setup Project Infrastructure and Database Schema",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the infrastructure setup into Docker configuration, FastAPI initialization, database modeling, migration setup, and initial schema creation phases",
+			"reasoning": "High complexity due to multiple interconnected technologies (Docker, PostgreSQL, FastAPI, Alembic) requiring proper configuration and integration. Already well-structured with 5 subtasks."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Implement Basic Authentication System",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Divide into JWT implementation, password hashing setup, user registration endpoint, login/logout endpoints, and protected route middleware",
+			"reasoning": "Moderate complexity involving security considerations, JWT handling, and FastAPI security integration. Standard authentication patterns but requires careful implementation."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Develop LLM Integration for Receipt Processing",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Split into LLM client abstraction, Gemini API integration, OpenAI fallback implementation, prompt engineering for receipt parsing, and response validation",
+			"reasoning": "High complexity due to external API integration, prompt engineering requirements, fallback mechanisms, and parsing accuracy validation."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Build Receipt Upload and Image Processing Pipeline",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break into file upload endpoint creation, image preprocessing implementation, storage system setup, and upload validation/error handling",
+			"reasoning": "Moderate complexity involving file handling, image processing, storage management, and validation logic. Multiple file formats add complexity."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Implement Core Receipt Processing Workflow",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Divide into pipeline orchestration, LLM processing integration, data validation logic, database storage workflow, and error handling/status tracking",
+			"reasoning": "High complexity as it integrates multiple previous components into a cohesive workflow with error handling and status tracking requirements."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Develop Basic Frontend Receipt Upload Interface",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Split into responsive UI framework setup, camera/file upload components, drag-and-drop functionality, and processing status interface",
+			"reasoning": "Moderate complexity involving modern frontend patterns, mobile responsiveness, and real-time status updates. Well-defined UI requirements."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Create Basic Analytics and Dashboard Backend",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break into analytics API endpoints, database query optimization, caching implementation, and pagination/filtering logic",
+			"reasoning": "Moderate complexity requiring efficient database queries, caching strategies, and API design for analytics data aggregation."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Build Analytics Dashboard Frontend",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Divide into chart library integration, dashboard layout components, data visualization implementation, filtering/search interface, and responsive design",
+			"reasoning": "High complexity due to data visualization requirements, interactive chart implementation, and ensuring responsive design across devices."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Implement Data Export Functionality",
+			"complexityScore": 4,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Split into Excel library integration, export API endpoint creation, and download interface implementation",
+			"reasoning": "Lower complexity as it's a focused feature with clear requirements. Excel export is well-supported by libraries."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Implement Receipt Verification and Manual Override System",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break into validation logic implementation, manual editing interface, approval workflow system, bulk editing capabilities, and data integrity checks",
+			"reasoning": "High complexity involving validation algorithms, complex UI for manual editing, workflow management, and ensuring data integrity across manual operations."
+		}
+	]
+}
