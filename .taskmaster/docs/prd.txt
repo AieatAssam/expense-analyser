@@ -1,0 +1,60 @@
+<context>
+# Overview  
+Expense analyser implements mechanism for analysing receipts and other expenses in an intuitive and easy manner.
+It utilises AI (defaults to gemini-2.5-flash but can work and be configured to work with any OpenAI-compatible endpoint) to perform OCR and extract data from receipts, categorise all purchases into various shopping categories (focused on grocery and household goods types of purchases).
+Web application includes detailed analytics for spending and is designed to help end users track their spending and analyse where they are spending the money.
+
+# Core Features  
+## AI Receipt Parsing
+- Uses LLMs to parse receipts into JSON
+- Much more powerful than traditional OCR scanning
+- Categorises all lines on the receipt and produces detailed list of items purchased
+
+## Data Storage
+Uses PostgresQL database to store purchase information for analytics
+
+## analytics
+Detailed anlytic graphs are produced to describe
+- Spend per category
+- Spending trends
+- Month-by-month comparison
+- Running Averages
+- other useful staticstics
+
+# User Experience  
+[Describe the user journey and experience. Include:
+- User personas
+- Key user flows
+- UI/UX considerations]
+</context>
+<PRD>
+# Technical Architecture  
+[Outline the technical implementation details:
+- System components
+- Data models
+- APIs and integrations
+- Infrastructure requirements]
+
+# Development Roadmap  
+[Break down the development process into phases:
+- MVP requirements
+- Future enhancements
+- Do not think about timelines whatsoever -- all that matters is scope and detailing exactly what needs to be build in each phase so it can later be cut up into tasks]
+
+# Logical Dependency Chain
+[Define the logical order of development:
+- Which features need to be built first (foundation)
+- Getting as quickly as possible to something usable/visible front end that works
+- Properly pacing and scoping each feature so it is atomic but can also be built upon and improved as development approaches]
+
+# Risks and Mitigations  
+[Identify potential risks and how they'll be addressed:
+- Technical challenges
+- Figuring out the MVP that we can build upon
+- Resource constraints]
+
+# Appendix  
+[Include any additional information:
+- Research findings
+- Technical specifications]
+</PRD>
