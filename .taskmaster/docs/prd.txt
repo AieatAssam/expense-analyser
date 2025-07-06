@@ -61,7 +61,8 @@ Detailed anlytic graphs are produced to describe
 2. **Backend Layer**
    - FastAPI framework for RESTful API endpoints
    - AI processing module for receipt parsing (using Gemini-2.5-flash or OpenAI-compatible endpoints)
-   - Authentication and user management
+   - Auth0 authentication with multi-account support
+   - User management and account invitation system
    - Data validation and verification system
 
 3. **Data Layer**
@@ -72,6 +73,8 @@ Detailed anlytic graphs are produced to describe
 ## Data Models
 1. **User**
    - User ID, authentication details, preferences
+   - Support for multiple Auth0 accounts per user
+   - Account association and linking capabilities
 
 2. **Receipt**
    - Metadata (date, store, total amount)
@@ -95,10 +98,11 @@ Detailed anlytic graphs are produced to describe
 1. **Internal APIs**
    - Receipt processing endpoint
    - Analytics data retrieval
-   - User management
+   - User management and account invitations
 
 2. **External Integrations**
-   - LLM API (Gemini or OpenAI)
+   - Auth0 authentication service
+   - LLM API (Gemini-2.5-flash or OpenAI)
    - Excel export functionality
 
 ## Infrastructure Requirements
@@ -116,51 +120,70 @@ Detailed anlytic graphs are produced to describe
 
 # Development Roadmap  
 ## MVP Requirements
-1. **Core Receipt Processing**
-   - Image upload functionality
-   - AI receipt parsing using LLM
-   - Basic data extraction (store, date, total, line items)
-   - Simple categorization of items
+1. **Project Infrastructure and Database Schema**
+   - Docker compose setup with PostgreSQL container
+   - FastAPI project structure initialization
+   - Database models for User, Receipt, LineItem, and Categories
+   - Alembic for database migrations
+   - Container-based testing infrastructure
 
-2. **Basic Data Storage**
-   - User account creation and management
-   - PostgreSQL schema for receipts and items
-   - Basic data validation
+2. **Auth0 Authentication System**
+   - Auth0 integration with FastAPI
+   - Multi-account user management 
+   - Account invitation system
+   - First-user auto-acceptance logic
+   - Protected endpoint access control
 
-3. **Essential Analytics**
-   - Monthly spending overview
-   - Category-based spending breakdown
-   - Receipt listing and individual receipt view
-   - Basic data export to Excel
+3. **LLM Integration for Receipt Processing**
+   - Gemini-2.5-flash integration with OpenAI-compatible fallback
+   - Receipt parsing prompts for metadata and line items
+   - Error handling and retry logic
+   - Response validation
 
-4. **Minimal UI**
-   - Mobile-friendly receipt upload interface
-   - Basic dashboard for spending visualization
-   - Responsive design for core functions
+4. **Receipt Upload and Image Processing**
+   - File upload endpoints supporting JPEG, PNG, and PDF formats (max 10MB)
+   - Image preprocessing for quality enhancement
+   - Object storage for receipt images
+   - User-specific receipt association
+
+5. **Core Receipt Processing Workflow**
+   - End-to-end processing pipeline
+   - Data extraction and storage
+   - Receipt total validation
+   - Processing status tracking
+
+6. **Basic Frontend Interface**
+   - Mobile-friendly web interface with Auth0 integration
+   - Camera capture and file upload capabilities
+   - Processing status indicators
+   - Receipt preview and confirmation screens
 
 ## Phase 2 Enhancements
-1. **Advanced Receipt Processing**
-   - Receipt verification system (total validation)
-   - Manual override for AI parsing errors
-   - Support for different receipt formats
-   - Processing queue for batch uploads
+1. **Analytics and Dashboard Backend**
+   - Monthly spending summaries endpoints
+   - Category-based breakdown APIs
+   - Receipt listing with pagination
+   - Efficient database queries with proper indexing
+   - Caching for frequently accessed analytics data
 
-2. **Enhanced Analytics**
-   - Spending trends over time
-   - Month-to-month comparison charts
-   - Running averages
-   - Price tracking for individual items
+2. **Analytics Dashboard Frontend**
+   - Interactive dashboard with chart libraries
+   - Monthly spending overview charts
+   - Category breakdown visualizations
+   - Receipt listing with search and filter
+   - Mobile responsive design
 
-3. **User Experience Improvements**
-   - Customizable dashboard
-   - User-defined categories
-   - Filtering and search functionality
-   - Improved mobile experience
+3. **Data Export Functionality**
+   - Excel export feature for expense data
+   - Date range filtering
+   - Properly formatted Excel templates
+   - Download functionality
 
-4. **Data Management**
-   - Bulk operations (delete, categorize)
-   - Data import functionality
-   - Advanced Excel export options
+4. **Receipt Verification and Manual Override**
+   - Validation logic for parsed line items
+   - Manual editing interface for corrections
+   - Approval workflow for processed receipts
+   - Bulk editing capabilities
 
 ## Phase 3 Enhancements
 1. **Smart Features**
@@ -186,7 +209,7 @@ Detailed anlytic graphs are produced to describe
    - Database schema implementation
    - Docker containerization setup
    - FastAPI backend foundation
-   - Basic authentication system
+   - Auth0 authentication system with multi-account support
 
 2. **AI Processing Pipeline**
    - LLM integration for receipt processing
@@ -236,32 +259,47 @@ Detailed anlytic graphs are produced to describe
    - **Risk**: AI may misinterpret receipt data or categorize items incorrectly
    - **Mitigation**: Implement validation system comparing parsed line items total with receipt total
    - **Mitigation**: Provide easy correction interface for users to fix parsing errors
+   - **Mitigation**: Ensure proper error handling and retry logic between LLM providers
    - **Mitigation**: Continuously train models with corrected data
 
-2. **Image Quality Issues**
+2. **Authentication and User Management**
+   - **Risk**: Complex Auth0 integration with multi-account support may create security vulnerabilities
+   - **Mitigation**: Implement proper JWT token validation
+   - **Mitigation**: Create secure account invitation and linking process
+   - **Mitigation**: Set up protected routes with appropriate middleware
+   - **Mitigation**: Implement first-user auto-acceptance logic when no users exist
+
+3. **Image Quality Issues**
    - **Risk**: Poor quality receipt images may lead to inaccurate parsing
    - **Mitigation**: Provide image capture guidelines for users
    - **Mitigation**: Implement image preprocessing to enhance readability
    - **Mitigation**: Develop fallback manual entry mode for problematic receipts
 
-3. **Data Schema Evolution**
+4. **Data Schema Evolution**
    - **Risk**: Changing requirements may necessitate database schema changes
    - **Mitigation**: Design flexible schema with extension points
    - **Mitigation**: Implement versioning strategy for data models
    - **Mitigation**: Build migration tools for seamless updates
 
 ## MVP Scope Considerations
-1. **Feature Prioritization**
+1. **Authentication and Authorization**
+   - **Risk**: Complex Auth0 integration could delay other core features
+   - **Mitigation**: Implement Auth0 integration early with clear subtasks
+   - **Mitigation**: Ensure proper testing of authentication flow and user management
+   - **Mitigation**: Use modular approach to separate auth concerns from other functionality
+
+2. **Feature Prioritization**
    - **Risk**: Core functionality could be delayed by non-essential features
    - **Mitigation**: Strict adherence to MVP definition focusing on receipt parsing and basic analytics
    - **Mitigation**: User testing to validate feature priorities
    - **Mitigation**: Modular architecture allowing feature-by-feature deployment
 
-2. **User Adoption**
+3. **User Adoption**
    - **Risk**: Users may find manual receipt entry burdensome
    - **Mitigation**: Optimize upload process for minimal friction
    - **Mitigation**: Demonstrate immediate value through simple but useful analytics
    - **Mitigation**: Ensure high reliability of core parsing functionality
+   - **Mitigation**: Implement user-friendly account management and invitation system
 
 ## Resource Constraints
 1. **AI Processing Costs**
@@ -299,6 +337,13 @@ Detailed anlytic graphs are produced to describe
    - Alternative: Any OpenAI-compatible endpoint
    - Context window requirements: Minimum 8K tokens
    - Typical processing time: 2-5 seconds per receipt
+
+3. **Authentication Requirements**
+   - Auth0 integration with JWT token validation
+   - Support for multiple accounts per user
+   - Account invitation system with email notifications
+   - First-user auto-acceptance logic
+   - Secure callback URLs and proper security settings
 
 3. **Data Storage Estimates**
    - Average receipt: ~2KB structured data + ~500KB image

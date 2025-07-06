@@ -79,55 +79,55 @@
       },
       {
         "id": 2,
-        "title": "Implement Basic Authentication System",
-        "description": "Create user registration, login, and session management functionality",
+        "title": "Implement Auth0 Authentication System",
+        "description": "Create Auth0 integration with multi-account support and user management functionality",
         "status": "pending",
         "dependencies": [
           1
         ],
         "priority": "high",
-        "details": "Implement JWT-based authentication with FastAPI security utilities, create user registration and login endpoints, add password hashing with bcrypt, implement session management and protected route decorators.",
-        "testStrategy": "Test user registration flow, login/logout functionality, JWT token validation, and protected endpoint access control using PostgreSQL container for database operations during tests",
+        "details": "Implement Auth0 authentication with FastAPI, create user management for multiple accounts per user, implement account invitation system where existing users can add new accounts, ensure first Auth0 login is automatically accepted if no users exist, add account association and management endpoints.",
+        "testStrategy": "Test Auth0 integration flow, multi-account association functionality, account invitation workflow, first-user auto-acceptance logic, and protected endpoint access control using PostgreSQL container for user data storage during tests",
         "subtasks": [
           {
             "id": 1,
-            "title": "JWT Implementation Setup",
-            "description": "Implement JWT token generation, validation, and configuration including secret key management and token expiration settings",
+            "title": "Auth0 Integration Setup",
+            "description": "Set up Auth0 client configuration, implement Auth0 JWT token validation, and configure Auth0 application settings",
             "dependencies": [],
-            "details": "Set up JWT library, create token generation functions, implement token validation logic, and configure security settings for token handling",
+            "details": "Configure Auth0 application, set up Auth0 client library, implement JWT token validation for Auth0 tokens, configure callback URLs and security settings",
             "status": "pending",
             "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Password Hashing Implementation",
-            "description": "Implement secure password hashing using bcrypt or similar library with proper salt generation and verification functions",
+            "title": "Multi-Account User Management",
+            "description": "Implement user model supporting multiple Auth0 accounts per user with proper data relationships and account linking",
             "dependencies": [],
-            "details": "Install and configure password hashing library, create functions for hashing passwords during registration and verifying passwords during login",
+            "details": "Create user and account models with proper relationships, implement account linking logic, add support for multiple Auth0 provider accounts per user",
             "status": "pending",
             "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "User Registration and Login Endpoints",
-            "description": "Create FastAPI endpoints for user registration and login with proper validation, error handling, and JWT token generation",
+            "title": "Account Invitation System",
+            "description": "Create system for existing users to invite and add new accounts with proper authorization checks",
             "dependencies": [
               1,
               2
             ],
-            "details": "Implement /register endpoint with user creation logic, /login endpoint with authentication verification, include input validation and appropriate HTTP responses",
+            "details": "Implement invitation endpoints, create invitation validation logic, add account pre-authorization system, implement invitation acceptance workflow",
             "status": "pending",
             "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Protected Route Middleware and Logout",
-            "description": "Implement JWT authentication middleware for protecting routes and create logout endpoint with token invalidation",
+            "title": "First User Auto-Accept and Protected Routes",
+            "description": "Implement first-user auto-acceptance logic and Auth0 middleware for protecting routes",
             "dependencies": [
               1,
               3
             ],
-            "details": "Create middleware to verify JWT tokens on protected routes, implement logout endpoint, add route protection decorators, and handle token expiration scenarios",
+            "details": "Create logic to automatically accept first Auth0 login when no users exist, implement Auth0 JWT middleware for protected routes, add user context management and session handling",
             "status": "pending",
             "testStrategy": ""
           }
@@ -156,8 +156,8 @@
           3
         ],
         "priority": "high",
-        "details": "Implement FastAPI file upload endpoints supporting JPEG, PNG, and PDF formats (max 10MB), add image preprocessing for quality enhancement, create object storage system for receipt images, implement upload validation and error handling.",
-        "testStrategy": "Test file upload with various formats and sizes, validate image preprocessing quality, test storage and retrieval of images, verify upload limits and error handling. Use PostgreSQL container for metadata storage tests.",
+        "details": "Implement FastAPI file upload endpoints supporting JPEG, PNG, and PDF formats (max 10MB), add image preprocessing for quality enhancement, create object storage system for receipt images, implement upload validation and error handling, ensure proper user association through Auth0 authentication.",
+        "testStrategy": "Test file upload with various formats and sizes, validate image preprocessing quality, test storage and retrieval of images, verify upload limits and error handling, test user-specific receipt association. Use PostgreSQL container for metadata storage tests.",
         "subtasks": []
       },
       {
@@ -170,74 +170,74 @@
           4
         ],
         "priority": "high",
-        "details": "Build processing pipeline that takes uploaded images, calls LLM for data extraction, validates extracted data against receipt totals, stores structured data in database, handles processing errors gracefully, implements processing status tracking.",
-        "testStrategy": "Test complete workflow from image upload to data storage, validate data extraction accuracy, test error handling for parsing failures, verify processing status updates. All database operations tested using PostgreSQL container lifecycle management.",
+        "details": "Build processing pipeline that takes uploaded images, calls LLM for data extraction, validates extracted data against receipt totals, stores structured data in database with proper user association, handles processing errors gracefully, implements processing status tracking.",
+        "testStrategy": "Test complete workflow from image upload to data storage, validate data extraction accuracy, test error handling for parsing failures, verify processing status updates, ensure proper user isolation. All database operations tested using PostgreSQL container lifecycle management.",
         "subtasks": []
       },
       {
         "id": 6,
         "title": "Develop Basic Frontend Receipt Upload Interface",
-        "description": "Create mobile-friendly web interface for receipt upload and processing status",
+        "description": "Create mobile-friendly web interface for receipt upload and processing status with Auth0 integration",
         "status": "pending",
         "dependencies": [
           5
         ],
         "priority": "medium",
-        "details": "Build responsive React/Vue.js interface with camera capture and file upload capabilities, implement drag-and-drop functionality, add processing status indicators, create receipt preview and confirmation screens, ensure mobile-first responsive design.",
-        "testStrategy": "Test upload interface on mobile and desktop devices, validate file handling and preview functionality, test processing status updates in real-time. Backend integration tests use PostgreSQL container for data persistence validation.",
+        "details": "Build responsive React/Vue.js interface with Auth0 authentication integration, camera capture and file upload capabilities, implement drag-and-drop functionality, add processing status indicators, create receipt preview and confirmation screens, ensure mobile-first responsive design, add user account management interface.",
+        "testStrategy": "Test upload interface on mobile and desktop devices, validate Auth0 login flow, test file handling and preview functionality, test processing status updates in real-time, verify user account switching. Backend integration tests use PostgreSQL container for data persistence validation.",
         "subtasks": []
       },
       {
         "id": 7,
         "title": "Create Basic Analytics and Dashboard Backend",
-        "description": "Implement API endpoints for spending analytics and data aggregation",
+        "description": "Implement API endpoints for spending analytics and data aggregation with user-specific data access",
         "status": "pending",
         "dependencies": [
           5
         ],
         "priority": "medium",
-        "details": "Create FastAPI endpoints for monthly spending summaries, category-based breakdowns, receipt listing with pagination, individual receipt details, implement efficient database queries with proper indexing, add caching for frequently accessed analytics data.",
-        "testStrategy": "Test analytics endpoints with sample data, validate query performance with large datasets, test pagination and filtering functionality, verify caching effectiveness. All database tests run against PostgreSQL container with proper setup/teardown.",
+        "details": "Create FastAPI endpoints for monthly spending summaries, category-based breakdowns, receipt listing with pagination, individual receipt details, implement efficient database queries with proper indexing and user-specific data filtering, add caching for frequently accessed analytics data, ensure proper user authorization through Auth0.",
+        "testStrategy": "Test analytics endpoints with sample data, validate query performance with large datasets, test pagination and filtering functionality, verify caching effectiveness, test user data isolation and authorization. All database tests run against PostgreSQL container with proper setup/teardown.",
         "subtasks": []
       },
       {
         "id": 8,
         "title": "Build Analytics Dashboard Frontend",
-        "description": "Create interactive dashboard for spending visualization and receipt management",
+        "description": "Create interactive dashboard for spending visualization and receipt management with Auth0 user context",
         "status": "pending",
         "dependencies": [
           6,
           7
         ],
         "priority": "medium",
-        "details": "Implement responsive dashboard with chart libraries (Chart.js/D3.js), create monthly spending overview charts, category breakdown visualizations, receipt listing with search and filter capabilities, individual receipt detail views, ensure mobile responsiveness.",
-        "testStrategy": "Test dashboard responsiveness across devices, validate chart rendering with various data sets, test filtering and search functionality, verify user interaction flows. Integration tests use PostgreSQL container for backend data validation.",
+        "details": "Implement responsive dashboard with chart libraries (Chart.js/D3.js), create monthly spending overview charts, category breakdown visualizations, receipt listing with search and filter capabilities, individual receipt detail views, ensure mobile responsiveness, add user account management and switching interface.",
+        "testStrategy": "Test dashboard responsiveness across devices, validate chart rendering with various data sets, test filtering and search functionality, verify user interaction flows, test user account switching and data isolation. Integration tests use PostgreSQL container for backend data validation.",
         "subtasks": []
       },
       {
         "id": 9,
         "title": "Implement Data Export Functionality",
-        "description": "Create Excel export feature for expense data with date range selection",
+        "description": "Create Excel export feature for expense data with date range selection and user-specific data access",
         "status": "pending",
         "dependencies": [
           7
         ],
         "priority": "medium",
-        "details": "Build export API endpoint using openpyxl or similar library, implement date range filtering, create Excel templates with proper formatting for receipts and line items, add download functionality with proper file naming and headers.",
-        "testStrategy": "Test Excel export with various date ranges, validate file format and content accuracy, test download functionality across browsers, verify large dataset export performance. Database queries tested against PostgreSQL container.",
+        "details": "Build export API endpoint using openpyxl or similar library, implement date range filtering, create Excel templates with proper formatting for receipts and line items, add download functionality with proper file naming and headers, ensure user-specific data export with proper authorization.",
+        "testStrategy": "Test Excel export with various date ranges, validate file format and content accuracy, test download functionality across browsers, verify large dataset export performance, test user data isolation in exports. Database queries tested against PostgreSQL container.",
         "subtasks": []
       },
       {
         "id": 10,
         "title": "Implement Receipt Verification and Manual Override System",
-        "description": "Create system for validating AI parsing accuracy and allowing manual corrections",
+        "description": "Create system for validating AI parsing accuracy and allowing manual corrections with user-specific access",
         "status": "pending",
         "dependencies": [
           8
         ],
         "priority": "medium",
-        "details": "Build validation logic comparing parsed line items total with receipt total, create manual editing interface for correcting parsing errors, implement approval workflow for processed receipts, add bulk editing capabilities for categories and line items.",
-        "testStrategy": "Test validation logic with receipts containing various total discrepancies, validate manual editing interface functionality, test bulk operations performance, verify data integrity after manual corrections. All database operations tested using PostgreSQL container with proper isolation.",
+        "details": "Build validation logic comparing parsed line items total with receipt total, create manual editing interface for correcting parsing errors, implement approval workflow for processed receipts, add bulk editing capabilities for categories and line items, ensure proper user authorization for editing operations.",
+        "testStrategy": "Test validation logic with receipts containing various total discrepancies, validate manual editing interface functionality, test bulk operations performance, verify data integrity after manual corrections, test user-specific editing permissions. All database operations tested using PostgreSQL container with proper isolation.",
         "subtasks": []
       }
     ],
