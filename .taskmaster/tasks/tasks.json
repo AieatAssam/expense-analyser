@@ -88,7 +88,50 @@
         "priority": "high",
         "details": "Implement JWT-based authentication with FastAPI security utilities, create user registration and login endpoints, add password hashing with bcrypt, implement session management and protected route decorators.",
         "testStrategy": "Test user registration flow, login/logout functionality, JWT token validation, and protected endpoint access control using PostgreSQL container for database operations during tests",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "JWT Implementation Setup",
+            "description": "Implement JWT token generation, validation, and configuration including secret key management and token expiration settings",
+            "dependencies": [],
+            "details": "Set up JWT library, create token generation functions, implement token validation logic, and configure security settings for token handling",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Password Hashing Implementation",
+            "description": "Implement secure password hashing using bcrypt or similar library with proper salt generation and verification functions",
+            "dependencies": [],
+            "details": "Install and configure password hashing library, create functions for hashing passwords during registration and verifying passwords during login",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "User Registration and Login Endpoints",
+            "description": "Create FastAPI endpoints for user registration and login with proper validation, error handling, and JWT token generation",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Implement /register endpoint with user creation logic, /login endpoint with authentication verification, include input validation and appropriate HTTP responses",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Protected Route Middleware and Logout",
+            "description": "Implement JWT authentication middleware for protecting routes and create logout endpoint with token invalidation",
+            "dependencies": [
+              1,
+              3
+            ],
+            "details": "Create middleware to verify JWT tokens on protected routes, implement logout endpoint, add route protection decorators, and handle token expiration scenarios",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 3,
