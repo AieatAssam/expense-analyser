@@ -5,7 +5,7 @@
         "id": 1,
         "title": "Setup Project Infrastructure and Database Schema",
         "description": "Initialize project structure with Docker containers, PostgreSQL database, and FastAPI backend foundation",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "Create Docker compose setup with PostgreSQL container, initialize FastAPI project structure, implement database models for User, Receipt, LineItem, and Categories tables with proper relationships and indexing. Set up Alembic for database migrations and create initial migration scripts.",
@@ -72,7 +72,7 @@
               5
             ],
             "details": "Create test configuration that starts PostgreSQL container before running tests, configure test database connection, implement test fixtures for database setup/teardown, add container lifecycle management in test scripts",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify tests can start PostgreSQL container, run all database tests, and clean up container after completion"
           }
         ]
@@ -200,7 +200,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T14:32:54.742Z",
-      "updated": "2025-07-06T19:44:05.231Z",
+      "updated": "2025-07-06T19:51:53.690Z",
       "description": "Tasks for master context"
     }
   }

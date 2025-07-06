@@ -1,3 +1,7 @@
+"""
+Test the database models with Docker PostgreSQL container.
+These tests are retained as they verify the docker-compose configuration.
+"""
 import os
 import yaml
 

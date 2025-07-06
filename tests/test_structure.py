@@ -45,7 +45,8 @@ def test_requirements_content():
         "sqlalchemy", 
         "alembic", 
         "psycopg2-binary", 
-        "pydantic"
+        "pydantic",
+        "docker"  # Required for container-based testing
     ]
     
     for package in essential_packages:

@@ -1,3 +1,7 @@
+"""
+Tests for API health and structure.
+These tests are kept to verify the API is correctly configured.
+"""
 import pytest
 from fastapi import status
 
