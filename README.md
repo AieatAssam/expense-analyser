@@ -68,4 +68,22 @@ Key environment variables include:
 
 ### Next Steps
 
-The FastAPI service is currently commented out in the docker-compose.yml file. It will be enabled once the API implementation is complete in future tasks.
+The FastAPI service is now enabled in the docker-compose.yml file and provides a basic API structure.
+
+### Running Tests
+
+To run the test suite:
+
+```bash
+# Install test dependencies
+pip install -r requirements.txt
+
+# Run tests
+./run_tests.sh
+```
+
+This will run the pytest suite with coverage reporting. Alternatively, you can run pytest directly:
+
+```bash
+pytest --cov=app tests/ -v
+```
