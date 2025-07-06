@@ -5,11 +5,11 @@
         "id": 1,
         "title": "Setup Project Infrastructure and Database Schema",
         "description": "Initialize project structure with Docker containers, PostgreSQL database, and FastAPI backend foundation",
-        "details": "Create Docker compose setup with PostgreSQL container, initialize FastAPI project structure, implement database models for User, Receipt, LineItem, and Categories tables with proper relationships and indexing. Set up Alembic for database migrations and create initial migration scripts.",
-        "testStrategy": "Verify database connection, test CRUD operations on all models, validate foreign key constraints and indexes performance",
-        "priority": "high",
-        "dependencies": [],
         "status": "in-progress",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Create Docker compose setup with PostgreSQL container, initialize FastAPI project structure, implement database models for User, Receipt, LineItem, and Categories tables with proper relationships and indexing. Set up Alembic for database migrations and create initial migration scripts.",
+        "testStrategy": "Verify database connection using PostgreSQL container, test CRUD operations on all models by starting container, running tests, then stopping container. Validate foreign key constraints and indexes performance with container-based testing.",
         "subtasks": [
           {
             "id": 1,
@@ -51,7 +51,7 @@
             ],
             "details": "Initialize Alembic in project, configure alembic.ini with database URL, set up env.py to import models, configure migration script template, ensure proper connection to PostgreSQL container",
             "status": "pending",
-            "testStrategy": "Test Alembic can connect to database and generate migration scripts"
+            "testStrategy": "Test Alembic can connect to database and generate migration scripts using PostgreSQL container"
           },
           {
             "id": 5,
@@ -62,7 +62,18 @@
             ],
             "details": "Generate initial migration script using Alembic autogenerate, review migration script for accuracy, apply migration to create all tables in PostgreSQL, verify all tables, indexes, and constraints are created correctly",
             "status": "pending",
-            "testStrategy": "Verify all tables exist in database with correct schema and can perform basic CRUD operations"
+            "testStrategy": "Verify all tables exist in database with correct schema and can perform basic CRUD operations using PostgreSQL container"
+          },
+          {
+            "id": 6,
+            "title": "Setup Container-Based Testing Infrastructure",
+            "description": "Configure test framework to use PostgreSQL container for unit tests",
+            "dependencies": [
+              5
+            ],
+            "details": "Create test configuration that starts PostgreSQL container before running tests, configure test database connection, implement test fixtures for database setup/teardown, add container lifecycle management in test scripts",
+            "status": "pending",
+            "testStrategy": "Verify tests can start PostgreSQL container, run all database tests, and clean up container after completion"
           }
         ]
       },
@@ -70,120 +81,120 @@
         "id": 2,
         "title": "Implement Basic Authentication System",
         "description": "Create user registration, login, and session management functionality",
-        "details": "Implement JWT-based authentication with FastAPI security utilities, create user registration and login endpoints, add password hashing with bcrypt, implement session management and protected route decorators.",
-        "testStrategy": "Test user registration flow, login/logout functionality, JWT token validation, and protected endpoint access control",
-        "priority": "high",
+        "status": "pending",
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "priority": "high",
+        "details": "Implement JWT-based authentication with FastAPI security utilities, create user registration and login endpoints, add password hashing with bcrypt, implement session management and protected route decorators.",
+        "testStrategy": "Test user registration flow, login/logout functionality, JWT token validation, and protected endpoint access control using PostgreSQL container for database operations during tests",
         "subtasks": []
       },
       {
         "id": 3,
         "title": "Develop LLM Integration for Receipt Processing",
         "description": "Create AI processing module using Gemini-2.5-flash with OpenAI-compatible fallback for receipt parsing",
-        "details": "Implement LLM client with configurable endpoints (Gemini-2.5-flash default, OpenAI-compatible alternative), create receipt parsing prompts that extract store name, date, total amount, and line items with categories, implement error handling and retry logic, add response validation.",
-        "testStrategy": "Test with various receipt formats, validate JSON output structure, measure parsing accuracy against known receipts, test failover between LLM providers",
-        "priority": "high",
+        "status": "pending",
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "priority": "high",
+        "details": "Implement LLM client with configurable endpoints (Gemini-2.5-flash default, OpenAI-compatible alternative), create receipt parsing prompts that extract store name, date, total amount, and line items with categories, implement error handling and retry logic, add response validation.",
+        "testStrategy": "Test with various receipt formats, validate JSON output structure, measure parsing accuracy against known receipts, test failover between LLM providers. Use PostgreSQL container for storing test data and results.",
         "subtasks": []
       },
       {
         "id": 4,
         "title": "Build Receipt Upload and Image Processing Pipeline",
         "description": "Create receipt image upload functionality with preprocessing and storage",
-        "details": "Implement FastAPI file upload endpoints supporting JPEG, PNG, and PDF formats (max 10MB), add image preprocessing for quality enhancement, create object storage system for receipt images, implement upload validation and error handling.",
-        "testStrategy": "Test file upload with various formats and sizes, validate image preprocessing quality, test storage and retrieval of images, verify upload limits and error handling",
-        "priority": "high",
+        "status": "pending",
         "dependencies": [
           2,
           3
         ],
-        "status": "pending",
+        "priority": "high",
+        "details": "Implement FastAPI file upload endpoints supporting JPEG, PNG, and PDF formats (max 10MB), add image preprocessing for quality enhancement, create object storage system for receipt images, implement upload validation and error handling.",
+        "testStrategy": "Test file upload with various formats and sizes, validate image preprocessing quality, test storage and retrieval of images, verify upload limits and error handling. Use PostgreSQL container for metadata storage tests.",
         "subtasks": []
       },
       {
         "id": 5,
         "title": "Implement Core Receipt Processing Workflow",
         "description": "Create end-to-end receipt processing from upload to data extraction and storage",
-        "details": "Build processing pipeline that takes uploaded images, calls LLM for data extraction, validates extracted data against receipt totals, stores structured data in database, handles processing errors gracefully, implements processing status tracking.",
-        "testStrategy": "Test complete workflow from image upload to data storage, validate data extraction accuracy, test error handling for parsing failures, verify processing status updates",
-        "priority": "high",
+        "status": "pending",
         "dependencies": [
           3,
           4
         ],
-        "status": "pending",
+        "priority": "high",
+        "details": "Build processing pipeline that takes uploaded images, calls LLM for data extraction, validates extracted data against receipt totals, stores structured data in database, handles processing errors gracefully, implements processing status tracking.",
+        "testStrategy": "Test complete workflow from image upload to data storage, validate data extraction accuracy, test error handling for parsing failures, verify processing status updates. All database operations tested using PostgreSQL container lifecycle management.",
         "subtasks": []
       },
       {
         "id": 6,
         "title": "Develop Basic Frontend Receipt Upload Interface",
         "description": "Create mobile-friendly web interface for receipt upload and processing status",
-        "details": "Build responsive React/Vue.js interface with camera capture and file upload capabilities, implement drag-and-drop functionality, add processing status indicators, create receipt preview and confirmation screens, ensure mobile-first responsive design.",
-        "testStrategy": "Test upload interface on mobile and desktop devices, validate file handling and preview functionality, test processing status updates in real-time",
-        "priority": "medium",
+        "status": "pending",
         "dependencies": [
           5
         ],
-        "status": "pending",
+        "priority": "medium",
+        "details": "Build responsive React/Vue.js interface with camera capture and file upload capabilities, implement drag-and-drop functionality, add processing status indicators, create receipt preview and confirmation screens, ensure mobile-first responsive design.",
+        "testStrategy": "Test upload interface on mobile and desktop devices, validate file handling and preview functionality, test processing status updates in real-time. Backend integration tests use PostgreSQL container for data persistence validation.",
         "subtasks": []
       },
       {
         "id": 7,
         "title": "Create Basic Analytics and Dashboard Backend",
         "description": "Implement API endpoints for spending analytics and data aggregation",
-        "details": "Create FastAPI endpoints for monthly spending summaries, category-based breakdowns, receipt listing with pagination, individual receipt details, implement efficient database queries with proper indexing, add caching for frequently accessed analytics data.",
-        "testStrategy": "Test analytics endpoints with sample data, validate query performance with large datasets, test pagination and filtering functionality, verify caching effectiveness",
-        "priority": "medium",
+        "status": "pending",
         "dependencies": [
           5
         ],
-        "status": "pending",
+        "priority": "medium",
+        "details": "Create FastAPI endpoints for monthly spending summaries, category-based breakdowns, receipt listing with pagination, individual receipt details, implement efficient database queries with proper indexing, add caching for frequently accessed analytics data.",
+        "testStrategy": "Test analytics endpoints with sample data, validate query performance with large datasets, test pagination and filtering functionality, verify caching effectiveness. All database tests run against PostgreSQL container with proper setup/teardown.",
         "subtasks": []
       },
       {
         "id": 8,
         "title": "Build Analytics Dashboard Frontend",
         "description": "Create interactive dashboard for spending visualization and receipt management",
-        "details": "Implement responsive dashboard with chart libraries (Chart.js/D3.js), create monthly spending overview charts, category breakdown visualizations, receipt listing with search and filter capabilities, individual receipt detail views, ensure mobile responsiveness.",
-        "testStrategy": "Test dashboard responsiveness across devices, validate chart rendering with various data sets, test filtering and search functionality, verify user interaction flows",
-        "priority": "medium",
+        "status": "pending",
         "dependencies": [
           6,
           7
         ],
-        "status": "pending",
+        "priority": "medium",
+        "details": "Implement responsive dashboard with chart libraries (Chart.js/D3.js), create monthly spending overview charts, category breakdown visualizations, receipt listing with search and filter capabilities, individual receipt detail views, ensure mobile responsiveness.",
+        "testStrategy": "Test dashboard responsiveness across devices, validate chart rendering with various data sets, test filtering and search functionality, verify user interaction flows. Integration tests use PostgreSQL container for backend data validation.",
         "subtasks": []
       },
       {
         "id": 9,
         "title": "Implement Data Export Functionality",
         "description": "Create Excel export feature for expense data with date range selection",
-        "details": "Build export API endpoint using openpyxl or similar library, implement date range filtering, create Excel templates with proper formatting for receipts and line items, add download functionality with proper file naming and headers.",
-        "testStrategy": "Test Excel export with various date ranges, validate file format and content accuracy, test download functionality across browsers, verify large dataset export performance",
-        "priority": "medium",
+        "status": "pending",
         "dependencies": [
           7
         ],
-        "status": "pending",
+        "priority": "medium",
+        "details": "Build export API endpoint using openpyxl or similar library, implement date range filtering, create Excel templates with proper formatting for receipts and line items, add download functionality with proper file naming and headers.",
+        "testStrategy": "Test Excel export with various date ranges, validate file format and content accuracy, test download functionality across browsers, verify large dataset export performance. Database queries tested against PostgreSQL container.",
         "subtasks": []
       },
       {
         "id": 10,
         "title": "Implement Receipt Verification and Manual Override System",
         "description": "Create system for validating AI parsing accuracy and allowing manual corrections",
-        "details": "Build validation logic comparing parsed line items total with receipt total, create manual editing interface for correcting parsing errors, implement approval workflow for processed receipts, add bulk editing capabilities for categories and line items.",
-        "testStrategy": "Test validation logic with receipts containing various total discrepancies, validate manual editing interface functionality, test bulk operations performance, verify data integrity after manual corrections",
-        "priority": "medium",
+        "status": "pending",
         "dependencies": [
           8
         ],
-        "status": "pending",
+        "priority": "medium",
+        "details": "Build validation logic comparing parsed line items total with receipt total, create manual editing interface for correcting parsing errors, implement approval workflow for processed receipts, add bulk editing capabilities for categories and line items.",
+        "testStrategy": "Test validation logic with receipts containing various total discrepancies, validate manual editing interface functionality, test bulk operations performance, verify data integrity after manual corrections. All database operations tested using PostgreSQL container with proper isolation.",
         "subtasks": []
       }
     ],
