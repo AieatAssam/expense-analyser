@@ -1,12 +1,40 @@
+
+import os
+os.environ["AUTH0_DOMAIN"] = "test-auth0-domain.auth0.com"
+os.environ["AUTH0_API_AUDIENCE"] = "test-api-audience"
+os.environ["AUTH0_JWKS"] = '{"keys": [{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": "testkey", "n": "testn", "e": "AQAB"}]}'
 import time
 import pytest
+import jose.jwt as jwt_mod
+from jose import JWTError
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 import docker
-
 from app.main import app
 from app.db.session import Base
+
+# Patch jose.jwt.decode globally for all tests before app import
+@pytest.fixture(scope="session", autouse=True)
+def patch_jwt_decode_session():
+    mp = pytest.MonkeyPatch()
+    def mock_jwt_decode(token, key, algorithms, audience, issuer):
+        if token == "invalid.token":
+            raise JWTError("Invalid token")
+        return {
+            "sub": "auth0|testuser",
+            "aud": audience,
+            "iss": issuer,
+            "email": "testuser@example.com"
+        }
+    def mock_get_unverified_header(token):
+        if token == "invalid.token":
+            raise JWTError("Invalid token header")
+        return {"alg": "RS256", "typ": "JWT", "kid": "testkey"}
+    mp.setattr(jwt_mod, "decode", mock_jwt_decode)
+    mp.setattr(jwt_mod, "get_unverified_header", mock_get_unverified_header)
+    yield
+    mp.undo()
 
 # Container configuration
 POSTGRES_TEST_DB = "expense_test_db"
@@ -28,13 +56,8 @@ def client():
 def postgres_container():
     """Start a PostgreSQL container for testing and clean up when done"""
     client = docker.from_env()
-    
     print("Starting PostgreSQL container for testing...")
-    
-    # Pull the PostgreSQL image if needed
     client.images.pull("postgres:16")
-    
-    # Create and start the container
     container = client.containers.run(
         "postgres:16",
         name="expense_test_db",
@@ -49,20 +72,13 @@ def postgres_container():
             "5432/tcp": POSTGRES_TEST_PORT
         }
     )
-    
-    # Wait for container to be ready
-    time.sleep(2)  # Give the container a moment to start
-    
-    # Wait for PostgreSQL to be ready
+    time.sleep(2)
     is_ready = False
     retry_count = 0
     max_retries = 10
-    
     while not is_ready and retry_count < max_retries:
         try:
-            # Try to create a test connection
             test_engine = create_engine(TEST_DATABASE_URL)
-            # Simply test the connection
             test_engine.connect().close()
             is_ready = True
             print("Successfully connected to PostgreSQL container")
@@ -70,14 +86,10 @@ def postgres_container():
             retry_count += 1
             print(f"Waiting for PostgreSQL to be ready... ({retry_count}/{max_retries})")
             time.sleep(1)
-    
     if not is_ready:
         container.stop()
         raise Exception("PostgreSQL container failed to become ready")
-    
     print("PostgreSQL test container is ready")
-    
-    # Return container info
     container_info = {
         "container": container,
         "db_url": TEST_DATABASE_URL,
@@ -86,10 +98,7 @@ def postgres_container():
         "password": POSTGRES_TEST_PASSWORD,
         "port": POSTGRES_TEST_PORT
     }
-    
     yield container_info
-    
-    # Cleanup: stop the container
     print("Stopping PostgreSQL test container...")
     container.stop()
     print("PostgreSQL test container stopped")
@@ -111,16 +120,18 @@ def test_db_engine(postgres_container):
 
 @pytest.fixture(scope="function")
 def test_db_session(test_db_engine):
-    """Creates a new database session for each test function"""
+    """Creates a new database session for each test function, using scoped_session for sharing."""
     connection = test_db_engine.connect()
     transaction = connection.begin()
     
-    TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=connection)
-    session = TestSessionLocal()
+    session_factory = sessionmaker(autocommit=False, autoflush=False, bind=connection)
+    Session = scoped_session(session_factory)
+    session = Session()
     
     yield session
     
     # Clean up
     session.close()
+    Session.remove()
     transaction.rollback()
     connection.close()
