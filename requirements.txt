@@ -1,3 +1,7 @@
+# Auth0 JWT and security dependencies
+python-jose[cryptography]
+fastapi[all]
+httpx
 fastapi>=0.100.0
 uvicorn>=0.23.0
 sqlalchemy>=2.0.0

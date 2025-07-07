@@ -1,15 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from app.models.user import User
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.schemas.invitation import InvitationCreate, InvitationOut, InvitationAccept
 from app.core.invitation import create_invitation, get_invitation_by_token, accept_invitation
 from app.db.session import get_db
-from app.models.user import User
-from app.models.invitation import Invitation
-# from app.core.auth import get_current_user  # Implement this for real auth
 
-def get_current_user():
-    # Dummy user for now, replace with real Auth0 integration
-    return User(id=1, email="dummy@example.com", hashed_password="", is_active=True, is_superuser=False)
+from app.core.auth import get_current_user
 
 router = APIRouter()
 
