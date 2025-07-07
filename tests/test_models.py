@@ -16,7 +16,7 @@ import pytest
 from datetime import datetime, timezone
 import uuid
 
-from app.models import User, Account, Category, Receipt, LineItem
+from app.models import User, Account, Category, Receipt, LineItem, Invitation
 
 # Use the container-based test database fixtures from conftest.py
 # No need to redefine db_engine and db_session fixtures here
@@ -367,6 +367,59 @@ class TestLineItemModel:
         test_db_session.refresh(fruits_category)
         assert len(fruits_category.line_items) >= 1
         assert any(item.name == "Apple" for item in fruits_category.line_items)
+
+
+class TestInvitationModel:
+    def test_create_invitation(self, test_db_session, test_user):
+        """Test that an Invitation can be created and linked to an account and inviter user"""
+        # Create an account for the user
+        account = Account(provider="auth0", provider_account_id="auth0|invitation", user_id=test_user.id)
+        test_db_session.add(account)
+        test_db_session.commit()
+        test_db_session.refresh(account)
+
+        invitation = Invitation(
+            email="invitee@example.com",
+            account_id=account.id,
+            inviter_user_id=test_user.id,
+            token="testtoken123",
+            accepted=False
+        )
+        test_db_session.add(invitation)
+        test_db_session.commit()
+        test_db_session.refresh(invitation)
+
+        # Check attributes
+        assert invitation.email == "invitee@example.com"
+        assert invitation.account_id == account.id
+        assert invitation.inviter_user_id == test_user.id
+        assert invitation.token == "testtoken123"
+        assert invitation.accepted is False
+        assert invitation.created_at is not None
+        assert invitation.account.id == account.id
+        assert invitation.inviter.id == test_user.id
+
+    def test_invitation_relationships(self, test_db_session, test_user):
+        from app.models import Account
+        account = Account(provider="auth0", provider_account_id="auth0|invrel", user_id=test_user.id)
+        test_db_session.add(account)
+        test_db_session.commit()
+        test_db_session.refresh(account)
+
+        invitation = Invitation(
+            email="rel@example.com",
+            account_id=account.id,
+            inviter_user_id=test_user.id,
+            token="rel-token",
+            accepted=False
+        )
+        test_db_session.add(invitation)
+        test_db_session.commit()
+        test_db_session.refresh(invitation)
+
+        # Test backrefs
+        assert invitation.account.invitations[0].id == invitation.id
+        assert invitation.inviter.sent_invitations[0].id == invitation.id
 
 
 class TestBaseModelFeatures:

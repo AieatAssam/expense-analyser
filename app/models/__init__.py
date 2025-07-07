@@ -5,6 +5,7 @@ from app.models.account import Account
 from app.models.category import Category
 from app.models.receipt import Receipt
 from app.models.line_item import LineItem
+from app.models.invitation import Invitation
 
 # For convenient access to all models
-__all__ = ["BaseModel", "User", "Account", "Category", "Receipt", "LineItem"]
+__all__ = ["BaseModel", "User", "Account", "Category", "Receipt", "LineItem", "Invitation"]

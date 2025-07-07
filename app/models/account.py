@@ -13,6 +13,7 @@ class Account(BaseModel):
 
     # Relationships
     user = relationship("User", back_populates="accounts")
+    invitations = relationship("Invitation", back_populates="account", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Account {self.provider}:{self.provider_account_id} for user {self.user_id}>"

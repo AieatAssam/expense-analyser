@@ -18,6 +18,7 @@ class User(BaseModel):
     # Relationships
     receipts = relationship("Receipt", back_populates="user", cascade="all, delete-orphan")
     accounts = relationship("Account", back_populates="user", cascade="all, delete-orphan")
+    sent_invitations = relationship("Invitation", back_populates="inviter", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User {self.email}>"

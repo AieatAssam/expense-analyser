@@ -116,7 +116,7 @@
               2
             ],
             "details": "Implement invitation endpoints, create invitation validation logic, add account pre-authorization system, implement invitation acceptance workflow",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -286,7 +286,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T14:32:54.742Z",
-      "updated": "2025-07-07T20:19:35.356Z",
+      "updated": "2025-07-07T20:35:03.012Z",
       "description": "Tasks for master context"
     }
   }
