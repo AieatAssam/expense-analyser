@@ -16,7 +16,7 @@ import pytest
 from datetime import datetime, timezone
 import uuid
 
-from app.models import User, Category, Receipt, LineItem
+from app.models import User, Account, Category, Receipt, LineItem
 
 # Use the container-based test database fixtures from conftest.py
 # No need to redefine db_engine and db_session fixtures here
@@ -113,9 +113,10 @@ def test_line_items(test_db_session, test_receipt, test_categories):
 
 
 # Tests for models
+
 class TestUserModel:
     def test_create_user(self, test_db_session):
-        """Test that a User can be created and has correct attributes"""
+        """Test that a User can be created and has correct attributes (multi-account ready)"""
         user = User(
             email="test@example.com",
             hashed_password="hashed_password",
@@ -134,18 +135,106 @@ class TestUserModel:
         assert retrieved_user.is_superuser is False
         assert retrieved_user.created_at is not None
         assert retrieved_user.updated_at is not None
-    
+        # User should have no accounts by default
+        assert hasattr(retrieved_user, "accounts")
+        assert isinstance(retrieved_user.accounts, list)
+        assert len(retrieved_user.accounts) == 0
+
     def test_user_receipt_relationship(self, test_user, test_receipt, test_db_session):
         """Test the relationship between User and Receipt"""
         # Refresh the user from DB to ensure relationships are loaded
         test_db_session.refresh(test_user)
-        
         # Check that the user has the receipt
         assert len(test_user.receipts) > 0
         assert test_user.receipts[0].id == test_receipt.id
-        
         # Check reciprocal relationship
         assert test_receipt.user.id == test_user.id
+
+    def test_user_account_relationship(self, test_db_session):
+        """Test the relationship between User and Account (multi-account support)"""
+        user = User(
+            email="multi@example.com",
+            hashed_password="hashed_password",
+            full_name="Multi Account User",
+            is_active=True,
+        )
+        test_db_session.add(user)
+        test_db_session.commit()
+        test_db_session.refresh(user)
+
+        # Add two accounts for different providers
+        account1 = Account(provider="auth0", provider_account_id="auth0|abc123", user_id=user.id)
+        account2 = Account(provider="google", provider_account_id="google-oauth2|xyz789", user_id=user.id)
+        test_db_session.add_all([account1, account2])
+        test_db_session.commit()
+        test_db_session.refresh(user)
+
+        # User should have two accounts
+        assert len(user.accounts) == 2
+        provider_names = {a.provider for a in user.accounts}
+        assert "auth0" in provider_names
+        assert "google" in provider_names
+        # Accounts should reference the user
+        for acc in user.accounts:
+            assert acc.user_id == user.id
+            assert acc.user.email == user.email
+
+
+# New tests for Account model
+class TestAccountModel:
+    def test_create_account(self, test_db_session, test_user):
+        """Test that an Account can be created and linked to a user"""
+        account = Account(
+            provider="auth0",
+            provider_account_id="auth0|testid",
+            user_id=test_user.id
+        )
+        test_db_session.add(account)
+        test_db_session.commit()
+        retrieved = test_db_session.query(Account).filter_by(provider_account_id="auth0|testid").first()
+        assert retrieved is not None
+        assert retrieved.provider == "auth0"
+        assert retrieved.user_id == test_user.id
+        assert retrieved.user.email == test_user.email
+
+    def test_account_provider_uniqueness(self, test_db_session, test_user):
+        """Test that multiple accounts with same provider but different provider_account_id can be linked to the same user"""
+        acc1 = Account(provider="auth0", provider_account_id="auth0|id1", user_id=test_user.id)
+        acc2 = Account(provider="auth0", provider_account_id="auth0|id2", user_id=test_user.id)
+        test_db_session.add_all([acc1, acc2])
+        test_db_session.commit()
+        accounts = test_db_session.query(Account).filter_by(user_id=test_user.id, provider="auth0").all()
+        assert len(accounts) == 2
+        ids = {a.provider_account_id for a in accounts}
+        assert "auth0|id1" in ids and "auth0|id2" in ids
+
+    def test_account_multiple_providers(self, test_db_session, test_user):
+        """Test that accounts from different providers can be linked to the same user"""
+        acc1 = Account(provider="auth0", provider_account_id="auth0|id3", user_id=test_user.id)
+        acc2 = Account(provider="google", provider_account_id="google-oauth2|id4", user_id=test_user.id)
+        test_db_session.add_all([acc1, acc2])
+        test_db_session.commit()
+        accounts = test_db_session.query(Account).filter_by(user_id=test_user.id).all()
+        providers = {a.provider for a in accounts}
+        assert "auth0" in providers and "google" in providers
+
+    def test_account_user_relationship_backref(self, test_db_session):
+        """Test that Account.user relationship works and user.accounts backref is correct"""
+        user = User(
+            email="backref@example.com",
+            hashed_password="pw",
+            full_name="Backref User",
+            is_active=True,
+        )
+        test_db_session.add(user)
+        test_db_session.commit()
+        acc = Account(provider="auth0", provider_account_id="auth0|backref", user_id=user.id)
+        test_db_session.add(acc)
+        test_db_session.commit()
+        test_db_session.refresh(user)
+        assert len(user.accounts) == 1
+        assert user.accounts[0].provider_account_id == "auth0|backref"
+        assert user.accounts[0].user.id == user.id
 
 
 class TestCategoryModel:
@@ -284,6 +373,7 @@ class TestBaseModelFeatures:
     def test_tablename_generation(self):
         """Test that __tablename__ is correctly generated from class name"""
         assert User.__tablename__ == "user"
+        assert Account.__tablename__ == "account"
         assert Category.__tablename__ == "category"
         assert Receipt.__tablename__ == "receipt"
         assert LineItem.__tablename__ == "lineitem"

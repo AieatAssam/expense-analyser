@@ -12,10 +12,12 @@ class User(BaseModel):
     full_name = Column(String(255))
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
-    auth0_user_id = Column(String(128), unique=True, index=True, nullable=True, doc="Auth0 user ID")
+
+    # Remove single auth0_user_id, support multiple accounts via Account model
 
     # Relationships
     receipts = relationship("Receipt", back_populates="user", cascade="all, delete-orphan")
+    accounts = relationship("Account", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User {self.email}>"
