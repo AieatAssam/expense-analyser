@@ -193,7 +193,7 @@
               1
             ],
             "details": "Design prompt templates for receipt parsing, implement JSON schema validation for extracted data, create prompt variations for different receipt types, add few-shot examples for improved accuracy, implement prompt versioning and A/B testing capabilities.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Use pytest with parametrized test cases for different receipt formats, test JSON schema validation with pytest-jsonschema, implement A/B testing validation using pytest fixtures and statistical analysis libraries."
           },
           {
@@ -330,7 +330,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T14:32:54.742Z",
-      "updated": "2025-07-14T21:23:25.411Z",
+      "updated": "2025-07-14T21:27:05.788Z",
       "description": "Tasks for master context"
     }
   }
