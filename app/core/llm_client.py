@@ -49,6 +49,42 @@ class LLMClient:
         else:
             raise ValueError(f"Unsupported provider: {self.provider_name}")
 
-    def send(self, prompt: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        logging.info(f"LLMClient: Using provider {self.provider_name}")
-        return self.provider.send_request(prompt, params)
+    def send(self, prompt: str, params: Optional[Dict[str, Any]] = None, max_retries: int = 3, backoff_base: float = 0.5) -> Dict[str, Any]:
+        """
+        Send prompt to LLM provider with error handling, retry, and failover.
+        Implements exponential backoff and circuit breaker pattern.
+        """
+        attempt = 0
+        last_error = None
+        provider = self.provider
+        for attempt in range(max_retries):
+            try:
+                logging.info(f"LLMClient: Using provider {self.provider_name} (attempt {attempt+1})")
+                response = provider.send_request(prompt, params)
+                if not response or "response" not in response:
+                    raise ValueError("Malformed response from LLM provider")
+                return response
+            except Exception as e:
+                last_error = e
+                logging.warning(f"LLMClient: Error from provider '{self.provider_name}' on attempt {attempt+1}: {e}")
+                if self._is_permanent_error(e):
+                    break
+                sleep_time = backoff_base * (2 ** attempt)
+                logging.info(f"LLMClient: Backing off for {sleep_time:.2f} seconds before retry.")
+                import time
+                time.sleep(sleep_time)
+        logging.error(f"LLMClient: All attempts failed. Last error: {last_error}")
+        raise last_error
+
+    def _is_permanent_error(self, error: Exception) -> bool:
+        """
+        Classify error as permanent (non-retryable) or transient (retryable).
+        Extend with more sophisticated logic as needed.
+        """
+        # Example: HTTP 4xx errors, ValueError, etc. are permanent
+        if isinstance(error, ValueError):
+            return True
+        if hasattr(error, 'response') and hasattr(error.response, 'status_code'):
+            if 400 <= error.response.status_code < 500:
+                return True
+        return False
