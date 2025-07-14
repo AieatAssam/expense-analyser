@@ -5,11 +5,13 @@ from .llm_gemini import GeminiProvider
 from .llm_openai import OpenAIProvider
 
 class LLMClient:
-    def __init__(self, config: Optional[Dict[str, Any]] = None, provider_cls: Optional[type] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None, provider_cls: Optional[type] = None, cache_ttl: int = 60):
         self.config = config or self._load_config()
         self.provider_name = self.config.get("provider", "gemini")
         self.provider_cls = provider_cls
         self.provider = self._init_provider()
+        self._cache = {}  # key: hash, value: (response, timestamp)
+        self._cache_ttl = cache_ttl
         logging.basicConfig(level=logging.INFO)
 
     def _load_config(self) -> Dict[str, Any]:
@@ -51,9 +53,22 @@ class LLMClient:
 
     def send(self, prompt: str, params: Optional[Dict[str, Any]] = None, max_retries: int = 3, backoff_base: float = 0.5) -> Dict[str, Any]:
         """
-        Send prompt to LLM provider with error handling, retry, and failover.
-        Implements exponential backoff and circuit breaker pattern.
+        Send prompt to LLM provider with error handling, retry, failover, and caching.
+        Implements exponential backoff, circuit breaker, and response caching/deduplication with TTL expiry.
         """
+        import hashlib
+        import json
+        import time
+        cache_key = hashlib.sha256((prompt + json.dumps(params or {}, sort_keys=True)).encode()).hexdigest()
+        now = time.time()
+        if cache_key in self._cache:
+            cached_response, cached_time = self._cache[cache_key]
+            if now - cached_time < self._cache_ttl:
+                logging.info(f"LLMClient: Returning cached response for key {cache_key}")
+                return cached_response
+            else:
+                logging.info(f"LLMClient: Cache expired for key {cache_key}")
+                del self._cache[cache_key]
         attempt = 0
         last_error = None
         provider = self.provider
@@ -63,6 +78,7 @@ class LLMClient:
                 response = provider.send_request(prompt, params)
                 if not response or "response" not in response:
                     raise ValueError("Malformed response from LLM provider")
+                self._cache[cache_key] = (response, now)
                 return response
             except Exception as e:
                 last_error = e
@@ -71,7 +87,6 @@ class LLMClient:
                     break
                 sleep_time = backoff_base * (2 ** attempt)
                 logging.info(f"LLMClient: Backing off for {sleep_time:.2f} seconds before retry.")
-                import time
                 time.sleep(sleep_time)
         logging.error(f"LLMClient: All attempts failed. Last error: {last_error}")
         raise last_error
