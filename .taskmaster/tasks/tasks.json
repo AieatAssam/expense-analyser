@@ -153,22 +153,10 @@
           },
           {
             "id": 7,
-            "title": "Develop Authentication Workflow End-to-End Tests",
-            "description": "Implement automated end-to-end tests covering complete user authentication workflows from registration through multi-account management",
-            "dependencies": [
-              5
-            ],
-            "details": "Create browser automation tests for login flows, account switching, invitation acceptance, and role-based access control. Test mobile and desktop interfaces.",
-            "status": "pending",
-            "testStrategy": ""
-          },
-          {
-            "id": 8,
             "title": "Implement Auth0 Security Monitoring and Logging",
             "description": "Add comprehensive logging, monitoring, and alerting for authentication events, security incidents, and performance metrics",
             "dependencies": [
-              6,
-              7
+              6
             ],
             "details": "Implement structured logging for auth events, security monitoring dashboards, failed login attempt tracking, and automated alerts for suspicious activities.",
             "status": "pending",
@@ -255,7 +243,7 @@
         ],
         "priority": "medium",
         "details": "Implement responsive dashboard with chart libraries (Chart.js/D3.js), create monthly spending overview charts, category breakdown visualizations, receipt listing with search and filter capabilities, individual receipt detail views, ensure mobile responsiveness, add user account management and switching interface.",
-        "testStrategy": "Test dashboard responsiveness across devices, validate chart rendering with various data sets, test filtering and search functionality, verify user interaction flows, test user account switching and data isolation. Integration tests use PostgreSQL container for backend data validation.",
+        "testStrategy": "Test dashboard responsiveness across devices, validate chart rendering with various data sets, test filtering and search functionality, verify user interaction flows, test user account switching and data isolation, implement automated end-to-end tests covering complete user authentication workflows from registration through multi-account management. Create browser automation tests for login flows, account switching, invitation acceptance, and role-based access control. Test mobile and desktop interfaces. Integration tests use PostgreSQL container for backend data validation.",
         "subtasks": []
       },
       {
