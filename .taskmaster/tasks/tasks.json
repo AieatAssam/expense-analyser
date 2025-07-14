@@ -81,7 +81,7 @@
         "id": 2,
         "title": "Implement Auth0 Authentication System",
         "description": "Create Auth0 integration with multi-account support and user management functionality",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           1
         ],
@@ -168,14 +168,69 @@
         "id": 3,
         "title": "Develop LLM Integration for Receipt Processing",
         "description": "Create AI processing module using Gemini-2.5-flash with OpenAI-compatible fallback for receipt parsing",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           1
         ],
         "priority": "high",
         "details": "Implement LLM client with configurable endpoints (Gemini-2.5-flash default, OpenAI-compatible alternative), create receipt parsing prompts that extract store name, date, total amount, and line items with categories, implement error handling and retry logic, add response validation.",
-        "testStrategy": "Test with various receipt formats, validate JSON output structure, measure parsing accuracy against known receipts, test failover between LLM providers. Use PostgreSQL container for storing test data and results.",
-        "subtasks": []
+        "testStrategy": "Use pytest for backend testing with various receipt formats, validate JSON output structure using pytest fixtures, measure parsing accuracy against known receipts with pytest parametrize, test failover between LLM providers using mock objects. Use PostgreSQL container for storing test data and results.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "LLM Client Configuration and Provider Abstraction",
+            "description": "Design and implement a flexible LLM client abstraction layer that supports multiple providers (Gemini-2.5-flash as primary, OpenAI-compatible as fallback) with configurable endpoints, authentication, and provider-specific parameter handling.",
+            "dependencies": [],
+            "details": "Create abstract base class for LLM providers, implement Gemini and OpenAI provider classes, add configuration management for API keys and endpoints, implement provider selection logic with automatic failover capabilities, add request/response logging and monitoring.",
+            "status": "done",
+            "testStrategy": "Test provider abstraction with pytest, use mock objects to test failover logic, validate configuration loading with pytest fixtures, test authentication mechanisms with pytest-asyncio for async operations."
+          },
+          {
+            "id": 2,
+            "title": "Receipt Parsing Prompt Engineering and Validation",
+            "description": "Develop and optimize prompts for receipt data extraction, ensuring consistent JSON output format for store name, date, total amount, and categorized line items across different receipt formats and languages.",
+            "dependencies": [
+              1
+            ],
+            "details": "Design prompt templates for receipt parsing, implement JSON schema validation for extracted data, create prompt variations for different receipt types, add few-shot examples for improved accuracy, implement prompt versioning and A/B testing capabilities.",
+            "status": "pending",
+            "testStrategy": "Use pytest with parametrized test cases for different receipt formats, test JSON schema validation with pytest-jsonschema, implement A/B testing validation using pytest fixtures and statistical analysis libraries."
+          },
+          {
+            "id": 3,
+            "title": "Error Handling and Retry Logic Implementation",
+            "description": "Build robust error handling system with intelligent retry mechanisms for LLM API failures, rate limiting, timeout handling, and graceful degradation between providers.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement exponential backoff retry strategy, add circuit breaker pattern for provider health monitoring, create error classification system (transient vs permanent), implement provider failover logic, add comprehensive logging for debugging and monitoring.",
+            "status": "pending",
+            "testStrategy": "Test retry logic with pytest and mock API responses, validate circuit breaker behavior using time-based pytest fixtures, test error classification with pytest parametrize for different error types, use pytest-asyncio for async retry testing."
+          },
+          {
+            "id": 4,
+            "title": "Response Validation and Data Structure Mapping",
+            "description": "Create comprehensive validation system for LLM responses, mapping extracted data to internal data structures, and ensuring data quality and consistency before database storage.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement JSON schema validation for LLM responses, create data transformation layer to map to internal models, add business logic validation (date formats, amount calculations), implement confidence scoring for extracted data, create fallback parsing strategies for malformed responses.",
+            "status": "pending",
+            "testStrategy": "Test validation logic with pytest and comprehensive test datasets, use pytest-pydantic for model validation testing, implement property-based testing with hypothesis for edge cases, validate data transformations with pytest fixtures."
+          },
+          {
+            "id": 5,
+            "title": "Performance Optimization and Caching Strategies",
+            "description": "Implement caching mechanisms and performance optimizations for LLM requests, including response caching, request deduplication, and async processing capabilities to improve system efficiency.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Implement Redis-based response caching with configurable TTL, add request deduplication based on image hashes, create async processing queue for batch operations, implement request batching for similar receipts, add performance monitoring and metrics collection.",
+            "status": "pending",
+            "testStrategy": "Test caching behavior with pytest and Redis test containers, validate deduplication logic using pytest fixtures, benchmark performance improvements with pytest-benchmark, test async processing with pytest-asyncio."
+          }
+        ]
       },
       {
         "id": 4,
@@ -188,7 +243,7 @@
         ],
         "priority": "high",
         "details": "Implement FastAPI file upload endpoints supporting JPEG, PNG, and PDF formats (max 10MB), add image preprocessing for quality enhancement, create object storage system for receipt images, implement upload validation and error handling, ensure proper user association through Auth0 authentication.",
-        "testStrategy": "Test file upload with various formats and sizes, validate image preprocessing quality, test storage and retrieval of images, verify upload limits and error handling, test user-specific receipt association. Use PostgreSQL container for metadata storage tests.",
+        "testStrategy": "Test file upload endpoints with pytest and test client, validate image preprocessing quality using pytest fixtures with sample images, test storage and retrieval operations with pytest and mock storage, verify upload limits and error handling with pytest parametrize, test user-specific receipt association using pytest database fixtures. Use PostgreSQL container for metadata storage tests.",
         "subtasks": []
       },
       {
@@ -202,7 +257,7 @@
         ],
         "priority": "high",
         "details": "Build processing pipeline that takes uploaded images, calls LLM for data extraction, validates extracted data against receipt totals, stores structured data in database with proper user association, handles processing errors gracefully, implements processing status tracking.",
-        "testStrategy": "Test complete workflow from image upload to data storage, validate data extraction accuracy, test error handling for parsing failures, verify processing status updates, ensure proper user isolation. All database operations tested using PostgreSQL container lifecycle management.",
+        "testStrategy": "Test complete workflow with pytest integration tests from image upload to data storage, validate data extraction accuracy using pytest fixtures with known receipts, test error handling for parsing failures with pytest exception testing, verify processing status updates with pytest database assertions, ensure proper user isolation using pytest user fixtures. All database operations tested using PostgreSQL container lifecycle management.",
         "subtasks": []
       },
       {
@@ -229,7 +284,7 @@
         ],
         "priority": "medium",
         "details": "Create FastAPI endpoints for monthly spending summaries, category-based breakdowns, receipt listing with pagination, individual receipt details, implement efficient database queries with proper indexing and user-specific data filtering, add caching for frequently accessed analytics data, ensure proper user authorization through Auth0.",
-        "testStrategy": "Test analytics endpoints with sample data, validate query performance with large datasets, test pagination and filtering functionality, verify caching effectiveness, test user data isolation and authorization. All database tests run against PostgreSQL container with proper setup/teardown.",
+        "testStrategy": "Test analytics endpoints with pytest and FastAPI test client using sample data, validate query performance with large datasets using pytest-benchmark, test pagination and filtering functionality with pytest parametrize, verify caching effectiveness with pytest and Redis test containers, test user data isolation and authorization using pytest fixtures. All database tests run against PostgreSQL container with proper setup/teardown.",
         "subtasks": []
       },
       {
@@ -243,7 +298,7 @@
         ],
         "priority": "medium",
         "details": "Implement responsive dashboard with chart libraries (Chart.js/D3.js), create monthly spending overview charts, category breakdown visualizations, receipt listing with search and filter capabilities, individual receipt detail views, ensure mobile responsiveness, add user account management and switching interface.",
-        "testStrategy": "Test dashboard responsiveness across devices, validate chart rendering with various data sets, test filtering and search functionality, verify user interaction flows, test user account switching and data isolation, implement automated end-to-end tests covering complete user authentication workflows from registration through multi-account management. Create browser automation tests for login flows, account switching, invitation acceptance, and role-based access control. Test mobile and desktop interfaces. Integration tests use PostgreSQL container for backend data validation.",
+        "testStrategy": "Test dashboard responsiveness across devices using Playwright for end-to-end testing, validate chart rendering with various data sets using Jest for component testing, test filtering and search functionality with React Testing Library, verify user interaction flows with Cypress, test user account switching and data isolation using integration tests, implement automated end-to-end tests covering complete user authentication workflows from registration through multi-account management. Create browser automation tests for login flows, account switching, invitation acceptance, and role-based access control using Playwright. Test mobile and desktop interfaces with responsive design validation. Integration tests use PostgreSQL container for backend data validation.",
         "subtasks": []
       },
       {
@@ -256,7 +311,7 @@
         ],
         "priority": "medium",
         "details": "Build export API endpoint using openpyxl or similar library, implement date range filtering, create Excel templates with proper formatting for receipts and line items, add download functionality with proper file naming and headers, ensure user-specific data export with proper authorization.",
-        "testStrategy": "Test Excel export with various date ranges, validate file format and content accuracy, test download functionality across browsers, verify large dataset export performance, test user data isolation in exports. Database queries tested against PostgreSQL container.",
+        "testStrategy": "Test Excel export functionality with pytest and FastAPI test client for various date ranges, validate file format and content accuracy using pytest fixtures to compare generated vs expected Excel files, test download functionality across browsers using Playwright, verify large dataset export performance with pytest-benchmark, test user data isolation in exports using pytest user fixtures. Database queries tested against PostgreSQL container.",
         "subtasks": []
       },
       {
@@ -269,13 +324,13 @@
         ],
         "priority": "medium",
         "details": "Build validation logic comparing parsed line items total with receipt total, create manual editing interface for correcting parsing errors, implement approval workflow for processed receipts, add bulk editing capabilities for categories and line items, ensure proper user authorization for editing operations.",
-        "testStrategy": "Test validation logic with receipts containing various total discrepancies, validate manual editing interface functionality, test bulk operations performance, verify data integrity after manual corrections, test user-specific editing permissions. All database operations tested using PostgreSQL container with proper isolation.",
+        "testStrategy": "Test validation logic with pytest using receipts containing various total discrepancies, validate manual editing interface functionality with React Testing Library and Jest, test bulk operations performance with pytest-benchmark, verify data integrity after manual corrections using pytest database assertions, test user-specific editing permissions with pytest authorization fixtures. All database operations tested using PostgreSQL container with proper isolation.",
         "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-07-06T14:32:54.742Z",
-      "updated": "2025-07-14T21:05:33.003Z",
+      "updated": "2025-07-14T21:23:25.411Z",
       "description": "Tasks for master context"
     }
   }
