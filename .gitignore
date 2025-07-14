@@ -68,5 +68,8 @@ ENV/
 *.db
 *.sqlite3
 
+# Coverage reports
+.coverage
+
 # Receipt uploads
 uploads/

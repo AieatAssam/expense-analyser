@@ -30,12 +30,14 @@ def get_current_user(
     db: Session = Depends(get_db),
 ) -> User:
     import logging
+    logger = logging.getLogger("auth.security")
     token = credentials.credentials
-    logging.warning(f"[DEBUG] get_current_user: token={token}")
+    logger.info("Auth event: Received token for validation")
+    logger.debug(f"Token: {token}")
     try:
         # Decode header to get kid
         unverified_header = jwt.get_unverified_header(token)
-        logging.warning(f"[DEBUG] get_current_user: unverified_header={unverified_header}")
+        logger.debug(f"JWT header: {unverified_header}")
         jwks = get_jwks()
         rsa_key = {}
         for key in jwks["keys"]:
@@ -47,9 +49,9 @@ def get_current_user(
                     "n": key["n"],
                     "e": key["e"],
                 }
-        logging.warning(f"[DEBUG] get_current_user: rsa_key={rsa_key}")
+        logger.debug(f"RSA key used for JWT validation: {rsa_key}")
         if not rsa_key:
-            logging.warning("[DEBUG] get_current_user: No RSA key found for kid")
+            logger.error("Security incident: No RSA key found for JWT kid")
             raise HTTPException(status_code=401, detail="Invalid token header")
         payload = jwt.decode(
             token,
@@ -58,25 +60,29 @@ def get_current_user(
             audience=API_AUDIENCE,
             issuer=f"https://{AUTH0_DOMAIN}/",
         )
-        logging.warning(f"[DEBUG] get_current_user: payload={payload}")
+        logger.info(f"Auth event: JWT validated successfully for subject {payload.get('sub')}")
+        logger.debug(f"JWT payload: {payload}")
         sub = payload.get("sub")
         email = payload.get("email")
         if not sub or not email:
-            logging.warning("[DEBUG] get_current_user: sub or email missing in payload")
+            logger.error("Security incident: sub or email missing in JWT payload")
             raise HTTPException(status_code=401, detail="Invalid token payload")
         # Check if user exists
         account = db.query(Account).filter(Account.provider=="auth0", Account.provider_account_id==sub).first()
-        logging.warning(f"[DEBUG] get_current_user: account={account}")
+        logger.info(f"Auth event: Account lookup for sub {sub} result: {bool(account)}")
+        logger.debug(f"Account object: {account}")
         if account:
             user = db.query(User).filter(User.id==account.user_id).first()
-            logging.warning(f"[DEBUG] get_current_user: user={user}")
+            logger.info(f"Auth event: User lookup for account {account.id} result: {bool(user)}")
+            logger.debug(f"User object: {user}")
             if not user:
-                logging.warning("[DEBUG] get_current_user: User not found for account")
+                logger.error("Security incident: User not found for account")
                 raise HTTPException(status_code=401, detail="User not found")
+            logger.info(f"Auth event: Authenticated user {user.email}")
             return user
         # If no users exist, auto-create first user
         user_count = db.query(User).count()
-        logging.warning(f"[DEBUG] get_current_user: user_count={user_count}")
+        logger.info(f"Auth event: User count in DB: {user_count}")
         if user_count == 0:
             user = User(email=email, hashed_password="", is_active=True, is_superuser=True)
             db.add(user)
@@ -86,11 +92,11 @@ def get_current_user(
             db.add(account)
             db.commit()
             db.refresh(account)
-            logging.warning(f"[DEBUG] get_current_user: auto-created user={user}, account={account}")
+            logger.info(f"Auth event: Auto-created first user {user.email} and account {account.id}")
             return user
         # Otherwise, not authorized
-        logging.warning("[DEBUG] get_current_user: Account not linked. Ask admin for invitation.")
+        logger.warning(f"Security incident: Account {sub} not linked. Invitation required.")
         raise HTTPException(status_code=403, detail="Account not linked. Ask admin for invitation.")
     except JWTError as e:
-        logging.warning(f"[DEBUG] get_current_user: JWTError: {e}")
+        logger.error(f"Security incident: JWTError during token validation: {e}")
         raise HTTPException(status_code=401, detail="Invalid token")
