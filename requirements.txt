@@ -18,6 +18,12 @@ pillow>=10.0.0
 httpx>=0.24.0
 openpyxl>=3.1.2
 
+# LLM dependencies
+google-generativeai>=0.3.0  # Gemini API
+openai>=1.0.0  # OpenAI API
+jsonschema>=4.0.0  # For schema validation
+redis>=5.0.0  # For caching
+
 # Testing dependencies
 pytest>=7.4.0
 pytest-asyncio>=0.21.1
@@ -25,3 +31,4 @@ pytest-cov>=4.1.0
 httpx>=0.24.0
 PyYAML>=6.0
 docker>=6.1.0  # For container-based testing
+pytest-mock>=3.10.0  # For mocking in tests
