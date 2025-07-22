@@ -250,7 +250,7 @@
         "id": 5,
         "title": "Implement Core Receipt Processing Workflow",
         "description": "Create end-to-end receipt processing from upload to data extraction and storage",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           3,
           4
@@ -258,7 +258,61 @@
         "priority": "high",
         "details": "Build processing pipeline that takes uploaded images, calls LLM for data extraction, validates extracted data against receipt totals, stores structured data in database with proper user association, handles processing errors gracefully, implements processing status tracking.",
         "testStrategy": "Test complete workflow with pytest integration tests from image upload to data storage, validate data extraction accuracy using pytest fixtures with known receipts, test error handling for parsing failures with pytest exception testing, verify processing status updates with pytest database assertions, ensure proper user isolation using pytest user fixtures. All database operations tested using PostgreSQL container lifecycle management.",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Processing Pipeline Orchestration",
+            "description": "Design and implement the main orchestration layer that coordinates the entire receipt processing workflow from upload to completion",
+            "dependencies": [],
+            "details": "Create ProcessingOrchestrator class that manages the sequential flow of receipt processing stages, implements proper error handling and recovery mechanisms, coordinates between different processing components, and ensures atomicity of operations",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "LLM Integration and Data Extraction",
+            "description": "Integrate with LLM service to extract structured data from receipt images using existing LLMClient and validation components",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Utilize existing LLMClient, LLMReceiptValidator, and ReceiptUploadService to process uploaded images, extract receipt data including line items, totals, and metadata, handle LLM response parsing and validation, implement fallback mechanisms for extraction failures",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Data Validation and Error Handling",
+            "description": "Implement comprehensive validation of extracted receipt data and robust error handling throughout the processing pipeline",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Create validation layer that verifies extracted data integrity, implements business logic validation rules, handles various error scenarios gracefully with proper logging, creates recovery mechanisms for transient failures, and ensures data consistency",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Database Storage and User Association",
+            "description": "Store validated receipt data in the database with proper user association and maintain data relationships",
+            "dependencies": [
+              "5.3"
+            ],
+            "details": "Implement database operations to store receipt data with proper user association through Auth0 integration, maintain referential integrity between receipts and line items, handle concurrent access scenarios, and ensure proper indexing for performance",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Status Tracking and Monitoring System",
+            "description": "Implement comprehensive status tracking and monitoring for receipt processing operations with real-time updates",
+            "dependencies": [
+              "5.4"
+            ],
+            "details": "Create status tracking system that monitors processing progress, implements real-time status updates for users, provides detailed logging and metrics collection, handles processing timeouts and failures, and enables processing status queries and notifications",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 6,
@@ -330,7 +384,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T14:32:54.742Z",
-      "updated": "2025-07-22T22:05:56.978Z",
+      "updated": "2025-07-22T22:58:57.371Z",
       "description": "Tasks for master context"
     }
   }

@@ -1,7 +1,32 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from app.schemas.base import ResponseBase
+
+class ProcessingEventResponse(BaseModel):
+    id: int
+    receipt_id: int
+    event_type: str
+    status: str
+    message: Optional[str] = None
+    timestamp: datetime
+    details: Optional[Dict[str, Any]] = None
+    
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+class ProcessingStatusResponse(BaseModel):
+    receipt_id: int
+    current_status: str
+    events: List[ProcessingEventResponse]
+    latest_event: Optional[ProcessingEventResponse] = None
+    processing_duration_seconds: Optional[float] = None
+    has_errors: bool
+    is_completed: bool
+    
+    class Config:
+        from_attributes = True
 
 class ReceiptBase(BaseModel):
     store_name: Optional[str] = None
@@ -38,12 +63,19 @@ class ReceiptInDB(ReceiptBase):
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 class ReceiptResponse(ResponseBase):
     data: ReceiptInDB
+    
+    class Config:
+        from_attributes = True
 
 class ReceiptListResponse(ResponseBase):
     data: List[ReceiptInDB]
+    
+    class Config:
+        from_attributes = True
 
 class FileUploadResponse(ResponseBase):
     receipt_id: int

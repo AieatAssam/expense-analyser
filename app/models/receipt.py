@@ -29,6 +29,7 @@ class Receipt(BaseModel):
     # Relationships
     user = relationship("User", back_populates="receipts")
     line_items = relationship("LineItem", back_populates="receipt", cascade="all, delete-orphan")
+    processing_events = relationship("ProcessingEvent", back_populates="receipt", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Receipt {self.store_name} {self.receipt_date} ${self.total_amount}>"
