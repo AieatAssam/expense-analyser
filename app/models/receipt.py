@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Boolean, Text, Integer
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Boolean, Text, Integer, LargeBinary
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -16,7 +16,8 @@ class Receipt(BaseModel):
     receipt_number = Column(String(100), nullable=True)
     
     # Processing metadata
-    image_path = Column(String(255), nullable=True)
+    image_data = Column(LargeBinary, nullable=True)  # Store image directly in DB
+    image_format = Column(String(10), nullable=True)  # File extension/format
     raw_text = Column(Text, nullable=True)
     processing_status = Column(String(50), default="pending", nullable=False)
     is_verified = Column(Boolean, default=False)

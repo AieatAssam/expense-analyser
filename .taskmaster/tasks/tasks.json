@@ -168,7 +168,7 @@
         "id": 3,
         "title": "Develop LLM Integration for Receipt Processing",
         "description": "Create AI processing module using Gemini-2.5-flash with OpenAI-compatible fallback for receipt parsing",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           1
         ],
@@ -236,7 +236,7 @@
         "id": 4,
         "title": "Build Receipt Upload and Image Processing Pipeline",
         "description": "Create receipt image upload functionality with preprocessing and storage",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           2,
           3
@@ -330,7 +330,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T14:32:54.742Z",
-      "updated": "2025-07-14T21:39:54.060Z",
+      "updated": "2025-07-22T22:05:56.978Z",
       "description": "Tasks for master context"
     }
   }
