@@ -325,7 +325,62 @@
         "priority": "medium",
         "details": "Build responsive React/Vue.js interface with Auth0 authentication integration, camera capture and file upload capabilities, implement drag-and-drop functionality, add processing status indicators, create receipt preview and confirmation screens, ensure mobile-first responsive design, add user account management interface.",
         "testStrategy": "Test upload interface on mobile and desktop devices, validate Auth0 login flow, test file handling and preview functionality, test processing status updates in real-time, verify user account switching. Backend integration tests use PostgreSQL container for data persistence validation.",
-        "subtasks": [],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Auth0 frontend integration and authentication flow",
+            "description": "Implement Auth0 authentication in the frontend with login/logout functionality, token management, and protected route handling",
+            "dependencies": [],
+            "details": "Set up Auth0 SDK for frontend framework, configure authentication provider, implement login/logout components, add token storage and refresh logic, create protected route guards, handle authentication state management",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "File upload interface with drag-and-drop and camera capture",
+            "description": "Build receipt upload interface supporting drag-and-drop file selection and mobile camera capture functionality",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Create file upload component with drag-and-drop zone, implement camera capture for mobile devices, add file validation (JPEG, PNG, PDF, max 10MB), handle multiple upload methods, integrate with backend upload API",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Receipt preview and confirmation screens",
+            "description": "Develop receipt preview interface and confirmation workflow before processing submission",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "Create receipt image preview component, add image rotation and basic editing tools, implement confirmation dialog with upload details, add option to retake/reselect image, ensure proper image display on mobile and desktop",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Processing status tracking and real-time updates",
+            "description": "Implement real-time status updates for receipt processing with progress indicators and error handling",
+            "dependencies": [
+              "6.3"
+            ],
+            "details": "Add WebSocket or polling for real-time status updates, create processing status components (uploading, processing, completed, error), implement progress indicators, handle processing errors with user-friendly messages, add retry functionality",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Mobile-responsive design and user account management",
+            "description": "Ensure mobile-first responsive design and implement user account management interface",
+            "dependencies": [
+              "6.1",
+              "6.4"
+            ],
+            "details": "Implement responsive design for all components, optimize for mobile touch interactions, create user account management interface, add account switching functionality, implement user profile and settings screens, ensure accessibility compliance",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ],
         "updated": "2025-07-14T20:17:43.319Z"
       },
       {
@@ -384,7 +439,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T14:32:54.742Z",
-      "updated": "2025-07-22T22:58:57.371Z",
+      "updated": "2025-07-22T23:09:55.210Z",
       "description": "Tasks for master context"
     }
   }
