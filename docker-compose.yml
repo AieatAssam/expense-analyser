@@ -4,6 +4,7 @@ services:
   # PostgreSQL Database Service
   db:
     image: postgres:16
+    hostname: expense_analyser_db
     container_name: expense_analyser_db
     restart: always
     environment:
@@ -22,7 +23,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # FastAPI Backend Service
+  # FastAPI Backend Service with integrated frontend
   api:
     build:
       context: .
@@ -33,7 +34,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-expense_user}:${POSTGRES_PASSWORD:-expense_password}@db:5432/${POSTGRES_DB:-expense_db}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-expense_user}:${POSTGRES_PASSWORD:-expense_password}@expense_analyser_db:5432/${POSTGRES_DB:-expense_db}
       API_SECRET_KEY: ${API_SECRET_KEY:-supersecretkey}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
@@ -42,11 +43,15 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/app
+      # Mount the uploads directory
       - receipt_uploads:/app/uploads
+      # Mount the static files for the frontend
+      - ./static:/app/static
+      # During development, uncomment the following lines to enable hot-reloading
+      - ./app:/app/app
     networks:
       - expense_network
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 volumes:
   postgres_data:
