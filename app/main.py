@@ -5,6 +5,7 @@ import os
 from app.core.config import settings
 from app.core.middleware import RequestLoggingMiddleware
 from app.api.api import api_router
+from app.core.health import get_health_status
 
 app = FastAPI(
     title="Expense Analyser API",
@@ -27,13 +28,44 @@ app.add_middleware(RequestLoggingMiddleware)
 # Include API routers
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-# Health check endpoint
+# Root-level health check endpoints for convenience and compatibility
 @app.get("/health", tags=["Health"])
-async def health_check():
+async def root_health_check():
     """
-    Health check endpoint to verify API is running.
+    Root-level health check endpoint for backward compatibility.
+    Provides comprehensive health status of all application dependencies.
     """
-    return {"status": "ok", "message": "API is operational"}
+    health_data = await get_health_status(include_details=False)
+    
+    # For the root endpoint, always return 200 but include status in response
+    # This maintains backward compatibility with existing monitoring
+    return health_data
+
+
+@app.get("/ping", tags=["Health"])
+async def root_ping():
+    """
+    Root-level ping endpoint for basic connectivity testing.
+    """
+    return {"ping": "pong", "status": "ok"}
+
+
+@app.get("/ready", tags=["Health"])
+async def root_readiness():
+    """
+    Root-level readiness endpoint for load balancer checks.
+    """
+    from app.core.health import get_readiness_status
+    return await get_readiness_status()
+
+
+@app.get("/live", tags=["Health"])
+async def root_liveness():
+    """
+    Root-level liveness endpoint for container orchestration.
+    """
+    from app.core.health import get_liveness_status
+    return await get_liveness_status()
 
 # Mount static files for assets
 static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")

@@ -70,6 +70,60 @@ Key environment variables include:
 
 The FastAPI service is now enabled in the docker-compose.yml file and provides a basic API structure.
 
+### Health Monitoring
+
+The application includes a comprehensive health check system following industry standards:
+
+#### Health Check Endpoints
+
+- **`/health`** or **`/api/v1/health`** - Comprehensive health status of all components
+  - Add `?details=true` for detailed component information
+  - Returns HTTP 200 (healthy/degraded) or 503 (unhealthy)
+
+- **`/ready`** or **`/api/v1/health/ready`** - Kubernetes readiness probe
+  - For load balancers and traffic routing decisions
+  - Returns HTTP 200 (ready) or 503 (not ready)
+
+- **`/live`** or **`/api/v1/health/live`** - Kubernetes liveness probe  
+  - For container restart decisions
+  - Returns HTTP 200 (alive) or 503 (dead)
+
+- **`/api/v1/health/status`** - Simple status check
+  - Lightweight endpoint for basic monitoring
+  - Always returns HTTP 200 unless completely unresponsive
+
+- **`/ping`** or **`/api/v1/ping`** - Basic connectivity test
+  - Simple ping/pong response
+  - For basic uptime monitoring
+
+#### Health Check Components
+
+The system monitors:
+
+- **Database**: PostgreSQL connectivity, schema validation, performance
+- **Redis Cache**: Cache operations with fallback to in-memory (degraded if unavailable)
+- **Configuration**: Required settings, security validations, environment checks
+- **LLM Providers**: API key validation for OpenAI/Gemini
+- **Storage**: Upload directory permissions, disk space
+
+#### Example Usage
+
+```bash
+# Check overall health
+curl http://localhost:8000/health
+
+# Get detailed component status
+curl http://localhost:8000/health?details=true
+
+# Check if ready for traffic
+curl http://localhost:8000/ready
+
+# Basic connectivity test
+curl http://localhost:8000/ping
+```
+
+For more details, see [Health Check System Documentation](docs/health_check_system.md).
+
 ### Running Tests
 
 To run the test suite:
