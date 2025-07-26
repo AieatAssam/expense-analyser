@@ -56,6 +56,35 @@ def client():
 def postgres_container():
     """Start a PostgreSQL container for testing and clean up when done"""
     client = docker.from_env()
+    
+    # Stop and remove any existing test container
+    try:
+        existing_container = client.containers.get("expense_test_db")
+        print("Stopping existing PostgreSQL test container...")
+        existing_container.stop()
+        existing_container.remove()
+        print("Existing container removed")
+    except docker.errors.NotFound:
+        pass  # Container doesn't exist, which is fine
+    except Exception as e:
+        print(f"Error cleaning up existing container: {e}")
+    
+    # Clean up any processes using the test port
+    import subprocess
+    try:
+        result = subprocess.run(['lsof', '-ti', f':{POSTGRES_TEST_PORT}'], 
+                              capture_output=True, text=True)
+        if result.stdout.strip():
+            pids = result.stdout.strip().split('\n')
+            for pid in pids:
+                try:
+                    subprocess.run(['kill', '-9', pid], check=True)
+                    print(f"Killed process {pid} using port {POSTGRES_TEST_PORT}")
+                except subprocess.CalledProcessError:
+                    pass  # Process might have already died
+    except FileNotFoundError:
+        pass  # lsof not available on this system
+    
     print("Starting PostgreSQL container for testing...")
     client.images.pull("postgres:16")
     container = client.containers.run(
@@ -100,8 +129,17 @@ def postgres_container():
     }
     yield container_info
     print("Stopping PostgreSQL test container...")
-    container.stop()
-    print("PostgreSQL test container stopped")
+    try:
+        container.stop()
+        container.remove()
+        print("PostgreSQL test container stopped and removed")
+    except Exception as e:
+        print(f"Error stopping container: {e}")
+        # Try to force remove
+        try:
+            container.remove(force=True)
+        except Exception:
+            pass
 
 # Test database engine fixture using container
 @pytest.fixture(scope="session")
@@ -135,3 +173,72 @@ def test_db_session(test_db_engine):
     Session.remove()
     transaction.rollback()
     connection.close()
+
+@pytest.fixture
+def sample_receipts(test_db_session):
+    """Create sample receipts for testing"""
+    from datetime import datetime, timedelta
+    from app.models.user import User
+    from app.models.receipt import Receipt
+    from app.models.line_item import LineItem
+    from app.models.category import Category
+    
+    # Create a test user
+    test_user = User(id=1, email="test@example.com", hashed_password="fake_hash", is_active=True)
+    test_db_session.add(test_user)
+    test_db_session.commit()
+    
+    # Create categories
+    grocery_cat = Category(name="Groceries", description="Food and household items")
+    gas_cat = Category(name="Gas", description="Fuel expenses")
+    test_db_session.add_all([grocery_cat, gas_cat])
+    test_db_session.commit()
+    
+    # Create receipts
+    receipts = []
+    base_date = datetime(2023, 6, 1)
+    
+    for i in range(5):
+        receipt = Receipt(
+            store_name=f"Store {i+1}",
+            receipt_date=base_date + timedelta(days=i*7),
+            total_amount=100.0 + (i * 25),
+            tax_amount=10.0 + (i * 2.5),
+            currency="USD",
+            user_id=test_user.id,
+            processing_status="completed",
+            is_verified=True
+        )
+        receipts.append(receipt)
+        test_db_session.add(receipt)
+    
+    test_db_session.commit()
+    
+    # Create line items
+    for i, receipt in enumerate(receipts):
+        # Add grocery items
+        grocery_item = LineItem(
+            name=f"Grocery Item {i+1}",
+            quantity=1.0,
+            unit_price=50.0 + (i * 10),
+            total_price=50.0 + (i * 10),
+            receipt_id=receipt.id,
+            category_id=grocery_cat.id
+        )
+        
+        # Add gas items for some receipts
+        if i % 2 == 0:
+            gas_item = LineItem(
+                name=f"Gas {i+1}",
+                quantity=1.0,
+                unit_price=40.0 + (i * 15),
+                total_price=40.0 + (i * 15),
+                receipt_id=receipt.id,
+                category_id=gas_cat.id
+            )
+            test_db_session.add(gas_item)
+        
+        test_db_session.add(grocery_item)
+    
+    test_db_session.commit()
+    return receipts, [grocery_cat, gas_cat]

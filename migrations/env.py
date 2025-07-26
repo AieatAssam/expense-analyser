@@ -10,6 +10,7 @@ from alembic import context
 from app.models.base import Base
 # Import all models that should be included in migrations
 import app.models.user
+import app.models.account
 import app.models.receipt
 import app.models.line_item
 import app.models.category

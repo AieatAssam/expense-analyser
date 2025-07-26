@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     DEFAULT_LLM_PROVIDER: str = "gemini"
     
+    # Redis Cache Configuration
+    REDIS_URL: str = "redis://localhost:6379/0"
+    
     # Pydantic v2 uses model_config instead of Config class
     model_config = SettingsConfigDict(
         env_file=".env",
