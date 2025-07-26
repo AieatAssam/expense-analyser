@@ -387,14 +387,56 @@
         "id": 7,
         "title": "Create Basic Analytics and Dashboard Backend",
         "description": "Implement API endpoints for spending analytics and data aggregation with user-specific data access",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           5
         ],
         "priority": "medium",
         "details": "Create FastAPI endpoints for monthly spending summaries, category-based breakdowns, receipt listing with pagination, individual receipt details, implement efficient database queries with proper indexing and user-specific data filtering, add caching for frequently accessed analytics data, ensure proper user authorization through Auth0.",
         "testStrategy": "Test analytics endpoints with pytest and FastAPI test client using sample data, validate query performance with large datasets using pytest-benchmark, test pagination and filtering functionality with pytest parametrize, verify caching effectiveness with pytest and Redis test containers, test user data isolation and authorization using pytest fixtures. All database tests run against PostgreSQL container with proper setup/teardown.",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Analytics API endpoints for spending summaries",
+            "description": "Create FastAPI endpoints for monthly spending summaries, category-based breakdowns, receipt listing with pagination, and individual receipt details",
+            "dependencies": [],
+            "details": "Implement RESTful API endpoints: GET /analytics/monthly-summary, GET /analytics/category-breakdown, GET /receipts with pagination parameters, GET /receipts/{id} for individual receipt details. Include proper request/response validation with Pydantic models and error handling.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Database query optimization and indexing",
+            "description": "Implement efficient database queries with proper indexing for analytics operations",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Create optimized SQL queries for aggregating spending data by month and category, add database indexes on frequently queried fields (user_id, date, category, amount), implement query performance monitoring, ensure queries scale with large datasets.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Caching implementation for performance",
+            "description": "Add Redis caching layer for frequently accessed analytics data",
+            "dependencies": [
+              "7.1",
+              "7.2"
+            ],
+            "details": "Implement Redis caching for monthly summaries and category breakdowns with appropriate TTL, create cache invalidation strategy when new receipts are added, add cache hit/miss monitoring, ensure cache keys are user-specific for data isolation.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "User authorization and data filtering",
+            "description": "Ensure proper user authorization through Auth0 and implement user-specific data filtering",
+            "dependencies": [],
+            "details": "Integrate Auth0 JWT token validation for all analytics endpoints, implement user-specific data filtering to ensure users only access their own receipt data, add role-based access controls if needed, create middleware for automatic user context injection.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 8,
@@ -439,7 +481,7 @@
     ],
     "metadata": {
       "created": "2025-07-06T14:32:54.742Z",
-      "updated": "2025-07-22T23:09:55.210Z",
+      "updated": "2025-07-24T21:06:37.591Z",
       "description": "Tasks for master context"
     }
   }
