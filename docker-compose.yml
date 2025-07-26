@@ -23,6 +23,25 @@ services:
       timeout: 5s
       retries: 5
 
+  # Redis Cache Service
+  redis:
+    image: redis:7-alpine
+    hostname: expense_analyser_redis
+    container_name: expense_analyser_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - expense_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
   # FastAPI Backend Service with integrated frontend
   api:
     build:
@@ -33,8 +52,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-expense_user}:${POSTGRES_PASSWORD:-expense_password}@expense_analyser_db:5432/${POSTGRES_DB:-expense_db}
+      REDIS_URL: redis://expense_analyser_redis:6379/0
       API_SECRET_KEY: ${API_SECRET_KEY:-supersecretkey}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
@@ -56,6 +78,8 @@ services:
 volumes:
   postgres_data:
     name: expense_analyser_postgres_data
+  redis_data:
+    name: expense_analyser_redis_data
   receipt_uploads:
     name: expense_analyser_receipt_uploads
 
