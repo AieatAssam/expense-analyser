@@ -10,6 +10,32 @@ from app.models.base import BaseModel
 
 logger = logging.getLogger(__name__)
 
+
+def serialize_for_json(obj):
+    """Helper function to serialize objects for JSON storage"""
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    elif hasattr(obj, '__dict__'):
+        return str(obj)
+    return obj
+
+
+def make_json_serializable(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Recursively make all values in a dictionary JSON serializable"""
+    if not isinstance(data, dict):
+        return serialize_for_json(data)
+    
+    result = {}
+    for key, value in data.items():
+        if isinstance(value, dict):
+            result[key] = make_json_serializable(value)
+        elif isinstance(value, list):
+            result[key] = [serialize_for_json(item) if not isinstance(item, dict) 
+                          else make_json_serializable(item) for item in value]
+        else:
+            result[key] = serialize_for_json(value)
+    return result
+
 class ProcessingEventType(str, Enum):
     STARTED = "started"
     PROGRESS = "progress"
@@ -59,12 +85,15 @@ class ProcessingStatusTracker:
             # Truncate message if it's too long for the database column
             truncated_message = message[:250] + "..." if len(message) > 250 else message
             
+            # Make details JSON serializable
+            serializable_details = make_json_serializable(details) if details else {}
+            
             event = ProcessingEvent(
                 receipt_id=receipt_id,
                 event_type=event_type,
                 status=status,
                 message=truncated_message,
-                details=details or {}
+                details=serializable_details
             )
             self.db.add(event)
             self.db.commit()

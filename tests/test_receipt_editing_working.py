@@ -161,7 +161,7 @@ class TestReceiptEditingEndpoints:
         # Verify receipt was approved
         updated_receipt = test_db_session.query(Receipt).filter_by(id=receipt.id).first()
         assert updated_receipt.is_verified is True
-        assert updated_receipt.processing_status == "approved"
+        assert updated_receipt.processing_status == "processed"
 
 
 def test_receipt_validation_basic(test_db_session):

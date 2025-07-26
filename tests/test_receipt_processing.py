@@ -82,10 +82,18 @@ def test_receipt_processor_init(test_db_session):
 
 def test_receipt_processing_success(test_db_session, test_receipt, mock_llm_client, mock_validator):
     """Test successful receipt processing flow"""
+    # Create a mock accuracy validator
+    from app.core.receipt_validation import ValidationResult
+    mock_accuracy_validator = MagicMock()
+    mock_accuracy_validator.validate_receipt_accuracy.return_value = (
+        ValidationResult.PASSED, 0.95, {"confidence_score": 0.95}
+    )
+    
     processor = ReceiptProcessingOrchestrator(
         test_db_session,
         llm_client=mock_llm_client,
-        validator=mock_validator
+        validator=mock_validator,
+        accuracy_validator=mock_accuracy_validator
     )
     
     # Process receipt

@@ -57,7 +57,15 @@ class ReceiptAccuracyValidator:
                 )
             except Exception as e:
                 # Continue validation even if logging fails
-                logger.warning(f"Could not log validation start for receipt {receipt.id}: {e}")
+                receipt_id = None
+                try:
+                    receipt_id = receipt.id
+                except Exception:
+                    pass
+                if receipt_id:
+                    logger.warning(f"Could not log validation start for receipt {receipt_id}: {e}")
+                else:
+                    logger.warning(f"Could not log validation start for receipt (ID unavailable): {e}")
             
             validation_results = []
             total_weight = 0
@@ -108,7 +116,7 @@ class ReceiptAccuracyValidator:
                 "score": date_score,
                 "weight": date_weight,
                 "status": "passed" if date_score > 0.7 else "failed",
-                "expected": receipt.receipt_date,
+                "expected": receipt.receipt_date.isoformat() if receipt.receipt_date else None,
                 "actual": parsed_data.get("date", "")
             })
             weighted_score += date_score * date_weight
@@ -162,21 +170,40 @@ class ReceiptAccuracyValidator:
                     details
                 )
             except Exception as e:
-                logger.warning(f"Could not log validation completion for receipt {receipt.id}: {e}")
+                receipt_id = None
+                try:
+                    receipt_id = receipt.id
+                except Exception:
+                    # Receipt object is detached/expired, can't access ID
+                    pass
+                    
+                if receipt_id:
+                    logger.warning(f"Could not log validation completion for receipt {receipt_id}: {e}")
+                else:
+                    logger.warning(f"Could not log validation completion for receipt (ID unavailable): {e}")
             
             return result, final_confidence, details
             
         except Exception as e:
             error_msg = f"Validation error: {str(e)}"
-            logger.error(f"Error validating receipt {receipt.id}: {error_msg}")
-            
+            receipt_id = None
             try:
-                self.status_tracker.record_error(
-                    receipt.id,
-                    error_msg
-                )
-            except Exception as log_error:
-                logger.warning(f"Could not log validation error for receipt {receipt.id}: {log_error}")
+                receipt_id = receipt.id
+            except Exception:
+                # Receipt object is detached/expired, can't access ID
+                pass
+                
+            if receipt_id:
+                logger.error(f"Error validating receipt {receipt_id}: {error_msg}")
+                try:
+                    self.status_tracker.record_error(
+                        receipt_id,
+                        error_msg
+                    )
+                except Exception as log_error:
+                    logger.warning(f"Could not log validation error for receipt {receipt_id}: {log_error}")
+            else:
+                logger.error(f"Error validating receipt (ID unavailable): {error_msg}")
             
             return ValidationResult.FAILED, 0.0, {"error": error_msg}
     
