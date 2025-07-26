@@ -84,7 +84,21 @@ class CacheService:
         """Set value in cache with TTL"""
         try:
             if self.redis_client:
-                serialized_value = json.dumps(value, default=str)
+                # Handle Pydantic models and other complex objects
+                if hasattr(value, 'model_dump'):
+                    # Pydantic v2 model
+                    serialized_value = json.dumps(value.model_dump())
+                elif hasattr(value, 'dict'):
+                    # Pydantic v1 model
+                    serialized_value = json.dumps(value.dict())
+                elif isinstance(value, list) and value and hasattr(value[0], 'model_dump'):
+                    # List of Pydantic v2 models
+                    serialized_value = json.dumps([item.model_dump() for item in value])
+                elif isinstance(value, list) and value and hasattr(value[0], 'dict'):
+                    # List of Pydantic v1 models
+                    serialized_value = json.dumps([item.dict() for item in value])
+                else:
+                    serialized_value = json.dumps(value, default=str)
                 return self.redis_client.setex(key, ttl_seconds, serialized_value)
             else:
                 # Store in memory cache with TTL

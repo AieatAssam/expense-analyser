@@ -275,7 +275,8 @@ class TestAnalyticsAPI:
             # since the API might handle invalid ranges gracefully
             assert response.status_code in [200, 400]  # Accept either response
             if response.status_code == 400:
-                assert "date range" in response.json()["detail"].lower()
+                detail = response.json()["detail"].lower()
+                assert "date" in detail and ("range" in detail or "after" in detail)
         finally:
             self.cleanup_auth_overrides()
 

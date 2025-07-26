@@ -23,7 +23,7 @@ class AnalyticsService:
     def __init__(self, db: Session):
         self.db = db
     
-    @cache_analytics_data(ttl_seconds=3600, key_prefix="monthly_summary")  # 1 hour cache
+    # @cache_analytics_data(ttl_seconds=3600, key_prefix="monthly_summary")  # 1 hour cache - disabled for now
     def get_monthly_summary(self, user_id: int, year: int, month: int) -> Optional[MonthlySummary]:
         """Get monthly spending summary for a specific user, year, and month"""
         
@@ -69,7 +69,7 @@ class AnalyticsService:
             categories=categories
         )
     
-    @cache_analytics_data(ttl_seconds=1800, key_prefix="category_breakdown")  # 30 minutes cache
+    # @cache_analytics_data(ttl_seconds=1800, key_prefix="category_breakdown")  # 30 minutes cache - disabled for now
     def get_category_breakdown(
         self, 
         user_id: int, 
@@ -107,7 +107,7 @@ class AnalyticsService:
                 func.count(LineItem.id).label('item_count')
             )
             .outerjoin(LineItem, LineItem.category_id == Category.id)
-            .filter(LineItem.receipt_id.in_(receipt_ids_subquery))
+            .filter(LineItem.receipt_id.in_(receipt_ids_subquery.select()))
             .group_by(Category.id, Category.name)
             .order_by(desc('total_amount'))
         ).all()
@@ -119,7 +119,7 @@ class AnalyticsService:
                 func.count(LineItem.id).label('item_count')
             )
             .filter(
-                LineItem.receipt_id.in_(receipt_ids_subquery),
+                LineItem.receipt_id.in_(receipt_ids_subquery.select()),
                 LineItem.category_id.is_(None)
             )
         ).first()
@@ -210,7 +210,7 @@ class AnalyticsService:
             .first()
         )
     
-    @cache_analytics_data(ttl_seconds=1800, key_prefix="spending_trends")  # 30 minutes cache
+    # @cache_analytics_data(ttl_seconds=1800, key_prefix="spending_trends")  # 30 minutes cache - disabled for now
     def get_spending_trends(
         self, 
         user_id: int, 
@@ -261,7 +261,7 @@ class AnalyticsService:
             for trend in trends_query
         ]
     
-    @cache_analytics_data(ttl_seconds=600, key_prefix="analytics_summary")  # 10 minutes cache
+    # @cache_analytics_data(ttl_seconds=600, key_prefix="analytics_summary")  # 10 minutes cache - disabled for now
     def get_analytics_summary(self, user_id: int) -> Dict[str, Any]:
         """Get overall analytics summary for dashboard"""
         

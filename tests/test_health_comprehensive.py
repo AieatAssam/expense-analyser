@@ -188,13 +188,11 @@ class TestRedisHealthCheck:
     @pytest.mark.asyncio
     async def test_redis_check_not_available(self):
         """Test Redis health check when Redis library is not available"""
-        with patch('app.core.health.redis', side_effect=ImportError("Redis not installed")):
-            # We need to reload the module or mock the import differently
-            with patch.dict('sys.modules', {'redis': None}):
-                result = await self.health_checker._check_redis()
-                
-                assert result.status == HealthStatus.DEGRADED
-                assert "Redis library not available" in result.details["error"]
+        with patch('app.core.health.REDIS_AVAILABLE', False):
+            result = await self.health_checker._check_redis()
+            
+            assert result.status == HealthStatus.DEGRADED
+            assert "Redis library not available" in result.details["error"]
     
     @pytest.mark.asyncio
     async def test_redis_check_connection_failed(self):
@@ -253,7 +251,7 @@ class TestHealthEndpoints:
     
     def test_health_endpoint_healthy(self, client):
         """Test /health endpoint when system is healthy"""
-        with patch('app.core.health.get_health_status') as mock_health:
+        with patch('app.api.endpoints.health.get_health_status') as mock_health:
             mock_health.return_value = {
                 "status": "healthy",
                 "timestamp": "2023-01-01T00:00:00",
@@ -271,7 +269,7 @@ class TestHealthEndpoints:
     
     def test_health_endpoint_unhealthy(self, client):
         """Test /health endpoint when system is unhealthy"""
-        with patch('app.core.health.get_health_status') as mock_health:
+        with patch('app.api.endpoints.health.get_health_status') as mock_health:
             mock_health.return_value = {
                 "status": "unhealthy",
                 "timestamp": "2023-01-01T00:00:00",
@@ -289,7 +287,7 @@ class TestHealthEndpoints:
     
     def test_health_endpoint_with_details(self, client):
         """Test /health endpoint with details parameter"""
-        with patch('app.core.health.get_health_status') as mock_health:
+        with patch('app.api.endpoints.health.get_health_status') as mock_health:
             mock_health.return_value = {
                 "status": "healthy",
                 "components": {
@@ -308,7 +306,7 @@ class TestHealthEndpoints:
     
     def test_readiness_endpoint_ready(self, client):
         """Test /health/ready endpoint when ready"""
-        with patch('app.core.health.get_readiness_status') as mock_readiness:
+        with patch('app.api.endpoints.health.get_readiness_status') as mock_readiness:
             mock_readiness.return_value = {
                 "status": "ready",
                 "timestamp": "2023-01-01T00:00:00",
@@ -324,7 +322,7 @@ class TestHealthEndpoints:
     
     def test_readiness_endpoint_not_ready(self, client):
         """Test /health/ready endpoint when not ready"""
-        with patch('app.core.health.get_readiness_status') as mock_readiness:
+        with patch('app.api.endpoints.health.get_readiness_status') as mock_readiness:
             mock_readiness.return_value = {
                 "status": "not_ready",
                 "timestamp": "2023-01-01T00:00:00",
@@ -395,7 +393,7 @@ class TestHealthEndpoints:
     
     def test_root_ready_endpoint(self, client):
         """Test root /ready endpoint"""
-        with patch('app.core.health.get_readiness_status') as mock_readiness:
+        with patch('app.api.endpoints.health.get_readiness_status') as mock_readiness:
             mock_readiness.return_value = {"status": "ready"}
             
             response = client.get("/ready")
@@ -417,7 +415,7 @@ class TestHealthExceptionHandling:
     
     def test_health_endpoint_exception(self, client):
         """Test health endpoint handles exceptions gracefully"""
-        with patch('app.core.health.get_health_status', side_effect=Exception("Internal error")):
+        with patch('app.api.endpoints.health.get_health_status', side_effect=Exception("Internal error")):
             response = client.get("/api/v1/health")
             
             assert response.status_code == 503
@@ -427,7 +425,7 @@ class TestHealthExceptionHandling:
     
     def test_readiness_endpoint_exception(self, client):
         """Test readiness endpoint handles exceptions gracefully"""
-        with patch('app.core.health.get_readiness_status', side_effect=Exception("Internal error")):
+        with patch('app.api.endpoints.health.get_readiness_status', side_effect=Exception("Internal error")):
             response = client.get("/api/v1/health/ready")
             
             assert response.status_code == 503
@@ -437,7 +435,7 @@ class TestHealthExceptionHandling:
     
     def test_liveness_endpoint_exception(self, client):
         """Test liveness endpoint handles exceptions gracefully"""
-        with patch('app.core.health.get_liveness_status', side_effect=Exception("Internal error")):
+        with patch('app.api.endpoints.health.get_liveness_status', side_effect=Exception("Internal error")):
             response = client.get("/api/v1/health/live")
             
             assert response.status_code == 503

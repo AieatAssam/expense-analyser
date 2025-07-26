@@ -15,6 +15,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.core.config import settings
 from app.db.session import SessionLocal
 
+# Try to import redis at module level for easier mocking
+try:
+    import redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    redis = None
+    REDIS_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 
@@ -168,10 +176,14 @@ class HealthChecker:
     
     async def _check_redis(self) -> ComponentStatus:
         """Check Redis cache connectivity and operations"""
+        if not REDIS_AVAILABLE:
+            return ComponentStatus(
+                "redis", 
+                HealthStatus.DEGRADED, 
+                {"error": "Redis library not available", "fallback": "in-memory cache"}
+            )
+        
         try:
-            # Import redis here to handle cases where it's not installed
-            import redis
-            
             redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
             
             # Test basic connectivity
@@ -207,12 +219,6 @@ class HealthChecker:
             
             return ComponentStatus("redis", HealthStatus.HEALTHY, details)
             
-        except ImportError:
-            return ComponentStatus(
-                "redis", 
-                HealthStatus.DEGRADED, 
-                {"error": "Redis library not available", "fallback": "in-memory cache"}
-            )
         except Exception as e:
             return ComponentStatus(
                 "redis", 
