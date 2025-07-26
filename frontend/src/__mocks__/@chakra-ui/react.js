@@ -55,6 +55,34 @@ const Alert = mockChakraComponent('Alert');
 const AlertIcon = mockChakraComponent('AlertIcon');
 const AlertTitle = mockChakraComponent('AlertTitle');
 const AlertDescription = mockChakraComponent('AlertDescription');
+const Grid = mockChakraComponent('Grid');
+const GridItem = mockChakraComponent('GridItem');
+const Card = mockChakraComponent('Card');
+const CardBody = mockChakraComponent('CardBody');
+const CardHeader = mockChakraComponent('CardHeader');
+const Stat = mockChakraComponent('Stat');
+const StatLabel = mockChakraComponent('StatLabel');
+const StatNumber = mockChakraComponent('StatNumber');
+const StatHelpText = mockChakraComponent('StatHelpText');
+const StatArrow = mockChakraComponent('StatArrow');
+const Badge = mockChakraComponent('Badge');
+const Avatar = mockChakraComponent('Avatar');
+const Menu = mockChakraComponent('Menu');
+const MenuButton = mockChakraComponent('MenuButton');
+const MenuList = mockChakraComponent('MenuList');
+const MenuItem = mockChakraComponent('MenuItem');
+const IconButton = mockChakraComponent('IconButton');
+const Divider = mockChakraComponent('Divider');
+const Skeleton = mockChakraComponent('Skeleton');
+const Collapse = mockChakraComponent('Collapse');
+const NumberInput = mockChakraComponent('NumberInput');
+const NumberInputField = mockChakraComponent('NumberInputField');
+const NumberInputStepper = mockChakraComponent('NumberInputStepper');
+const NumberIncrementStepper = mockChakraComponent('NumberIncrementStepper');
+const NumberDecrementStepper = mockChakraComponent('NumberDecrementStepper');
+const InputGroup = mockChakraComponent('InputGroup');
+const InputLeftElement = mockChakraComponent('InputLeftElement');
+const InputRightElement = mockChakraComponent('InputRightElement');
 
 // Mock hooks
 const useToast = jest.fn(() => ({
@@ -65,6 +93,27 @@ const useToast = jest.fn(() => ({
   info: jest.fn(),
   // Generic call method
   __call: jest.fn(),
+}));
+
+const useBreakpointValue = jest.fn((values) => {
+  // Return the base value or first value for testing
+  if (typeof values === 'object' && values.base !== undefined) {
+    return values.base;
+  }
+  if (Array.isArray(values)) {
+    return values[0];
+  }
+  return values;
+});
+
+const useColorModeValue = jest.fn((light, dark) => light);
+
+// Mock disclosure hook
+const useDisclosure = jest.fn(() => ({
+  isOpen: false,
+  onOpen: jest.fn(),
+  onClose: jest.fn(),
+  onToggle: jest.fn(),
 }));
 
 // Export all the mocked components and hooks
@@ -89,6 +138,37 @@ module.exports = {
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  Grid,
+  GridItem,
+  Card,
+  CardBody,
+  CardHeader,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  Badge,
+  Avatar,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
+  Divider,
+  Skeleton,
+  Collapse,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
   useToast,
+  useBreakpointValue,
+  useColorModeValue,
+  useDisclosure,
   ChakraProvider: ({ children }) => React.createElement('div', null, children),
 };
