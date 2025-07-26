@@ -12,6 +12,7 @@ from app.core.llm_client import LLMClient
 from app.core.receipt_prompts import get_prompt
 from app.core.llm_response_validation import LLMReceiptValidator
 from app.core.processing_status import ProcessingStatusTracker, ProcessingEventType
+from app.core.receipt_validation import ReceiptAccuracyValidator, ValidationResult
 
 logger = logging.getLogger(__name__)
 
@@ -42,12 +43,14 @@ class ReceiptProcessingOrchestrator:
         llm_client: Optional[LLMClient] = None,
         validator: Optional[LLMReceiptValidator] = None,
         status_tracker: Optional[ProcessingStatusTracker] = None,
+        accuracy_validator: Optional[ReceiptAccuracyValidator] = None,
         receipt_type: str = "default",
     ):
         self.db = db
         self.llm_client = llm_client or LLMClient()
         self.validator = validator or LLMReceiptValidator()
         self.status_tracker = status_tracker or ProcessingStatusTracker(db)
+        self.accuracy_validator = accuracy_validator or ReceiptAccuracyValidator(db, status_tracker)
         self.receipt_type = receipt_type
     
     def process_receipt(self, receipt_id: int) -> Receipt:
@@ -77,25 +80,59 @@ class ReceiptProcessingOrchestrator:
             
             self.status_tracker.record_progress(receipt_id, "extracted", "Successfully extracted data from receipt", 50)
                 
-            # Validate extracted data
-            self.status_tracker.record_progress(receipt_id, "validating", "Validating extracted data", 60)
+            # Validate extracted data structure
+            self.status_tracker.record_progress(receipt_id, "validating", "Validating extracted data structure", 60)
             is_valid, validation_errors = self.validator.validate(extracted_data)
             
             if not is_valid:
                 self._update_receipt_status(
                     receipt, 
                     ProcessingStatus.MANUAL_REVIEW, 
-                    f"Validation errors: {', '.join(validation_errors)}"
+                    f"Structure validation errors: {', '.join(validation_errors)}"
                 )
                 self.status_tracker.record_warning(
                     receipt_id, 
-                    f"Validation errors: {', '.join(validation_errors)}",
+                    f"Structure validation errors: {', '.join(validation_errors)}",
                     {"errors": validation_errors}
                 )
-                logger.warning(f"Receipt {receipt_id} validation failed: {validation_errors}")
+                logger.warning(f"Receipt {receipt_id} structure validation failed: {validation_errors}")
             else:
                 self._update_receipt_status(receipt, ProcessingStatus.VALIDATED)
-                self.status_tracker.record_progress(receipt_id, "validated", "Data validation successful", 75)
+                self.status_tracker.record_progress(receipt_id, "validated", "Data structure validation successful", 65)
+            
+            # Perform accuracy validation
+            self.status_tracker.record_progress(receipt_id, "accuracy_check", "Performing accuracy validation", 70)
+            accuracy_result, confidence_score, accuracy_details = self.accuracy_validator.validate_receipt_accuracy(
+                receipt, extracted_data
+            )
+            
+            # Update receipt status based on accuracy validation
+            if accuracy_result == ValidationResult.FAILED:
+                self._update_receipt_status(
+                    receipt,
+                    ProcessingStatus.MANUAL_REVIEW,
+                    f"Accuracy validation failed: confidence {confidence_score:.2f}"
+                )
+                logger.warning(f"Receipt {receipt_id} accuracy validation failed with confidence {confidence_score:.2f}")
+            elif accuracy_result == ValidationResult.REQUIRES_REVIEW:
+                self._update_receipt_status(
+                    receipt,
+                    ProcessingStatus.MANUAL_REVIEW,
+                    f"Low confidence score: {confidence_score:.2f}, requires manual review"
+                )
+                logger.info(f"Receipt {receipt_id} requires manual review due to low confidence: {confidence_score:.2f}")
+            elif accuracy_result == ValidationResult.WARNING:
+                # Keep as validated but note warnings
+                self.status_tracker.record_warning(
+                    receipt_id,
+                    f"Accuracy validation passed with warnings: confidence {confidence_score:.2f}",
+                    accuracy_details
+                )
+                logger.info(f"Receipt {receipt_id} accuracy validation passed with warnings: {confidence_score:.2f}")
+            else:
+                # Passed accuracy validation
+                self.status_tracker.record_progress(receipt_id, "accuracy_validated", "Accuracy validation passed", 75)
+                logger.info(f"Receipt {receipt_id} accuracy validation passed with confidence {confidence_score:.2f}")
             
             # Map and store structured data
             self.status_tracker.record_progress(receipt_id, "storing", "Storing receipt data in database", 85)

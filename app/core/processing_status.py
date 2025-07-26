@@ -47,33 +47,32 @@ class ProcessingStatusTracker:
         self.db = db
         
     def create_event(
-        self, 
-        receipt_id: int, 
-        event_type: ProcessingEventType, 
-        status: str, 
-        message: Optional[str] = None,
+        self,
+        receipt_id: int,
+        event_type: ProcessingEventType,
+        status: str,
+        message: str,
         details: Optional[Dict[str, Any]] = None
     ) -> ProcessingEvent:
-        """Create a new processing event for a receipt"""
+        """Create a new processing event"""
         try:
+            # Truncate message if it's too long for the database column
+            truncated_message = message[:250] + "..." if len(message) > 250 else message
+            
             event = ProcessingEvent(
                 receipt_id=receipt_id,
                 event_type=event_type,
                 status=status,
-                message=message,
-                details=details
+                message=truncated_message,
+                details=details or {}
             )
-            
             self.db.add(event)
             self.db.commit()
             self.db.refresh(event)
-            
-            logger.info(f"Created processing event: {event.event_type} for receipt {receipt_id}")
             return event
-            
         except Exception as e:
-            logger.error(f"Error creating processing event: {str(e)}", exc_info=True)
             self.db.rollback()
+            logger.error(f"Error creating processing event: {e}")
             raise
     
     def get_processing_history(self, receipt_id: int) -> List[ProcessingEvent]:

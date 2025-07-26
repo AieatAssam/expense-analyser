@@ -546,19 +546,64 @@
         "id": 10,
         "title": "Implement Receipt Verification and Manual Override System",
         "description": "Create system for validating AI parsing accuracy and allowing manual corrections with user-specific access",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           8
         ],
         "priority": "medium",
         "details": "Build validation logic comparing parsed line items total with receipt total, create manual editing interface for correcting parsing errors, implement approval workflow for processed receipts, add bulk editing capabilities for categories and line items, ensure proper user authorization for editing operations.",
         "testStrategy": "Test validation logic with pytest using receipts containing various total discrepancies, validate manual editing interface functionality with React Testing Library and Jest, test bulk operations performance with pytest-benchmark, verify data integrity after manual corrections using pytest database assertions, test user-specific editing permissions with pytest authorization fixtures. All database operations tested using PostgreSQL container with proper isolation.",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement AI Parsing Accuracy Validation Logic",
+            "description": "Create validation system to verify AI parsing accuracy by comparing extracted line items total with receipt total and implementing confidence scoring",
+            "dependencies": [],
+            "details": "Build validation logic in app/core/receipt_processor.py to compare parsed line items total with receipt total, implement confidence scoring for parsed data fields, create validation rules for common parsing errors (date formats, currency, line item structure), add validation status tracking in ProcessingEvent model, implement automatic flagging of receipts requiring manual review based on validation thresholds",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Create Manual Editing Interface for Corrections",
+            "description": "Build user interface for manually correcting AI parsing errors with intuitive editing capabilities",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Create React component for editing receipt data with form validation, implement editing interface for line items with add/remove/modify capabilities, build category selection and custom category creation, add receipt total correction functionality, implement image preview alongside editing form for reference, ensure real-time validation during editing process, add save/cancel functionality with proper state management",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Approval Workflow and Bulk Operations",
+            "description": "Create approval workflow for processed receipts and bulk editing capabilities for efficient data management",
+            "dependencies": [
+              "10.2"
+            ],
+            "details": "Build approval workflow with receipt status tracking (pending, approved, rejected), implement bulk category assignment for multiple line items, create bulk receipt approval/rejection functionality, add bulk export capabilities for selected receipts, implement user permissions for approval actions, create approval history tracking in database, add notification system for approval status changes via WebSocket",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Data Integrity Checks and User Authorization",
+            "description": "Create comprehensive data integrity validation and ensure proper user authorization for all editing operations",
+            "dependencies": [
+              "10.1",
+              "10.2",
+              "10.3"
+            ],
+            "details": "Implement database constraint validation for edited data, create user authorization checks for receipt editing (only receipt owner or account members can edit), add audit trail for all manual corrections and approvals, implement data consistency checks after bulk operations, create rollback functionality for erroneous bulk changes, add validation for category assignments and line item modifications, ensure Auth0 user context is properly maintained throughout editing workflow",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-07-06T14:32:54.742Z",
-      "updated": "2025-07-26T11:30:51.903Z",
+      "updated": "2025-07-26T11:53:28.396Z",
       "description": "Tasks for master context"
     }
   }
