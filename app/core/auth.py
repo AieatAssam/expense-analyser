@@ -6,6 +6,9 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.models.account import Account
+import httpx
+import json
+import time
 
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN", "your-auth0-domain")
@@ -14,16 +17,29 @@ ALGORITHMS = ["RS256"]
 
 # In production, fetch JWKS from Auth0. For now, use a placeholder.
 AUTH0_JWKS = os.getenv("AUTH0_JWKS", None)
+JWKS_CACHE_TTL = int(os.getenv("AUTH0_JWKS_CACHE_TTL", "3600"))
+_jwks_cache = None
+_jwks_cache_time = 0
 
 http_bearer = HTTPBearer()
 
 def get_jwks():
-    # TODO: Fetch JWKS from Auth0 and cache it
-    # For now, raise if not set
-    if not AUTH0_JWKS:
-        raise Exception("Auth0 JWKS not configured")
-    import json
-    return json.loads(AUTH0_JWKS)
+    """Retrieve Auth0 JWKS, fetching and caching if necessary."""
+    global _jwks_cache, _jwks_cache_time
+
+    if AUTH0_JWKS:
+        return json.loads(AUTH0_JWKS)
+
+    now = time.time()
+    if _jwks_cache and now - _jwks_cache_time < JWKS_CACHE_TTL:
+        return _jwks_cache
+
+    url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
+    response = httpx.get(url, timeout=5)
+    response.raise_for_status()
+    _jwks_cache = response.json()
+    _jwks_cache_time = now
+    return _jwks_cache
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
