@@ -10,7 +10,7 @@ This project uses Docker Compose to manage its infrastructure. The current setup
 ### Prerequisites
 
 - Docker and Docker Compose installed on your system
-- Copy `.env.app.example` to `.env` and update the values as needed
+- Copy `.env.template` to `.env` and update the values as needed
 
 ### Getting Started
 
@@ -24,17 +24,24 @@ cd expense-analyser
 2. Set up environment variables:
 
 ```bash
-cp .env.app.example .env
-# Edit .env file with your preferred settings and API keys
+cp .env.template .env
+# Edit .env file with your Auth0, database, and API key settings
+# Note: Both frontend and backend use the SAME Auth0 environment variables (no REACT_APP_ prefix needed)
 ```
 
-3. Start the Docker containers:
+3. Validate your environment configuration:
+
+```bash
+python3 validate_env.py
+```
+
+4. Start the Docker containers:
 
 ```bash
 docker compose up -d
 ```
 
-4. Verify the database is running:
+5. Verify the database is running:
 
 ```bash
 docker compose ps

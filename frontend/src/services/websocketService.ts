@@ -10,7 +10,7 @@ class WebSocketService {
   private isConnecting: boolean = false;
 
   constructor() {
-    this.url = `${process.env.REACT_APP_WS_URL || 'ws://localhost:8000'}/ws`;
+    this.url = `${process.env.WS_URL || 'ws://localhost:8000'}/ws`;
   }
 
   // Connect to WebSocket server
