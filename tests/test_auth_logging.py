@@ -1,6 +1,7 @@
 
 import logging
 import pytest
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from app.main import app
 from app.db.session import get_db
@@ -26,12 +27,31 @@ def auth0_token():
     return token
 
 @pytest.fixture
-def client(test_db_session):
+def mock_jwks():
+    """Mock JWKS response for testing"""
+    return {
+        "keys": [
+            {
+                "alg": "RS256",
+                "kty": "RSA",
+                "use": "sig",
+                "kid": "testkey",
+                "n": "testn",
+                "e": "AQAB"
+            }
+        ]
+    }
+
+@pytest.fixture
+def client(test_db_session, mock_jwks):
     def override_get_db():
         yield test_db_session
     app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
+    
+    # Mock the get_jwks function to return test JWKS
+    with patch('app.core.auth.get_jwks', return_value=mock_jwks):
+        with TestClient(app) as c:
+            yield c
     app.dependency_overrides.clear()
 
 @pytest.fixture
