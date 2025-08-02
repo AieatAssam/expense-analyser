@@ -73,7 +73,7 @@ export const SortFilter: React.FC<SortFilterProps> = ({
           size="sm"
           variant="outline"
           onClick={toggleSortOrder}
-          colorScheme="blue"
+          colorPalette="blue"
         >
           {sortOrder === 'asc' ? '↑' : '↓'}
         </IconButton>

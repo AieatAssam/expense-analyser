@@ -32,7 +32,7 @@ interface FilterState {
 
 const DashboardPage: React.FC = () => {
   const { isAuthenticated, userProfile } = useAuth();
-  // const toast = useToast(); // Temporarily disabled for Chakra UI v3 migration
+  const toast = useToast(); // Re-enabled for Chakra UI v3
   const [isExportOpen, setIsExportOpen] = useState(false);
   const onExportOpen = () => setIsExportOpen(true);
   const onExportClose = () => setIsExportOpen(false);

@@ -306,7 +306,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
             <HStack gap={2}>
               {receipt?.validation_summary && (
                 <Badge
-                  colorScheme={
+                  colorPalette={
                     receipt.validation_summary.validation_result === 'passed' ? 'green' :
                     receipt.validation_summary.validation_result === 'warning' ? 'yellow' : 'red'
                   }
@@ -436,7 +436,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                     leftIcon={<FiPlus />}
                     onClick={addLineItem}
                     size="sm"
-                    colorScheme="blue"
+                    colorPalette="blue"
                   >
                     Add Item
                   </Button>
@@ -539,7 +539,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                           icon={<FiTrash2 />}
                           onClick={() => removeLineItem(index)}
                           variant="outline"
-                          colorScheme="red"
+                          colorPalette="red"
                           size="sm"
                         />
                       </HStack>
@@ -638,7 +638,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
               Cancel
             </Button>
             <Button
-              colorScheme="blue"
+              colorPalette="blue"
               onClick={handleSave}
               isLoading={isSaving}
               loadingText="Saving..."

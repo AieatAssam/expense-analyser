@@ -222,7 +222,7 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                 </Text>
                 <HStack>
                   <Badge
-                    colorScheme={
+                    colorPalette={
                       receipt.validation_status === 'validated' ? 'green' :
                       receipt.validation_status === 'needs_review' ? 'yellow' : 'red'
                     }
@@ -306,7 +306,7 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                       <Button
                         size="sm"
                         variant="outline"
-                        colorScheme="red"
+                        colorPalette="red"
                         onClick={() => removeLineItem(index)}
                       >
                         Remove
@@ -371,7 +371,7 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                 Cancel
               </Button>
               <Button
-                colorScheme="blue"
+                colorPalette="blue"
                 onClick={handleSave}
                 isLoading={saving}
                 loadingText="Saving..."

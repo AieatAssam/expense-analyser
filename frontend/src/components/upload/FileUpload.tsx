@@ -122,7 +122,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
           <Flex>
             <Button
               onClick={open}
-              colorScheme="blue"
+              colorPalette="blue"
               size="sm"
               mr={2}
               disabled={isUploading}
@@ -131,7 +131,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
             </Button>
             <Button
               onClick={handleCameraCapture}
-              colorScheme="green"
+              colorPalette="green"
               size="sm"
               disabled={isUploading}
             >

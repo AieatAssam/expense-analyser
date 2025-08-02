@@ -18,7 +18,7 @@ interface StatCardProps {
   trendValue?: string;
   icon?: IconType;
   isLoading?: boolean;
-  colorScheme?: string;
+  colorPalette?: string;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -29,7 +29,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   trendValue,
   icon,
   isLoading = false,
-  colorScheme = 'blue',
+  colorPalette = 'blue',
 }) => {
   if (isLoading) {
     return (
@@ -71,7 +71,7 @@ export const StatCard: React.FC<StatCardProps> = ({
               )}
             </VStack>
             {icon && (
-              <Box p={2} bg={`${colorScheme}.50`} borderRadius="md">
+              <Box p={2} bg={`${colorPalette}.50`} borderRadius="md">
                 📊
               </Box>
             )}

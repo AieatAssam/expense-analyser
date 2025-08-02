@@ -43,7 +43,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
   const [exportInfo, setExportInfo] = useState<ExportInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // const toast = useToast(); // Temporarily disabled for Chakra UI v3 migration
+  const toast = useToast(); // Temporarily disabled for Chakra UI v3 migration
 
   const handlePreview = async () => {
     setIsLoading(true);
@@ -194,7 +194,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
                 <VStack gap={2} align="stretch">
                   <HStack justify="space-between">
                     <Text fontSize="sm">Records to export:</Text>
-                    <Badge colorScheme="blue">{exportInfo.records_count} receipts</Badge>
+                    <Badge colorPalette="blue">{exportInfo.records_count} receipts</Badge>
                   </HStack>
                   <HStack justify="space-between">
                     <Text fontSize="sm">Date range:</Text>
@@ -216,7 +216,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
                 <Text fontSize="sm" fontWeight="medium" mb={2}>
                   Downloading... {downloadProgress}%
                 </Text>
-                <Progress value={downloadProgress} colorScheme="blue" size="sm" />
+                <Progress value={downloadProgress} colorPalette="blue" size="sm" />
               </Box>
             )}
 
@@ -268,7 +268,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
               Preview
             </Button>
             <Button
-              colorScheme="blue"
+              colorPalette="blue"
               onClick={handleDownload}
               isLoading={isDownloading}
               loadingText={`Downloading... ${downloadProgress}%`}
