@@ -5,6 +5,7 @@ Mocks Auth0 responses and uses test database fixtures.
 
 import os
 import pytest
+from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 from jose import jwt
 import base64
@@ -14,20 +15,40 @@ from app.db.session import get_db
 # Set up test environment variables for Auth0 integration
 os.environ["AUTH0_DOMAIN"] = "test-auth0-domain.auth0.com"
 os.environ["AUTH0_API_AUDIENCE"] = "test-api-audience"
-os.environ["AUTH0_JWKS"] = '{"keys": [{"alg": "RS256", "kty": "RSA", "use": "sig", "kid": "testkey", "n": "testn", "e": "AQAB"}]}'
+os.environ["AUTH0_CLIENT_ID"] = "test-client-id"
+os.environ["AUTH0_CLIENT_SECRET"] = "test-client-secret"
 
 AUTH0_DOMAIN = "test-auth0-domain.auth0.com"
 API_AUDIENCE = "test-api-audience"
 ALGORITHMS = ["RS256"]
 
 @pytest.fixture
-def client(test_db_session):
+def mock_jwks():
+    """Mock JWKS response for testing"""
+    return {
+        "keys": [
+            {
+                "alg": "RS256",
+                "kty": "RSA",
+                "use": "sig",
+                "kid": "testkey",
+                "n": "testn",
+                "e": "AQAB"
+            }
+        ]
+    }
+
+@pytest.fixture
+def client(test_db_session, mock_jwks):
     from app.main import app as fastapi_app
     def override_get_db():
         yield test_db_session
     fastapi_app.dependency_overrides[get_db] = override_get_db
-    with TestClient(fastapi_app) as c:
-        yield c
+    
+    # Mock the get_jwks function to return test JWKS
+    with patch('app.core.auth.get_jwks', return_value=mock_jwks):
+        with TestClient(fastapi_app) as c:
+            yield c
     fastapi_app.dependency_overrides.clear()
 
 

@@ -35,6 +35,12 @@ class Settings(BaseSettings):
     # Redis Cache Configuration
     REDIS_URL: str = "redis://localhost:6379/0"
     
+    # Auth0 Configuration
+    AUTH0_DOMAIN: str = ""
+    AUTH0_CLIENT_ID: str = ""
+    AUTH0_CLIENT_SECRET: str = ""
+    AUTH0_API_AUDIENCE: str = ""
+    
     # Pydantic v2 uses model_config instead of Config class
     model_config = SettingsConfigDict(
         env_file=".env",

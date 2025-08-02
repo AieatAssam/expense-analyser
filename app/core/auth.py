@@ -1,4 +1,5 @@
 import os
+import requests
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
@@ -9,21 +10,22 @@ from app.models.account import Account
 
 
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN", "your-auth0-domain")
+AUTH0_CLIENT_ID = os.getenv("AUTH0_CLIENT_ID", "your-client-id")
+AUTH0_CLIENT_SECRET = os.getenv("AUTH0_CLIENT_SECRET", "your-client-secret")
 API_AUDIENCE = os.getenv("AUTH0_API_AUDIENCE", "your-api-audience")
 ALGORITHMS = ["RS256"]
-
-# In production, fetch JWKS from Auth0. For now, use a placeholder.
-AUTH0_JWKS = os.getenv("AUTH0_JWKS", None)
 
 http_bearer = HTTPBearer()
 
 def get_jwks():
-    # TODO: Fetch JWKS from Auth0 and cache it
-    # For now, raise if not set
-    if not AUTH0_JWKS:
-        raise Exception("Auth0 JWKS not configured")
-    import json
-    return json.loads(AUTH0_JWKS)
+    """Fetch JWKS from Auth0 well-known endpoint"""
+    try:
+        jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
+        response = requests.get(jwks_url, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        raise Exception(f"Failed to fetch JWKS from Auth0: {e}")
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
