@@ -1,20 +1,16 @@
 import React from 'react';
 import {
-  CardRoot,
-  CardHeader,
-  CardBody,
+  Card,
   Heading,
   Text,
   Skeleton,
   VStack,
   HStack,
   IconButton,
-  MenuRoot,
-  MenuContent,
-  MenuTrigger,
-  MenuItem,
+  Menu,
   Box,
   Icon,
+  Portal,
 } from '@chakra-ui/react';
 import { FiMoreVertical, FiDownload, FiRefreshCw } from 'react-icons/fi';
 
@@ -39,23 +35,23 @@ export const ChartCard: React.FC<ChartCardProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <CardRoot height={height}>
-        <CardHeader>
+      <Card.Root height={height}>
+        <Card.Header>
           <VStack align="start" gap={1}>
             <Skeleton height="24px" width="60%" />
             {subtitle && <Skeleton height="16px" width="40%" />}
           </VStack>
-        </CardHeader>
-        <CardBody pt={0}>
+        </Card.Header>
+        <Card.Body pt={0}>
           <Skeleton height="300px" borderRadius="md" />
-        </CardBody>
-      </CardRoot>
+        </Card.Body>
+      </Card.Root>
     );
   }
 
   return (
-    <CardRoot height={height}>
-      <CardHeader pb={2}>
+    <Card.Root height={height}>
+      <Card.Header pb={2}>
         <HStack justify="space-between" align="start">
           <VStack align="start" gap={1}>
             <Heading size="md" color="gray.700">
@@ -68,8 +64,8 @@ export const ChartCard: React.FC<ChartCardProps> = ({
             )}
           </VStack>
           {(onRefresh || onExport) && (
-            <MenuRoot>
-              <MenuTrigger asChild>
+            <Menu.Root>
+              <Menu.Trigger asChild>
                 <IconButton
                   variant="ghost"
                   size="sm"
@@ -77,28 +73,32 @@ export const ChartCard: React.FC<ChartCardProps> = ({
                 >
                   ⋮
                 </IconButton>
-              </MenuTrigger>
-              <MenuContent>
-                {onRefresh && (
-                  <MenuItem value="refresh" onClick={onRefresh}>
-                    🔄 Refresh
-                  </MenuItem>
-                )}
-                {onExport && (
-                  <MenuItem value="export" onClick={onExport}>
-                    📥 Export
-                  </MenuItem>
-                )}
-              </MenuContent>
-            </MenuRoot>
+              </Menu.Trigger>
+              <Portal>
+                <Menu.Positioner>
+                  <Menu.Content>
+                    {onRefresh && (
+                      <Menu.Item value="refresh" onClick={onRefresh}>
+                        🔄 Refresh
+                      </Menu.Item>
+                    )}
+                    {onExport && (
+                      <Menu.Item value="export" onClick={onExport}>
+                        📥 Export
+                      </Menu.Item>
+                    )}
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
           )}
         </HStack>
-      </CardHeader>
-      <CardBody pt={0} display="flex" flexDirection="column">
+      </Card.Header>
+      <Card.Body pt={0} display="flex" flexDirection="column">
         <Box flex="1" minH="0">
           {children}
         </Box>
-      </CardBody>
-    </CardRoot>
+      </Card.Body>
+    </Card.Root>
   );
 };

@@ -6,7 +6,6 @@ import {
   Text,
   Avatar,
   Card,
-  CardBody,
   Badge,
   Separator,
   Button,
@@ -55,7 +54,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             {userProfile.currentAccount.name}
           </Text>
         </VStack>
-        <Menu>
+        {/* <Menu>
           <MenuButton
             as={IconButton}
             icon={<FiMoreVertical />}
@@ -70,14 +69,14 @@ const UserProfile: React.FC<UserProfileProps> = ({
               <LogoutButton variant="text" />
             </MenuItem>
           </MenuList>
-        </Menu>
+        </Menu> */}
       </HStack>
     );
   }
 
   return (
-    <Card bg={cardBg} borderColor={borderColor}>
-      <CardBody>
+    <Card.Root bg={cardBg} borderColor={borderColor}>
+      <Card.Body>
         <VStack gap={4} align="stretch">
           {/* User Header */}
           <HStack gap={3}>
@@ -105,7 +104,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 )}
               </HStack>
             </VStack>
-            <Menu>
+            {/* <Menu>
               <MenuButton
                 as={IconButton}
                 icon={<FiMoreVertical />}
@@ -121,33 +120,34 @@ const UserProfile: React.FC<UserProfileProps> = ({
                   <LogoutButton variant="text" />
                 </MenuItem>
               </MenuList>
-            </Menu>
+            </Menu> */}
           </HStack>
 
           {/* Account Switcher */}
           {showAccountSwitcher && userProfile.accounts.length > 1 && (
             <>
-              <Divider />
+              {/* <Divider /> */}
               <AccountSwitcher variant="menu" size="sm" />
             </>
           )}
 
           {/* Quick Actions */}
-          <Divider />
+          {/* <Divider /> */}
           <VStack gap={2}>
             <Button
               variant="outline"
               size="sm"
               w="full"
-              leftIcon={<FiSettings />}
+              gap={2}
             >
+              <FiSettings />
               Account Settings
             </Button>
             <LogoutButton variant="outline" size="sm" width="full" />
           </VStack>
         </VStack>
-      </CardBody>
-    </Card>
+      </Card.Body>
+    </Card.Root>
   );
 };
 

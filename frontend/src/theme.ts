@@ -1,4 +1,4 @@
-import { createSystem, defaultConfig } from '@chakra-ui/react';
+import { defaultSystem } from '@chakra-ui/react';
 
-// Create a simple theme system for the application
-export const system = createSystem(defaultConfig);
+// Use the default theme system for the application
+export const system = defaultSystem;

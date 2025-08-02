@@ -4,20 +4,18 @@ import {
   VStack,
   HStack,
   Text,
-  Spinner,
   AlertRoot,
   AlertIndicator,
   useBreakpointValue,
   Button,
-  useDisclosure,
 } from '@chakra-ui/react';
 import { FiDollarSign, FiFileText, FiTrendingUp, FiShoppingBag, FiDownload } from 'react-icons/fi';
 import { format, subDays } from 'date-fns';
 
 import { DashboardLayout, DashboardGrid, DashboardCard, StatCard, ChartCard } from '../components/dashboard';
-import { LineChart, PieChart, BarChart } from '../components/charts';
-import { FilterPanel } from '../components/filters';
-import { ExportModal } from '../components/export';
+// import { LineChart, PieChart, BarChart } from '../components/charts';
+// import { FilterPanel } from '../components/filters';
+// import { ExportModal } from '../components/export';
 // import UserProfile from '../components/user/UserProfile';
 import { analyticsService, AnalyticsSummary, CategorySummary, SpendingTrend } from '../services/analyticsService';
 import { useAuth } from '../contexts/AuthContext';
@@ -35,7 +33,9 @@ interface FilterState {
 const DashboardPage: React.FC = () => {
   const { isAuthenticated, userProfile } = useAuth();
   // const toast = useToast(); // Temporarily disabled for Chakra UI v3 migration
-  const { isOpen: isExportOpen, onOpen: onExportOpen, onClose: onExportClose } = useDisclosure();
+  const [isExportOpen, setIsExportOpen] = useState(false);
+  const onExportOpen = () => setIsExportOpen(true);
+  const onExportClose = () => setIsExportOpen(false);
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -161,20 +161,21 @@ const DashboardPage: React.FC = () => {
         <VStack gap={4} align="stretch">
           <HStack justify="space-between" align="start">
             <Box flex="1">
-              <FilterPanel
+              {/* <FilterPanel
                 filters={filters}
                 onChange={handleFilterChange}
                 onReset={() => setFilters({ sortBy: 'receipt_date', sortOrder: 'desc' })}
-              />
+              /> */}
             </Box>
             <Button
-              leftIcon={<FiDownload />}
-              colorScheme="blue"
+              colorPalette="blue"
               variant="outline"
               onClick={onExportOpen}
               size="md"
-              isDisabled={isLoading || !summary}
+              disabled={isLoading || !summary}
+              gap={2}
             >
+              <FiDownload />
               Export
             </Button>
           </HStack>
@@ -235,7 +236,9 @@ const DashboardPage: React.FC = () => {
               isLoading={isLoading}
             >
               {trendData.length > 0 ? (
-                <LineChart data={trendChartData} height={300} />
+                <Box height="300px" display="flex" alignItems="center" justifyContent="center">
+                  <Text color="gray.500">Chart Component (LineChart)</Text>
+                </Box>
               ) : (
                 <Box height="300px" display="flex" alignItems="center" justifyContent="center">
                   <Text color="gray.500">No spending data available</Text>
@@ -253,7 +256,9 @@ const DashboardPage: React.FC = () => {
               isLoading={isLoading}
             >
               {categoryData.length > 0 ? (
-                <PieChart data={categoryChartData} height={300} />
+                <Box height="300px" display="flex" alignItems="center" justifyContent="center">
+                  <Text color="gray.500">Chart Component (PieChart)</Text>
+                </Box>
               ) : (
                 <Box height="300px" display="flex" alignItems="center" justifyContent="center">
                   <Text color="gray.500">No category data available</Text>
@@ -271,7 +276,9 @@ const DashboardPage: React.FC = () => {
               isLoading={isLoading}
             >
               {trendData.length > 0 ? (
-                <BarChart data={receiptCountChartData} height={300} />
+                <Box height="300px" display="flex" alignItems="center" justifyContent="center">
+                  <Text color="gray.500">Chart Component (BarChart)</Text>
+                </Box>
               ) : (
                 <Box height="300px" display="flex" alignItems="center" justifyContent="center">
                   <Text color="gray.500">No receipt data available</Text>
@@ -283,7 +290,7 @@ const DashboardPage: React.FC = () => {
       </VStack>
 
       {/* Export Modal */}
-      <ExportModal isOpen={isExportOpen} onClose={onExportClose} />
+      {/* <ExportModal isOpen={isExportOpen} onClose={onExportClose} /> */}
     </DashboardLayout>
   );
 };

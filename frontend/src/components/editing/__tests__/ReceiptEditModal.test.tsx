@@ -15,11 +15,15 @@ describe('ReceiptEditModal', () => {
     jest.clearAllMocks();
   });
 
-  test('renders modal when open', () => {
+  test('renders modal when open', async () => {
     render(<ReceiptEditModal {...mockProps} />);
     
     expect(screen.getByText('Edit Receipt')).toBeInTheDocument();
-    expect(screen.getByText('Loading receipt...')).toBeInTheDocument();
+    
+    // Wait for loading to complete and data to be displayed
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Sample Store')).toBeInTheDocument();
+    });
   });
 
   test('does not render when closed', () => {

@@ -58,9 +58,9 @@ const App: React.FC = () => {
               </header>
 
               <Routes>
-                <Route path="/dashboard" element={<DashboardPage />} />
+                {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
                 <Route path="/upload" element={<UploadPage />} />
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/" element={<Navigate to="/upload" replace />} />
               </Routes>
             </div>
           </Router>
