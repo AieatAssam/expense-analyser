@@ -1,14 +1,8 @@
 import React from 'react';
 import {
   Box,
-  StatRoot,
-  StatLabel,
-  StatValueText,
-  StatHelpText,
-  StatUpIndicator,
-  StatDownIndicator,
-  CardRoot,
-  CardBody,
+  Stat,
+  Card,
   Skeleton,
   Icon,
   HStack,
@@ -39,41 +33,41 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <CardRoot>
-        <CardBody>
+      <Card.Root>
+        <Card.Body>
           <VStack align="start" gap={3}>
             <Skeleton height="20px" width="60%" />
             <Skeleton height="32px" width="80%" />
             <Skeleton height="16px" width="40%" />
           </VStack>
-        </CardBody>
-      </CardRoot>
+        </Card.Body>
+      </Card.Root>
     );
   }
 
   return (
-    <CardRoot>
-      <CardBody>
-        <StatRoot>
+    <Card.Root>
+      <Card.Body>
+        <Stat.Root>
           <HStack justify="space-between" align="start">
             <VStack align="start" gap={1} flex="1">
-              <StatLabel fontSize="sm" color="gray.600" fontWeight="medium">
+              <Stat.Label fontSize="sm" color="gray.600" fontWeight="medium">
                 {label}
-              </StatLabel>
-              <StatValueText fontSize="2xl" fontWeight="bold" color="gray.900">
+              </Stat.Label>
+              <Stat.ValueText fontSize="2xl" fontWeight="bold" color="gray.900">
                 {value}
-              </StatValueText>
+              </Stat.ValueText>
               {(helpText || (trend && trendValue)) && (
-                <StatHelpText mb={0} fontSize="sm">
+                <Stat.HelpText mb={0} fontSize="sm">
                   {trend && trendValue && (
                     <>
-                      {trend === 'increase' ? <StatUpIndicator /> : <StatDownIndicator />}
+                      {trend === 'increase' ? <Stat.UpIndicator /> : <Stat.DownIndicator />}
                       {trendValue}
                       {helpText && ' '}
                     </>
                   )}
                   {helpText}
-                </StatHelpText>
+                </Stat.HelpText>
               )}
             </VStack>
             {icon && (
@@ -82,8 +76,8 @@ export const StatCard: React.FC<StatCardProps> = ({
               </Box>
             )}
           </HStack>
-        </StatRoot>
-      </CardBody>
-    </CardRoot>
+        </Stat.Root>
+      </Card.Body>
+    </Card.Root>
   );
 };
