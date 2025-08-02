@@ -10,10 +10,10 @@ import LoginButton from './components/auth/LoginButton';
 
 import './App.css';
 
-// Auth0 configuration - using same variables as backend
-const auth0Domain = process.env.AUTH0_DOMAIN || '';
-const auth0ClientId = process.env.AUTH0_CLIENT_ID || '';
-const auth0Audience = process.env.AUTH0_API_AUDIENCE || '';
+// Auth0 configuration - using React environment variables
+const auth0Domain = process.env.REACT_APP_AUTH0_DOMAIN || '';
+const auth0ClientId = process.env.REACT_APP_AUTH0_CLIENT_ID || '';
+const auth0Audience = process.env.REACT_APP_AUTH0_API_AUDIENCE || '';
 
 const App: React.FC = () => {
   const onRedirectCallback = (appState: any) => {
@@ -58,9 +58,9 @@ const App: React.FC = () => {
               </header>
 
               <Routes>
-                {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
+                <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/upload" element={<UploadPage />} />
-                <Route path="/" element={<Navigate to="/upload" replace />} />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </div>
           </Router>

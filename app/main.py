@@ -70,12 +70,36 @@ async def root_liveness():
 # Mount static files for assets
 static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
 if os.path.isdir(static_dir):
-    # Import FileResponse here to avoid cluttering global imports
+    from fastapi.staticfiles import StaticFiles
     from fastapi.responses import FileResponse
+    
+    # Mount the nested static directory for React build assets
+    # React builds create a structure like: static/static/css/ and static/static/js/
+    nested_static_dir = os.path.join(static_dir, "static")
+    if os.path.isdir(nested_static_dir):
+        app.mount("/static", StaticFiles(directory=nested_static_dir), name="static")
     
     # Serve the index.html at the root
     @app.get("/", include_in_schema=False)
     async def read_root():
+        return FileResponse(os.path.join(static_dir, "index.html"))
+    
+    # Catch-all route for SPA routing - serve index.html for any unmatched routes
+    # This ensures React Router can handle client-side routing
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        # Skip API routes - let them be handled by the API router
+        if full_path.startswith("api/"):
+            # This shouldn't happen due to router precedence, but just in case
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="Not found")
+        
+        # Check if the requested file exists in static directory (for non-nested assets)
+        file_path = os.path.join(static_dir, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        
+        # If not a static file, serve index.html for SPA routing
         return FileResponse(os.path.join(static_dir, "index.html"))
 
 if __name__ == "__main__":
