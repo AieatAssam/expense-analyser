@@ -4,10 +4,8 @@ import {
   VStack,
   HStack,
   Button,
-  Collapse,
   Text,
-  Divider,
-  useDisclosure,
+  Separator,
   Card,
   CardBody,
   Badge,
@@ -41,7 +39,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   onReset,
   showAdvanced = true,
 }) => {
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true });
+  const [isOpen, setIsOpen] = useState(true);
 
   const updateFilters = (updates: Partial<FilterState>) => {
     onChange({ ...filters, ...updates });
@@ -69,7 +67,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   return (
     <Card>
       <CardBody>
-        <VStack spacing={4} align="stretch">
+        <VStack gap={4} align="stretch">
           {/* Header */}
           <HStack justify="space-between" align="center">
             <HStack>
@@ -82,7 +80,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 ) : undefined}
                 variant="ghost"
                 size="sm"
-                onClick={onToggle}
+                onClick={() => setIsOpen(!isOpen)}
               >
                 Filters
               </Button>
@@ -98,8 +96,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </Button>
           </HStack>
 
-          <Collapse in={isOpen}>
-            <VStack spacing={6} align="stretch">
+          {isOpen && (
+            <VStack gap={6} align="stretch">
               {/* Search */}
               <SearchFilter
                 value={filters.search}
@@ -109,7 +107,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
               {showAdvanced && (
                 <>
-                  <Divider />
+                  <Separator />
                   
                   {/* Date Range */}
                   <DateRangeFilter
@@ -120,7 +118,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     }
                   />
 
-                  <Divider />
+                  <Separator />
 
                   {/* Amount Range */}
                   <AmountRangeFilter
@@ -131,7 +129,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     }
                   />
 
-                  <Divider />
+                  <Separator />
 
                   {/* Sort */}
                   <SortFilter
@@ -144,7 +142,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 </>
               )}
             </VStack>
-          </Collapse>
+          )}
         </VStack>
       </CardBody>
     </Card>

@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
+  DialogRoot,
+  DialogBackdrop,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogCloseTrigger,
+  DialogTitle,
   Button,
   VStack,
   HStack,
   Text,
   Switch,
-  FormControl,
-  FormLabel,
+  FieldRoot,
+  FieldLabel,
   Input,
-  Alert,
-  AlertIcon,
+  AlertRoot,
+  AlertIndicator,
   Progress,
-  useToast,
-  Divider,
+  Separator,
   Badge,
   Box,
 } from '@chakra-ui/react';
@@ -43,7 +43,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
   const [exportInfo, setExportInfo] = useState<ExportInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const toast = useToast();
+  // const toast = useToast(); // Temporarily disabled for Chakra UI v3 migration
 
   const handlePreview = async () => {
     setIsLoading(true);
@@ -63,13 +63,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
     } catch (error) {
       console.error('Error getting export info:', error);
       setError('Failed to get export information. Please try again.');
-      toast({
-        title: 'Export Preview Failed',
-        description: 'Unable to preview export. Please check your date range and try again.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      console.error('Export Preview Failed: Unable to preview export');
     } finally {
       setIsLoading(false);
     }
@@ -92,26 +86,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
         setDownloadProgress(progress);
       });
       
-      toast({
-        title: 'Export Complete',
-        description: 'Your expense data has been downloaded successfully.',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
+      console.log('Export Complete: Your expense data has been downloaded successfully.');
       
       onClose();
       
     } catch (error) {
       console.error('Error downloading export:', error);
       setError('Failed to download export. Please try again.');
-      toast({
-        title: 'Download Failed',
-        description: 'Unable to download export file. Please try again.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      console.error('Download Failed: Unable to download export file');
     } finally {
       setIsDownloading(false);
       setDownloadProgress(0);
@@ -133,45 +115,47 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
   const isDateRangeValid = !startDate || !endDate || startDate <= endDate;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>
-          <HStack>
-            <FiDownload />
-            <Text>Export Expense Data</Text>
-          </HStack>
-        </ModalHeader>
-        <ModalCloseButton isDisabled={isDownloading} />
+    <DialogRoot open={isOpen} onOpenChange={({ open }) => !open && handleClose()} size="lg">
+      <DialogBackdrop />
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            <HStack>
+              <FiDownload />
+              <Text>Export Expense Data</Text>
+            </HStack>
+          </DialogTitle>
+          <DialogCloseTrigger disabled={isDownloading} />
+        </DialogHeader>
         
-        <ModalBody>
-          <VStack spacing={6} align="stretch">
+        <DialogBody>
+          <VStack gap={6} align="stretch">
             {/* Date Range Selection */}
             <Box>
               <Text fontSize="sm" fontWeight="medium" mb={3} color="gray.700">
                 Date Range (Optional)
               </Text>
-              <HStack spacing={3}>
-                <FormControl>
-                  <FormLabel fontSize="xs" color="gray.600">From</FormLabel>
+              <HStack gap={3}>
+                <FieldRoot>
+                  <FieldLabel fontSize="xs" color="gray.600">From</FieldLabel>
                   <Input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     size="sm"
-                    isDisabled={isDownloading}
+                    disabled={isDownloading}
                   />
-                </FormControl>
-                <FormControl>
-                  <FormLabel fontSize="xs" color="gray.600">To</FormLabel>
+                </FieldRoot>
+                <FieldRoot>
+                  <FieldLabel fontSize="xs" color="gray.600">To</FieldLabel>
                   <Input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     size="sm"
-                    isDisabled={isDownloading}
+                    disabled={isDownloading}
                   />
-                </FormControl>
+                </FieldRoot>
               </HStack>
               {!isDateRangeValid && (
                 <Text fontSize="xs" color="red.500" mt={1}>
@@ -185,17 +169,17 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
               <Text fontSize="sm" fontWeight="medium" mb={3} color="gray.700">
                 Export Options
               </Text>
-              <FormControl display="flex" alignItems="center">
-                <FormLabel htmlFor="include-line-items" mb="0" fontSize="sm">
+              <FieldRoot display="flex" alignItems="center">
+                <FieldLabel htmlFor="include-line-items" mb="0" fontSize="sm">
                   Include detailed line items
-                </FormLabel>
+                </FieldLabel>
                 <Switch
                   id="include-line-items"
-                  isChecked={includeLineItems}
-                  onChange={(e) => setIncludeLineItems(e.target.checked)}
-                  isDisabled={isDownloading}
+                  checked={includeLineItems}
+                  onCheckedChange={(details) => setIncludeLineItems(details.checked)}
+                  disabled={isDownloading}
                 />
-              </FormControl>
+              </FieldRoot>
               <Text fontSize="xs" color="gray.500" mt={1}>
                 Creates a separate sheet with individual purchase items
               </Text>
@@ -207,7 +191,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
                 <Text fontSize="sm" fontWeight="medium" mb={3} color="gray.700">
                   Export Preview
                 </Text>
-                <VStack spacing={2} align="stretch">
+                <VStack gap={2} align="stretch">
                   <HStack justify="space-between">
                     <Text fontSize="sm">Records to export:</Text>
                     <Badge colorScheme="blue">{exportInfo.records_count} receipts</Badge>
@@ -238,10 +222,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
 
             {/* Error Display */}
             {error && (
-              <Alert status="error" borderRadius="md">
-                <AlertIcon />
+              <AlertRoot status="error" borderRadius="md">
+                <AlertIndicator />
                 <Text fontSize="sm">{error}</Text>
-              </Alert>
+              </AlertRoot>
             )}
 
             {/* File Format Info */}
@@ -253,7 +237,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
               <Text fontSize="xs" color="gray.600">
                 Your export will include:
               </Text>
-              <VStack align="start" spacing={1} mt={1}>
+              <VStack align="start" gap={1} mt={1}>
                 <Text fontSize="xs" color="gray.600">• Summary sheet with export statistics</Text>
                 <Text fontSize="xs" color="gray.600">• Receipts overview with totals and status</Text>
                 {includeLineItems && (
@@ -262,10 +246,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
               </VStack>
             </Box>
           </VStack>
-        </ModalBody>
+        </DialogBody>
 
-        <ModalFooter>
-          <HStack spacing={3}>
+        <DialogFooter>
+          <HStack gap={3}>
             <Button
               variant="outline"
               onClick={handleClose}
@@ -295,8 +279,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
               Download
             </Button>
           </HStack>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { ChakraProvider } from '@chakra-ui/react';
+import { system } from './theme';
 import { AuthProvider } from './contexts/AuthContext';
 import UploadPage from './pages/UploadPage';
 import DashboardPage from './pages/DashboardPage';
@@ -24,7 +25,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <ChakraProvider>
+    <ChakraProvider value={system}>
       <Auth0Provider
         domain={auth0Domain}
         clientId={auth0ClientId}

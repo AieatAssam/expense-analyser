@@ -1,8 +1,8 @@
 import React from 'react';
 import {
   Box,
-  FormControl,
-  FormLabel,
+  FieldRoot,
+  FieldLabel,
   Input,
   HStack,
   VStack,
@@ -76,38 +76,38 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
 
   return (
     <Box>
-      <FormLabel fontSize="sm" fontWeight="medium" mb={3}>
+      <FieldLabel fontSize="sm" fontWeight="medium" mb={3}>
         {label}
-      </FormLabel>
-      <VStack spacing={4} align="stretch">
+      </FieldLabel>
+      <VStack gap={4} align="stretch">
         {/* Date inputs */}
-        <HStack spacing={3} direction={isMobile ? 'column' : 'row'}>
-          <FormControl flex="1">
-            <FormLabel fontSize="xs" color="gray.600">From</FormLabel>
+        <HStack gap={3} direction={isMobile ? 'column' : 'row'}>
+          <FieldRoot flex="1">
+            <FieldLabel fontSize="xs" color="gray.600">From</FieldLabel>
             <Input
               type="date"
               value={startDate || ''}
               onChange={handleStartDateChange}
               size="sm"
             />
-          </FormControl>
-          <FormControl flex="1">
-            <FormLabel fontSize="xs" color="gray.600">To</FormLabel>
+          </FieldRoot>
+          <FieldRoot flex="1">
+            <FieldLabel fontSize="xs" color="gray.600">To</FieldLabel>
             <Input
               type="date"
               value={endDate || ''}
               onChange={handleEndDateChange}
               size="sm"
             />
-          </FormControl>
+          </FieldRoot>
         </HStack>
 
         {/* Quick range buttons */}
         <Box>
           <Text fontSize="xs" color="gray.600" mb={2}>Quick select:</Text>
-          <VStack spacing={2}>
+          <VStack gap={2}>
             {isMobile ? (
-              <VStack spacing={1} w="full">
+              <VStack gap={1} w="full">
                 {quickOptions.map((option) => (
                   <Button
                     key={option.label}
@@ -122,7 +122,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                 ))}
               </VStack>
             ) : (
-              <HStack spacing={1} wrap="wrap">
+              <HStack gap={1} wrap="wrap">
                 {quickOptions.map((option) => (
                   <Button
                     key={option.label}

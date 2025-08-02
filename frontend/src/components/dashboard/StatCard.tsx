@@ -1,12 +1,13 @@
 import React from 'react';
 import {
   Box,
-  Stat,
+  StatRoot,
   StatLabel,
-  StatNumber,
+  StatValueText,
   StatHelpText,
-  StatArrow,
-  Card,
+  StatUpIndicator,
+  StatDownIndicator,
+  CardRoot,
   CardBody,
   Skeleton,
   Icon,
@@ -38,35 +39,35 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <Card>
+      <CardRoot>
         <CardBody>
-          <VStack align="start" spacing={3}>
+          <VStack align="start" gap={3}>
             <Skeleton height="20px" width="60%" />
             <Skeleton height="32px" width="80%" />
             <Skeleton height="16px" width="40%" />
           </VStack>
         </CardBody>
-      </Card>
+      </CardRoot>
     );
   }
 
   return (
-    <Card>
+    <CardRoot>
       <CardBody>
-        <Stat>
+        <StatRoot>
           <HStack justify="space-between" align="start">
-            <VStack align="start" spacing={1} flex="1">
+            <VStack align="start" gap={1} flex="1">
               <StatLabel fontSize="sm" color="gray.600" fontWeight="medium">
                 {label}
               </StatLabel>
-              <StatNumber fontSize="2xl" fontWeight="bold" color="gray.900">
+              <StatValueText fontSize="2xl" fontWeight="bold" color="gray.900">
                 {value}
-              </StatNumber>
+              </StatValueText>
               {(helpText || (trend && trendValue)) && (
                 <StatHelpText mb={0} fontSize="sm">
                   {trend && trendValue && (
                     <>
-                      <StatArrow type={trend} />
+                      {trend === 'increase' ? <StatUpIndicator /> : <StatDownIndicator />}
                       {trendValue}
                       {helpText && ' '}
                     </>
@@ -77,12 +78,12 @@ export const StatCard: React.FC<StatCardProps> = ({
             </VStack>
             {icon && (
               <Box p={2} bg={`${colorScheme}.50`} borderRadius="md">
-                <Icon as={icon} boxSize={6} color={`${colorScheme}.500`} />
+                📊
               </Box>
             )}
           </HStack>
-        </Stat>
+        </StatRoot>
       </CardBody>
-    </Card>
+    </CardRoot>
   );
 };

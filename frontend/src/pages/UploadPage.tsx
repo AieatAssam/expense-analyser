@@ -5,7 +5,7 @@ import { ProcessingStatusProvider } from '../contexts/ProcessingStatusContext';
 import FileUpload from '../components/upload/FileUpload';
 import ReceiptPreview from '../components/preview/ReceiptPreview';
 import StatusDisplay from '../components/status/StatusDisplay';
-import UserProfile from '../components/user/UserProfile';
+// import UserProfile from '../components/user/UserProfile';
 import { Receipt } from '../types';
 
 const UploadPage: React.FC = () => {
@@ -64,7 +64,7 @@ const UploadPage: React.FC = () => {
   return (
     <ProcessingStatusProvider>
       <Container maxW="container.md" py={8}>
-        <UserProfile />
+        {/* <UserProfile /> */}
         
         <Heading size="lg" mb={6}>Receipt Upload</Heading>
 

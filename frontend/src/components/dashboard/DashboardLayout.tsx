@@ -27,7 +27,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   if (isLoading) {
     return (
       <Container maxW="full" py={containerPadding} px={containerPadding}>
-        <VStack spacing={6} align="stretch">
+        <VStack gap={6} align="stretch">
           <Skeleton height="40px" width="300px" />
           <Grid templateColumns={`repeat(${gridColumns}, 1fr)`} gap={6}>
             {Array.from({ length: 6 }).map((_, index) => (
@@ -43,7 +43,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   return (
     <Container maxW="full" py={containerPadding} px={containerPadding}>
-      <VStack spacing={6} align="stretch">
+      <VStack gap={6} align="stretch">
         <Heading size="lg" color="gray.700">
           {title}
         </Heading>

@@ -5,9 +5,8 @@ import {
   HStack,
   Text,
   Spinner,
-  Alert,
-  AlertIcon,
-  useToast,
+  AlertRoot,
+  AlertIndicator,
   useBreakpointValue,
   Button,
   useDisclosure,
@@ -19,7 +18,7 @@ import { DashboardLayout, DashboardGrid, DashboardCard, StatCard, ChartCard } fr
 import { LineChart, PieChart, BarChart } from '../components/charts';
 import { FilterPanel } from '../components/filters';
 import { ExportModal } from '../components/export';
-import UserProfile from '../components/user/UserProfile';
+// import UserProfile from '../components/user/UserProfile';
 import { analyticsService, AnalyticsSummary, CategorySummary, SpendingTrend } from '../services/analyticsService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -35,7 +34,7 @@ interface FilterState {
 
 const DashboardPage: React.FC = () => {
   const { isAuthenticated, userProfile } = useAuth();
-  const toast = useToast();
+  // const toast = useToast(); // Temporarily disabled for Chakra UI v3 migration
   const { isOpen: isExportOpen, onOpen: onExportOpen, onClose: onExportClose } = useDisclosure();
   
   const [isLoading, setIsLoading] = useState(true);
@@ -84,13 +83,7 @@ const DashboardPage: React.FC = () => {
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
       setError('Failed to load dashboard data. Please try again.');
-      toast({
-        title: 'Error loading dashboard',
-        description: 'Failed to load dashboard data. Please refresh the page.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      console.error('Error loading dashboard:', error);
     } finally {
       setIsLoading(false);
     }
@@ -100,13 +93,7 @@ const DashboardPage: React.FC = () => {
     setFilters(newFilters);
     // In a real implementation, you'd reload data based on filters
     // For now, just show a toast
-    toast({
-      title: 'Filters updated',
-      description: 'Dashboard filters have been applied',
-      status: 'info',
-      duration: 2000,
-      isClosable: true,
-    });
+    console.log('Filters updated:', newFilters);
   };
 
   const handleRefresh = () => {
@@ -141,10 +128,10 @@ const DashboardPage: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <DashboardLayout title="Please log in to view your dashboard">
-        <Alert status="warning">
-          <AlertIcon />
+        <AlertRoot status="warning">
+          <AlertIndicator />
           You need to be logged in to access the dashboard.
-        </Alert>
+        </AlertRoot>
       </DashboardLayout>
     );
   }
@@ -152,26 +139,26 @@ const DashboardPage: React.FC = () => {
   if (error && !isLoading) {
     return (
       <DashboardLayout title="Dashboard Error">
-        <Alert status="error">
-          <AlertIcon />
+        <AlertRoot status="error">
+          <AlertIndicator />
           {error}
-        </Alert>
+        </AlertRoot>
       </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout title="Analytics Dashboard" isLoading={isLoading}>
-      <VStack spacing={6} align="stretch">
+      <VStack gap={6} align="stretch">
         {/* User Profile Section */}
         {!isMobile && (
           <Box>
-            <UserProfile variant="compact" />
+            {/* <UserProfile variant="compact" /> */}
           </Box>
         )}
 
         {/* Filters and Export */}
-        <VStack spacing={4} align="stretch">
+        <VStack gap={4} align="stretch">
           <HStack justify="space-between" align="start">
             <Box flex="1">
               <FilterPanel

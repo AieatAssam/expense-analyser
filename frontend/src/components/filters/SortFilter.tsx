@@ -1,9 +1,10 @@
 import React from 'react';
 import {
   Box,
-  FormControl,
-  FormLabel,
-  Select,
+  FieldRoot,
+  FieldLabel,
+  NativeSelectRoot,
+  NativeSelectField,
   HStack,
   IconButton,
 } from '@chakra-ui/react';
@@ -46,33 +47,36 @@ export const SortFilter: React.FC<SortFilterProps> = ({
 
   return (
     <Box>
-      <FormLabel fontSize="sm" fontWeight="medium" mb={3}>
+      <FieldLabel fontSize="sm" fontWeight="medium" mb={3}>
         {label}
-      </FormLabel>
-      <HStack spacing={2}>
-        <FormControl flex="1">
-          <Select
-            value={sortBy}
-            onChange={handleSortByChange}
-            size="sm"
-            bg="white"
-            borderColor="gray.200"
-          >
-            {fields.map((field) => (
-              <option key={field.value} value={field.value}>
-                {field.label}
-              </option>
-            ))}
-          </Select>
-        </FormControl>
+      </FieldLabel>
+      <HStack gap={2}>
+        <FieldRoot flex="1">
+          <NativeSelectRoot>
+            <NativeSelectField
+              value={sortBy}
+              onChange={handleSortByChange}
+              size="sm"
+              bg="white"
+              borderColor="gray.200"
+            >
+              {fields.map((field) => (
+                <option key={field.value} value={field.value}>
+                  {field.label}
+                </option>
+              ))}
+            </NativeSelectField>
+          </NativeSelectRoot>
+        </FieldRoot>
         <IconButton
           aria-label={`Sort ${sortOrder === 'asc' ? 'ascending' : 'descending'}`}
-          icon={sortOrder === 'asc' ? <FiArrowUp /> : <FiArrowDown />}
           size="sm"
           variant="outline"
           onClick={toggleSortOrder}
           colorScheme="blue"
-        />
+        >
+          {sortOrder === 'asc' ? '↑' : '↓'}
+        </IconButton>
       </HStack>
     </Box>
   );

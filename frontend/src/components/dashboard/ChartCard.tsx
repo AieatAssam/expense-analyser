@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Card,
+  CardRoot,
   CardHeader,
   CardBody,
   Heading,
@@ -9,10 +9,12 @@ import {
   VStack,
   HStack,
   IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
+  MenuRoot,
+  MenuContent,
+  MenuTrigger,
   MenuItem,
+  Box,
+  Icon,
 } from '@chakra-ui/react';
 import { FiMoreVertical, FiDownload, FiRefreshCw } from 'react-icons/fi';
 
@@ -37,9 +39,9 @@ export const ChartCard: React.FC<ChartCardProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <Card height={height}>
+      <CardRoot height={height}>
         <CardHeader>
-          <VStack align="start" spacing={1}>
+          <VStack align="start" gap={1}>
             <Skeleton height="24px" width="60%" />
             {subtitle && <Skeleton height="16px" width="40%" />}
           </VStack>
@@ -47,15 +49,15 @@ export const ChartCard: React.FC<ChartCardProps> = ({
         <CardBody pt={0}>
           <Skeleton height="300px" borderRadius="md" />
         </CardBody>
-      </Card>
+      </CardRoot>
     );
   }
 
   return (
-    <Card height={height}>
+    <CardRoot height={height}>
       <CardHeader pb={2}>
         <HStack justify="space-between" align="start">
-          <VStack align="start" spacing={1}>
+          <VStack align="start" gap={1}>
             <Heading size="md" color="gray.700">
               {title}
             </Heading>
@@ -66,27 +68,29 @@ export const ChartCard: React.FC<ChartCardProps> = ({
             )}
           </VStack>
           {(onRefresh || onExport) && (
-            <Menu>
-              <MenuButton
-                as={IconButton}
-                icon={<FiMoreVertical />}
-                variant="ghost"
-                size="sm"
-                aria-label="Chart options"
-              />
-              <MenuList>
+            <MenuRoot>
+              <MenuTrigger asChild>
+                <IconButton
+                  variant="ghost"
+                  size="sm"
+                  aria-label="Chart options"
+                >
+                  ⋮
+                </IconButton>
+              </MenuTrigger>
+              <MenuContent>
                 {onRefresh && (
-                  <MenuItem icon={<FiRefreshCw />} onClick={onRefresh}>
-                    Refresh
+                  <MenuItem value="refresh" onClick={onRefresh}>
+                    🔄 Refresh
                   </MenuItem>
                 )}
                 {onExport && (
-                  <MenuItem icon={<FiDownload />} onClick={onExport}>
-                    Export
+                  <MenuItem value="export" onClick={onExport}>
+                    📥 Export
                   </MenuItem>
                 )}
-              </MenuList>
-            </Menu>
+              </MenuContent>
+            </MenuRoot>
           )}
         </HStack>
       </CardHeader>
@@ -95,6 +99,6 @@ export const ChartCard: React.FC<ChartCardProps> = ({
           {children}
         </Box>
       </CardBody>
-    </Card>
+    </CardRoot>
   );
 };

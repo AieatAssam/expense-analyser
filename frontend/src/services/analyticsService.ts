@@ -1,4 +1,4 @@
-import { api } from './api';
+import api from './api';
 
 export interface CategorySummary {
   category_id?: number;
