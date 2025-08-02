@@ -267,7 +267,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
       >
         <Card>
           <CardBody p={8}>
-            <VStack spacing={4}>
+            <VStack gap={4}>
               <Spinner size="lg" />
               <Text>Loading receipt details...</Text>
             </VStack>
@@ -303,7 +303,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
         <Box p={4} borderBottom="1px" borderColor="gray.200">
           <HStack justify="space-between" align="center">
             <Text fontSize="lg" fontWeight="bold">Edit Receipt</Text>
-            <HStack spacing={2}>
+            <HStack gap={2}>
               {receipt?.validation_summary && (
                 <Badge
                   colorScheme={
@@ -327,12 +327,12 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
 
         {/* Body */}
         <Box p={4}>
-          <VStack spacing={6} align="stretch">
+          <VStack gap={6} align="stretch">
             {/* Validation Errors */}
             {Object.keys(validationErrors).length > 0 && (
               <Alert status="error">
                 <AlertIcon />
-                <VStack align="start" spacing={1}>
+                <VStack align="start" gap={1}>
                   <Text fontWeight="medium">Please fix the following errors:</Text>
                   {Object.entries(validationErrors).map(([field, error]) => (
                     <Text key={field} fontSize="sm">• {error}</Text>
@@ -347,8 +347,8 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                 <Heading size="md">Receipt Information</Heading>
               </CardHeader>
               <CardBody>
-                <VStack spacing={4} align="stretch">
-                  <HStack spacing={4}>
+                <VStack gap={4} align="stretch">
+                  <HStack gap={4}>
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium" mb={2}>Store Name</Text>
                       <Input
@@ -376,7 +376,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                     </Box>
                   </HStack>
 
-                  <HStack spacing={4}>
+                  <HStack gap={4}>
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium" mb={2}>Total Amount</Text>
                       <Input
@@ -403,7 +403,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
 
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium" mb={2}>Currency</Text>
-                      <Select
+                      <NativeSelectRoot><NativeSelectField
                         value={formData.currency}
                         onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))}
                       >
@@ -411,7 +411,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                         <option value="EUR">EUR</option>
                         <option value="GBP">GBP</option>
                         <option value="CAD">CAD</option>
-                      </Select>
+                      </NativeSelectField></NativeSelectRoot>
                     </Box>
                   </HStack>
 
@@ -443,12 +443,12 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                 </HStack>
               </CardHeader>
               <CardBody>
-                <VStack spacing={4} align="stretch">
+                <VStack gap={4} align="stretch">
                   {formData.line_items.map((item, index) => (
                     <Box key={index} p={4} border="1px" borderColor="gray.200" borderRadius="md">
-                      <HStack justify="space-between" align="start" spacing={4}>
-                        <VStack spacing={3} align="stretch" flex={1}>
-                          <HStack spacing={3}>
+                      <HStack justify="space-between" align="start" gap={4}>
+                        <VStack gap={3} align="stretch" flex={1}>
+                          <HStack gap={3}>
                             <Box flex={2}>
                               <Text fontSize="sm" fontWeight="medium" mb={2}>Item Name</Text>
                               <Input
@@ -486,7 +486,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                             />
                           </Box>
 
-                          <HStack spacing={3}>
+                          <HStack gap={3}>
                             <Box flex={1}>
                               <Text fontSize="sm" fontWeight="medium" mb={2}>Quantity</Text>
                               <Input
@@ -592,7 +592,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                 <Heading size="md">Verification</Heading>
               </CardHeader>
               <CardBody>
-                <VStack spacing={4} align="stretch">
+                <VStack gap={4} align="stretch">
                   <Box>
                     <HStack align="center">
                       <input
@@ -629,7 +629,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
 
         {/* Footer */}
         <Box p={4} borderTop="1px" borderColor="gray.200">
-          <HStack spacing={3} justify="end">
+          <HStack gap={3} justify="end">
             <Button
               variant="outline"
               onClick={handleCancel}

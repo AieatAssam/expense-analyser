@@ -6,7 +6,8 @@ import {
   Text,
   Button,
   Input,
-  Select,
+  NativeSelectRoot,
+  NativeSelectField,
   Heading,
   Badge,
   Spinner,
@@ -212,7 +213,7 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
         )}
 
         {receipt && !loading && (
-          <VStack spacing="4" align="stretch">
+          <VStack gap="4" align="stretch">
             {/* Validation Status */}
             {receipt.validation_status && (
               <Box>
@@ -258,17 +259,19 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
 
             <Box>
               <Text fontSize="sm" fontWeight="bold" mb="2">Payment Method</Text>
-              <Select
-                value={receipt.payment_method || ''}
-                onChange={(e) => updateReceiptField('payment_method', e.target.value)}
-              >
-                <option value="">Select payment method</option>
-                <option value="cash">Cash</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="debit_card">Debit Card</option>
-                <option value="mobile_payment">Mobile Payment</option>
-                <option value="other">Other</option>
-              </Select>
+              <NativeSelectRoot>
+                <NativeSelectField
+                  value={receipt.payment_method || ''}
+                  onChange={(e) => updateReceiptField('payment_method', e.target.value)}
+                >
+                  <option value="">Select payment method</option>
+                  <option value="cash">Cash</option>
+                  <option value="credit_card">Credit Card</option>
+                  <option value="debit_card">Debit Card</option>
+                  <option value="mobile_payment">Mobile Payment</option>
+                  <option value="other">Other</option>
+                </NativeSelectField>
+              </NativeSelectRoot>
             </Box>
 
             <Box>
@@ -289,7 +292,7 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                 </Button>
               </HStack>
 
-              <VStack spacing="3" align="stretch">
+              <VStack gap="3" align="stretch">
                 {receipt.line_items.map((item, index) => (
                   <Box
                     key={index}
@@ -310,7 +313,7 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                       </Button>
                     </HStack>
 
-                    <VStack spacing="3" align="stretch">
+                    <VStack gap="3" align="stretch">
                       <Box>
                         <Text fontSize="sm" fontWeight="bold" mb="1">Description</Text>
                         <Input
@@ -363,7 +366,7 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
             </Box>
 
             {/* Action Buttons */}
-            <HStack justifyContent="flex-end" spacing="3" pt="4">
+            <HStack justifyContent="flex-end" gap="3" pt="4">
               <Button variant="outline" onClick={onClose}>
                 Cancel
               </Button>

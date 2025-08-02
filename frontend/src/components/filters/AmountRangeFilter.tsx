@@ -1,13 +1,10 @@
 import React from 'react';
 import {
   Box,
-  FormControl,
-  FormLabel,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
+  FieldRoot,
+  FieldLabel,
+  NumberInputRoot,
+  NumberInputInput,
   HStack,
   Text,
   VStack,
@@ -56,50 +53,42 @@ export const AmountRangeFilter: React.FC<AmountRangeFilterProps> = ({
 
   return (
     <Box>
-      <FormLabel fontSize="sm" fontWeight="medium" mb={3}>
+      <FieldLabel fontSize="sm" fontWeight="medium" mb={3}>
         {label}
-      </FormLabel>
-      <VStack spacing={4} align="stretch">
+      </FieldLabel>
+      <VStack gap={4} align="stretch">
         {/* Amount inputs */}
-        <HStack spacing={3}>
-          <FormControl flex="1">
-            <FormLabel fontSize="xs" color="gray.600">Min Amount</FormLabel>
-            <NumberInput
-              value={minAmount || ''}
-              onChange={handleMinChange}
+        <HStack gap={3}>
+          <FieldRoot flex="1">
+            <FieldLabel fontSize="xs" color="gray.600">Min Amount</FieldLabel>
+            <NumberInputRoot
+              value={minAmount?.toString() || ''}
+              onValueChange={(details) => handleMinChange(details.value)}
               min={0}
-              precision={2}
+              formatOptions={{ minimumFractionDigits: 2 }}
               size="sm"
             >
-              <NumberInputField placeholder="0.00" />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
-          <FormControl flex="1">
-            <FormLabel fontSize="xs" color="gray.600">Max Amount</FormLabel>
-            <NumberInput
-              value={maxAmount || ''}
-              onChange={handleMaxChange}
+              <NumberInputInput placeholder="0.00" />
+            </NumberInputRoot>
+          </FieldRoot>
+          <FieldRoot flex="1">
+            <FieldLabel fontSize="xs" color="gray.600">Max Amount</FieldLabel>
+            <NumberInputRoot
+              value={maxAmount?.toString() || ''}
+              onValueChange={(details) => handleMaxChange(details.value)}
               min={0}
-              precision={2}
+              formatOptions={{ minimumFractionDigits: 2 }}
               size="sm"
             >
-              <NumberInputField placeholder="No limit" />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
+              <NumberInputInput placeholder="No limit" />
+            </NumberInputRoot>
+          </FieldRoot>
         </HStack>
 
         {/* Quick range buttons */}
         <Box>
           <Text fontSize="xs" color="gray.600" mb={2}>Quick select:</Text>
-          <VStack spacing={1}>
+          <VStack gap={1}>
             {quickRanges.map((range) => (
               <Button
                 key={range.label}

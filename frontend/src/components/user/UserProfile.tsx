@@ -8,14 +8,13 @@ import {
   Card,
   CardBody,
   Badge,
-  Divider,
+  Separator,
   Button,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
+  // Menu,
+  // MenuButton,
+  // MenuList,
+  // MenuItem,
   IconButton,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { FiUser, FiSettings, FiMoreVertical, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
@@ -32,8 +31,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
   showAccountSwitcher = true,
 }) => {
   const { userProfile } = useAuth();
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const cardBg = 'white';
+  const borderColor = 'gray.200';
 
   if (!userProfile) {
     return null;
@@ -41,14 +40,14 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
   if (variant === 'compact') {
     return (
-      <HStack spacing={3} p={3}>
+      <HStack gap={3} p={3}>
         <Avatar
           size="sm"
           name={userProfile.user.name || userProfile.user.email}
           src={userProfile.user.picture}
           bg="blue.500"
         />
-        <VStack spacing={0} align="start" flex="1">
+        <VStack gap={0} align="start" flex="1">
           <Text fontSize="sm" fontWeight="medium" noOfLines={1}>
             {userProfile.user.name || userProfile.user.email}
           </Text>
@@ -79,23 +78,23 @@ const UserProfile: React.FC<UserProfileProps> = ({
   return (
     <Card bg={cardBg} borderColor={borderColor}>
       <CardBody>
-        <VStack spacing={4} align="stretch">
+        <VStack gap={4} align="stretch">
           {/* User Header */}
-          <HStack spacing={3}>
+          <HStack gap={3}>
             <Avatar
               size="md"
               name={userProfile.user.name || userProfile.user.email}
               src={userProfile.user.picture}
               bg="blue.500"
             />
-            <VStack spacing={1} align="start" flex="1">
+            <VStack gap={1} align="start" flex="1">
               <Text fontWeight="bold" fontSize="md" noOfLines={1}>
                 {userProfile.user.name || userProfile.user.email}
               </Text>
               <Text fontSize="sm" color="gray.600" noOfLines={1}>
                 {userProfile.user.email}
               </Text>
-              <HStack spacing={2}>
+              <HStack gap={2}>
                 <Badge colorScheme="blue" size="sm">
                   {userProfile.currentAccount.name}
                 </Badge>
@@ -135,7 +134,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
           {/* Quick Actions */}
           <Divider />
-          <VStack spacing={2}>
+          <VStack gap={2}>
             <Button
               variant="outline"
               size="sm"

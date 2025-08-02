@@ -3,19 +3,18 @@ import {
   Box,
   Text,
   Select,
-  Menu,
-  MenuButton,
-  MenuList,
+  MenuRoot,
+  MenuTrigger,
+  MenuContent,
   MenuItem,
   Button,
   HStack,
   VStack,
   Badge,
   Avatar,
-  useToast,
   Spinner,
 } from '@chakra-ui/react';
-import { FiChevronDown, FiCheck, FiBuilding } from 'react-icons/fi';
+import { FiChevronDown, FiCheck, FiUser } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface AccountSwitcherProps {
@@ -29,7 +28,6 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
 }) => {
   const { userProfile, switchAccount } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
 
   if (!userProfile || userProfile.accounts.length <= 1) {
     return null;
@@ -42,21 +40,9 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
     try {
       await switchAccount(accountId);
       const account = userProfile.accounts.find(acc => acc.id === accountId);
-      toast({
-        title: 'Account switched',
-        description: `Now viewing ${account?.name}`,
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
+      console.log('Account switched to:', account?.name);
     } catch (error) {
-      toast({
-        title: 'Failed to switch account',
-        description: 'Please try again',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+      console.error('Failed to switch account:', error);
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +54,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
         <Text fontSize="sm" mb={2} fontWeight="medium" color="gray.700">
           Current Account
         </Text>
-        <Select
+        <NativeSelectRoot><NativeSelectField
           value={userProfile.currentAccount.id}
           onChange={(e) => handleAccountSwitch(e.target.value)}
           size={size}
@@ -81,7 +67,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
               {account.name}
             </option>
           ))}
-        </Select>
+        </NativeSelectField></NativeSelectRoot>
       </Box>
     );
   }
@@ -91,9 +77,9 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
       <Text fontSize="sm" mb={2} fontWeight="medium" color="gray.700">
         Current Account
       </Text>
-      <Menu>
-        <MenuButton
-          as={Button}
+      <MenuRoot>
+        <MenuTrigger asChild>
+          <Button
           rightIcon={isLoading ? <Spinner size="sm" /> : <FiChevronDown />}
           variant="outline"
           size={size}
@@ -103,14 +89,14 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
           borderColor="gray.200"
           isDisabled={isLoading}
         >
-          <HStack spacing={2}>
+          <HStack gap={2}>
             <Avatar
               size="xs"
               name={userProfile.currentAccount.name}
-              icon={<FiBuilding />}
+              icon={<FiUser />}
               bg="blue.500"
             />
-            <VStack spacing={0} align="start">
+            <VStack gap={0} align="start">
               <Text fontSize="sm" fontWeight="medium">
                 {userProfile.currentAccount.name}
               </Text>
@@ -121,27 +107,29 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
               )}
             </VStack>
           </HStack>
-        </MenuButton>
-        <MenuList>
+          </Button>
+        </MenuTrigger>
+        <MenuContent>
           {userProfile.accounts.map((account) => (
             <MenuItem
               key={account.id}
+              value={account.id}
               onClick={() => handleAccountSwitch(account.id)}
-              icon={
-                account.id === userProfile.currentAccount.id ? (
+            >
+              <HStack gap={2} mr={2}>
+                {account.id === userProfile.currentAccount.id ? (
                   <FiCheck color="green" />
                 ) : (
                   <Avatar
                     size="xs"
                     name={account.name}
-                    icon={<FiBuilding />}
+                    icon={<FiUser />}
                     bg="gray.400"
                   />
-                )
-              }
-            >
+                )}
+              </HStack>
               <HStack justify="space-between" w="full">
-                <VStack spacing={0} align="start">
+                <VStack gap={0} align="start">
                   <Text fontSize="sm" fontWeight="medium">
                     {account.name}
                   </Text>
@@ -157,8 +145,8 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
               </HStack>
             </MenuItem>
           ))}
-        </MenuList>
-      </Menu>
+        </MenuContent>
+      </MenuRoot>
     </Box>
   );
 };

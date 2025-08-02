@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   InputGroup,
-  InputLeftElement,
+  InputElement,
   Input,
-  InputRightElement,
   IconButton,
-  FormControl,
-  FormLabel,
+  FieldRoot,
+  FieldLabel,
 } from '@chakra-ui/react';
 import { FiSearch, FiX } from 'react-icons/fi';
 
@@ -44,14 +43,14 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
   };
 
   return (
-    <FormControl>
-      <FormLabel fontSize="sm" fontWeight="medium">
+    <FieldRoot>
+      <FieldLabel fontSize="sm" fontWeight="medium">
         {label}
-      </FormLabel>
+      </FieldLabel>
       <InputGroup>
-        <InputLeftElement pointerEvents="none">
+        <InputElement placement="left" pointerEvents="none">
           <FiSearch color="gray.300" />
-        </InputLeftElement>
+        </InputElement>
         <Input
           value={localValue}
           onChange={(e) => setLocalValue(e.target.value)}
@@ -63,17 +62,18 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
           _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px #3182ce' }}
         />
         {localValue && (
-          <InputRightElement>
+          <InputElement placement="right">
             <IconButton
               aria-label="Clear search"
-              icon={<FiX />}
               size="sm"
               variant="ghost"
               onClick={handleClear}
-            />
-          </InputRightElement>
+            >
+              <FiX />
+            </IconButton>
+          </InputElement>
         )}
       </InputGroup>
-    </FormControl>
+    </FieldRoot>
   );
 };
