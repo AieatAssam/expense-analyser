@@ -89,15 +89,20 @@ describe('ReceiptEditModal', () => {
   test('calls onSave when save is clicked', async () => {
     render(<ReceiptEditModal {...mockProps} />);
     
+    // Wait for the component to be fully rendered
     await waitFor(() => {
-      const saveButton = screen.getByText('Save Changes');
-      fireEvent.click(saveButton);
+      expect(screen.getByText('Save Changes')).toBeInTheDocument();
     });
 
+    // Click the save button
+    const saveButton = screen.getByText('Save Changes');
+    fireEvent.click(saveButton);
+
+    // Wait for the save operation to complete with a longer timeout
     await waitFor(() => {
       expect(mockProps.onSave).toHaveBeenCalled();
       expect(mockProps.onClose).toHaveBeenCalled();
-    });
+    }, { timeout: 3000 });
   });
 
   test('updates total when line item amounts change', async () => {

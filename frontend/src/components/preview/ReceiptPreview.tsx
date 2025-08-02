@@ -88,7 +88,7 @@ const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
           </Button>
           <Button
             onClick={onConfirm}
-            colorScheme="green"
+            colorPalette="green"
             size="sm"
           >
             <FiCheck style={{ marginRight: '4px' }} /> Confirm

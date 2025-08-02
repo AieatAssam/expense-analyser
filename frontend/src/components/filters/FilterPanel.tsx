@@ -74,7 +74,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               <Button
                 leftIcon={<FiFilter />}
                 rightIcon={activeFilterCount > 0 ? (
-                  <Badge colorScheme="blue" fontSize="xs" borderRadius="full">
+                  <Badge colorPalette="blue" fontSize="xs" borderRadius="full">
                     {activeFilterCount}
                   </Badge>
                 ) : undefined}

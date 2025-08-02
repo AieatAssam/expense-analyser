@@ -115,7 +115,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                     variant="outline"
                     w="full"
                     onClick={option.action}
-                    colorScheme={option.label === 'Clear' ? 'gray' : 'blue'}
+                    colorPalette={option.label === 'Clear' ? 'gray' : 'blue'}
                   >
                     {option.label}
                   </Button>
@@ -129,7 +129,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                     size="xs"
                     variant="outline"
                     onClick={option.action}
-                    colorScheme={option.label === 'Clear' ? 'gray' : 'blue'}
+                    colorPalette={option.label === 'Clear' ? 'gray' : 'blue'}
                   >
                     {option.label}
                   </Button>

@@ -7,8 +7,9 @@ const LoginButton: React.FC = () => {
 
   return (
     <Button
-      colorScheme="blue"
-      onClick={login}
+      colorPalette="blue"
+      onClick={() => login()}
+      size="lg"
       disabled={isLoading}
     >
       {isLoading ? 'Loading...' : 'Log In'}

@@ -96,7 +96,7 @@ export const AmountRangeFilter: React.FC<AmountRangeFilterProps> = ({
                 variant="outline"
                 w="full"
                 onClick={() => setQuickRange(range.min, range.max)}
-                colorScheme="blue"
+                colorPalette="blue"
               >
                 {range.label}
               </Button>
@@ -106,7 +106,7 @@ export const AmountRangeFilter: React.FC<AmountRangeFilterProps> = ({
               variant="outline"
               w="full"
               onClick={clearRange}
-              colorScheme="gray"
+              colorPalette="gray"
             >
               Clear
             </Button>

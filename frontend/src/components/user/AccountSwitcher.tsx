@@ -138,7 +138,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
                   </Text>
                 </VStack>
                 {account.id === userProfile.currentAccount.id && (
-                  <Badge colorScheme="green" size="sm">
+                  <Badge colorPalette="green" size="sm">
                     Current
                   </Badge>
                 )}

@@ -94,11 +94,11 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 {userProfile.user.email}
               </Text>
               <HStack gap={2}>
-                <Badge colorScheme="blue" size="sm">
+                <Badge colorPalette="blue" size="sm">
                   {userProfile.currentAccount.name}
                 </Badge>
                 {userProfile.accounts.length > 1 && (
-                  <Badge colorScheme="gray" size="sm">
+                  <Badge colorPalette="gray" size="sm">
                     {userProfile.accounts.length} accounts
                   </Badge>
                 )}

@@ -96,7 +96,7 @@ const useToast = jest.fn(() => ({
 }));
 
 const useBreakpointValue = jest.fn((values) => {
-  // Return the base value or first value for testing
+  // Mock implementation that returns the base value or first array item
   if (typeof values === 'object' && values.base !== undefined) {
     return values.base;
   }
@@ -105,8 +105,6 @@ const useBreakpointValue = jest.fn((values) => {
   }
   return values;
 });
-
-const useColorModeValue = jest.fn((light, dark) => light);
 
 // Mock disclosure hook
 const useDisclosure = jest.fn(() => ({
@@ -168,7 +166,6 @@ module.exports = {
   InputRightElement,
   useToast,
   useBreakpointValue,
-  useColorModeValue,
   useDisclosure,
   ChakraProvider: ({ children }) => React.createElement('div', null, children),
 };
