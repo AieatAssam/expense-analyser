@@ -3,8 +3,8 @@ import {
   Box,
   FieldRoot,
   FieldLabel,
-  NativeSelectRoot,
-  NativeSelectField,
+
+
   HStack,
   IconButton,
 } from '@chakra-ui/react';
@@ -52,21 +52,24 @@ export const SortFilter: React.FC<SortFilterProps> = ({
       </FieldLabel>
       <HStack gap={2}>
         <FieldRoot flex="1">
-          <NativeSelectRoot>
-            <NativeSelectField
-              value={sortBy}
-              onChange={handleSortByChange}
-              size="sm"
-              bg="white"
-              borderColor="gray.200"
-            >
-              {fields.map((field) => (
-                <option key={field.value} value={field.value}>
-                  {field.label}
-                </option>
-              ))}
-            </NativeSelectField>
-          </NativeSelectRoot>
+          <select
+            value={sortBy}
+            onChange={handleSortByChange}
+            style={{
+              backgroundColor: 'white',
+              border: '1px solid #E2E8F0',
+              borderRadius: '6px',
+              padding: '6px',
+              width: '100%',
+              fontSize: '14px'
+            }}
+          >
+            {fields.map((field) => (
+              <option key={field.value} value={field.value}>
+                {field.label}
+              </option>
+            ))}
+          </select>
         </FieldRoot>
         <IconButton
           aria-label={`Sort ${sortOrder === 'asc' ? 'ascending' : 'descending'}`}

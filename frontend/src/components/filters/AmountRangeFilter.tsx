@@ -63,7 +63,7 @@ export const AmountRangeFilter: React.FC<AmountRangeFilterProps> = ({
             <FieldLabel fontSize="xs" color="gray.600">Min Amount</FieldLabel>
             <NumberInputRoot
               value={minAmount?.toString() || ''}
-              onValueChange={(details) => handleMinChange(details.value)}
+              onValueChange={(details: { value: string }) => handleMinChange(details.value)}
               min={0}
               formatOptions={{ minimumFractionDigits: 2 }}
               size="sm"
@@ -75,7 +75,7 @@ export const AmountRangeFilter: React.FC<AmountRangeFilterProps> = ({
             <FieldLabel fontSize="xs" color="gray.600">Max Amount</FieldLabel>
             <NumberInputRoot
               value={maxAmount?.toString() || ''}
-              onValueChange={(details) => handleMaxChange(details.value)}
+              onValueChange={(details: { value: string }) => handleMaxChange(details.value)}
               min={0}
               formatOptions={{ minimumFractionDigits: 2 }}
               size="sm"

@@ -43,7 +43,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
   const [exportInfo, setExportInfo] = useState<ExportInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const toast = useToast(); // Temporarily disabled for Chakra UI v3 migration
+  // const toast = useToast(); // Disabled - not available in Chakra UI v3 // Temporarily disabled for Chakra UI v3 migration
 
   const handlePreview = async () => {
     setIsLoading(true);
@@ -115,13 +115,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
   const isDateRangeValid = !startDate || !endDate || startDate <= endDate;
 
   return (
-    <DialogRoot open={isOpen} onOpenChange={({ open }) => !open && handleClose()} size="lg">
+    <DialogRoot open={isOpen} onOpenChange={({ open }: { open: boolean }) => !open && handleClose()} size="lg">
       <DialogBackdrop />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
             <HStack>
-              <FiDownload />
+              📥
               <Text>Export Expense Data</Text>
             </HStack>
           </DialogTitle>
@@ -173,11 +173,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
                 <FieldLabel htmlFor="include-line-items" mb="0" fontSize="sm">
                   Include detailed line items
                 </FieldLabel>
-                <Switch
+                <input
+                  type="checkbox"
                   id="include-line-items"
                   checked={includeLineItems}
-                  onCheckedChange={(details) => setIncludeLineItems(details.checked)}
+                  onChange={(e) => setIncludeLineItems(e.target.checked)}
                   disabled={isDownloading}
+                  style={{ marginLeft: '8px' }}
                 />
               </FieldRoot>
               <Text fontSize="xs" color="gray.500" mt={1}>
@@ -216,7 +218,25 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
                 <Text fontSize="sm" fontWeight="medium" mb={2}>
                   Downloading... {downloadProgress}%
                 </Text>
-                <Progress value={downloadProgress} colorPalette="blue" size="sm" />
+                <progress
+                  value={downloadProgress}
+                  max={100}
+                  style={{
+                    width: '100%',
+                    height: '8px',
+                    borderRadius: '4px'
+                  }}
+                />
+                <style>{`
+                  progress::-webkit-progress-bar {
+                    background-color: #e2e8f0;
+                    border-radius: 4px;
+                  }
+                  progress::-webkit-progress-value {
+                    background-color: #3182ce;
+                    border-radius: 4px;
+                  }
+                `}</style>
               </Box>
             )}
 
@@ -231,7 +251,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
             {/* File Format Info */}
             <Box bg="gray.50" p={3} borderRadius="md">
               <HStack mb={2}>
-                <FiFileText />
+                📄
                 <Text fontSize="sm" fontWeight="medium">Excel Format (.xlsx)</Text>
               </HStack>
               <Text fontSize="xs" color="gray.600">
@@ -253,28 +273,28 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
             <Button
               variant="outline"
               onClick={handleClose}
-              isDisabled={isDownloading}
+              disabled={isDownloading}
               size="sm"
             >
               Cancel
             </Button>
             <Button
               onClick={handlePreview}
-              isLoading={isLoading}
+              loading={isLoading}
               loadingText="Checking..."
               size="sm"
-              isDisabled={!isDateRangeValid || isDownloading}
+              disabled={!isDateRangeValid || isDownloading}
             >
               Preview
             </Button>
             <Button
               colorPalette="blue"
               onClick={handleDownload}
-              isLoading={isDownloading}
+              loading={isDownloading}
               loadingText={`Downloading... ${downloadProgress}%`}
-              leftIcon={<FiDownload />}
+
               size="sm"
-              isDisabled={!isDateRangeValid || !exportInfo}
+              disabled={!isDateRangeValid || !exportInfo}
             >
               Download
             </Button>

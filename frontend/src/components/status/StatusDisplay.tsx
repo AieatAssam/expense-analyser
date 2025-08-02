@@ -85,35 +85,35 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({ receipt, onStatusUpdate }
       case ReceiptProcessingStatus.UPLOADING:
         return (
           <Flex align="center" color="blue.500">
-            <Icon as={FiLoader} mr={2} />
+            <Text mr={2}>⟳</Text>
             <Text>Uploading...</Text>
           </Flex>
         );
       case ReceiptProcessingStatus.PENDING:
         return (
           <Flex align="center" color="orange.500">
-            <Icon as={FiClock} mr={2} />
+            <Text mr={2}>🕐</Text>
             <Text>Pending processing...</Text>
           </Flex>
         );
       case ReceiptProcessingStatus.PROCESSING:
         return (
           <Flex align="center" color="blue.500">
-            <Icon as={FiLoader} mr={2} className="spinning" />
+            <Text mr={2}>⟳</Text>
             <Text>Processing receipt...</Text>
           </Flex>
         );
       case ReceiptProcessingStatus.COMPLETED:
         return (
           <Flex align="center" color="green.500">
-            <Icon as={FiCheckCircle} mr={2} />
+            <Text mr={2}>✅</Text>
             <Text>Processing completed</Text>
           </Flex>
         );
       case ReceiptProcessingStatus.ERROR:
         return (
           <Flex align="center" color="red.500">
-            <Icon as={FiAlertCircle} mr={2} />
+            <Text mr={2}>⚠️</Text>
             <Text>Processing failed</Text>
           </Flex>
         );

@@ -66,14 +66,14 @@ const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
             mr={2}
             aria-label="Rotate counter-clockwise"
           >
-            <FiRotateCcw />
+            ↺
           </Button>
           <Button
             onClick={rotateClockwise}
             size="sm"
             aria-label="Rotate clockwise"
           >
-            <FiRotateCw />
+            ↻
           </Button>
         </Flex>
 
@@ -84,14 +84,14 @@ const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
             mr={2}
             variant="outline"
           >
-            <FiX style={{ marginRight: '4px' }} /> Cancel
+            × Cancel
           </Button>
           <Button
             onClick={onConfirm}
             colorPalette="green"
             size="sm"
           >
-            <FiCheck style={{ marginRight: '4px' }} /> Confirm
+            ✓ Confirm
           </Button>
         </Flex>
       </Flex>

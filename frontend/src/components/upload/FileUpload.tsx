@@ -109,7 +109,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
       >
         <input {...getInputProps()} data-testid="file-input" />
         <Flex direction="column" align="center" justify="center">
-          <FiUpload size={40} color={isDragActive ? "#4299E1" : "#A0AEC0"} />
+          <Text fontSize="40px" color={isDragActive ? "#4299E1" : "#A0AEC0"}>⬆</Text>
           <Text mt={2} fontWeight="medium">
             {isDragActive
               ? "Drop your receipt here"
@@ -127,7 +127,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
               mr={2}
               disabled={isUploading}
             >
-              <FiUpload style={{ marginRight: '4px' }} /> Select File
+              ⬆ Select File
             </Button>
             <Button
               onClick={handleCameraCapture}
@@ -135,7 +135,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
               size="sm"
               disabled={isUploading}
             >
-              <FiCamera style={{ marginRight: '4px' }} /> Take Photo
+              📷 Take Photo
             </Button>
           </Flex>
         </Flex>

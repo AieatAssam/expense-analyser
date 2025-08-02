@@ -6,8 +6,8 @@ import {
   Text,
   Button,
   Input,
-  NativeSelectRoot,
-  NativeSelectField,
+
+
   Heading,
   Badge,
   Spinner,
@@ -259,19 +259,24 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
 
             <Box>
               <Text fontSize="sm" fontWeight="bold" mb="2">Payment Method</Text>
-              <NativeSelectRoot>
-                <NativeSelectField
-                  value={receipt.payment_method || ''}
-                  onChange={(e) => updateReceiptField('payment_method', e.target.value)}
-                >
-                  <option value="">Select payment method</option>
-                  <option value="cash">Cash</option>
-                  <option value="credit_card">Credit Card</option>
-                  <option value="debit_card">Debit Card</option>
-                  <option value="mobile_payment">Mobile Payment</option>
-                  <option value="other">Other</option>
-                </NativeSelectField>
-              </NativeSelectRoot>
+              <select
+                style={{
+                  backgroundColor: 'white',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '6px',
+                  padding: '8px',
+                  width: '100%'
+                }}
+                value={receipt.payment_method || ''}
+                onChange={(e) => updateReceiptField('payment_method', e.target.value)}
+              >
+                <option value="">Select payment method</option>
+                <option value="cash">Cash</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="debit_card">Debit Card</option>
+                <option value="mobile_payment">Mobile Payment</option>
+                <option value="other">Other</option>
+              </select>
             </Box>
 
             <Box>

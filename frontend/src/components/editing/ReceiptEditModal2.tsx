@@ -319,7 +319,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                 size="sm"
                 onClick={onClose}
               >
-                <FiX />
+                ×
               </IconButton>
             </HStack>
           </HStack>
@@ -403,15 +403,22 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
 
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="medium" mb={2}>Currency</Text>
-                      <NativeSelectRoot><NativeSelectField
+                      <select
                         value={formData.currency}
                         onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))}
+                        style={{
+                          backgroundColor: 'white',
+                          border: '1px solid #E2E8F0',
+                          borderRadius: '6px',
+                          padding: '8px',
+                          width: '100%'
+                        }}
                       >
                         <option value="USD">USD</option>
                         <option value="EUR">EUR</option>
                         <option value="GBP">GBP</option>
                         <option value="CAD">CAD</option>
-                      </NativeSelectField></NativeSelectRoot>
+                      </select>
                     </Box>
                   </HStack>
 
@@ -541,7 +548,7 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                           colorPalette="red"
                           size="sm"
                         >
-                          <FiTrash2 />
+                          🗑
                         </IconButton>
                       </HStack>
                     </Box>

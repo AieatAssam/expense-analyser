@@ -54,21 +54,24 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
         <Text fontSize="sm" mb={2} fontWeight="medium" color="gray.700">
           Current Account
         </Text>
-        <Select.Root
-          value={[userProfile.currentAccount.id]}
-          onValueChange={(details) => handleAccountSwitch(details.value[0])}
+        <select
+          value={userProfile.currentAccount.id}
+          onChange={(e) => handleAccountSwitch(e.target.value)}
+          style={{
+            backgroundColor: 'white',
+            borderColor: '#E2E8F0',
+            border: '1px solid #E2E8F0',
+            borderRadius: '6px',
+            padding: '8px',
+            width: '100%'
+          }}
         >
-          <Select.Trigger bg="white" borderColor="gray.200">
-            <Select.ValueText placeholder="Select account" />
-          </Select.Trigger>
-          <Select.Content>
-            {userProfile.accounts.map((account) => (
-              <Select.Item key={account.id} item={account.id}>
-                <Select.ItemText>{account.name}</Select.ItemText>
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select.Root>
+          {userProfile.accounts.map((account) => (
+            <option key={account.id} value={account.id}>
+              {account.name}
+            </option>
+          ))}
+        </select>
       </Box>
     );
   }

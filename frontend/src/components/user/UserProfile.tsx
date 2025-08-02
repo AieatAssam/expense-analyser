@@ -65,15 +65,15 @@ const UserProfile: React.FC<UserProfileProps> = ({
         {/* <Menu>
           <MenuButton
             as={IconButton}
-            icon={<FiMoreVertical />}
+
             variant="ghost"
             size="sm"
             aria-label="User menu"
           />
           <MenuList>
-            <MenuItem icon={<FiUser />}>Profile</MenuItem>
-            <MenuItem icon={<FiSettings />}>Settings</MenuItem>
-            <MenuItem icon={<FiLogOut />}>
+            <MenuItem>👤 Profile</MenuItem>
+            <MenuItem>⚙️ Settings</MenuItem>
+            <MenuItem>
               <LogoutButton variant="text" />
             </MenuItem>
           </MenuList>
@@ -123,16 +123,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
             {/* <Menu>
               <MenuButton
                 as={IconButton}
-                icon={<FiMoreVertical />}
+    
                 variant="ghost"
                 size="sm"
                 aria-label="User menu"
               />
               <MenuList>
-                <MenuItem icon={<FiUser />}>Profile Settings</MenuItem>
-                <MenuItem icon={<FiSettings />}>Account Settings</MenuItem>
+                <MenuItem>👤 Profile Settings</MenuItem>
+                <MenuItem>⚙️ Account Settings</MenuItem>
                 <Divider />
-                <MenuItem icon={<FiLogOut />} color="red.500">
+                <MenuItem color="red.500">
                   <LogoutButton variant="text" />
                 </MenuItem>
               </MenuList>

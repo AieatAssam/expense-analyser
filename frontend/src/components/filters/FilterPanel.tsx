@@ -65,86 +65,83 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   const activeFilterCount = getActiveFilterCount();
 
   return (
-    <Card>
-      <CardBody>
-        <VStack gap={4} align="stretch">
-          {/* Header */}
-          <HStack justify="space-between" align="center">
-            <HStack>
+    <Card.Root>
+        <CardBody>
+          <VStack gap={4} align="stretch">
+            {/* Header */}
+            <HStack justify="space-between" align="center">
+              <HStack>
+                <Button
+                  // eslint-disable-next-line react/style-prop-object
+                  style={{
+                    gap: 2,
+                  }}
+
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsOpen(!isOpen)}
+                >
+                  Filters
+                </Button>
+              </HStack>
               <Button
-                leftIcon={<FiFilter />}
-                rightIcon={activeFilterCount > 0 ? (
-                  <Badge colorPalette="blue" fontSize="xs" borderRadius="full">
-                    {activeFilterCount}
-                  </Badge>
-                ) : undefined}
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={handleReset}
+                disabled={activeFilterCount === 0}
               >
-                Filters
+                Reset
               </Button>
             </HStack>
-            <Button
-              leftIcon={<FiRefreshCw />}
-              variant="outline"
-              size="sm"
-              onClick={handleReset}
-              isDisabled={activeFilterCount === 0}
-            >
-              Reset
-            </Button>
-          </HStack>
 
-          {isOpen && (
-            <VStack gap={6} align="stretch">
-              {/* Search */}
-              <SearchFilter
-                value={filters.search}
-                onChange={(search) => updateFilters({ search })}
-                placeholder="Search store names..."
-              />
+            {isOpen && (
+              <VStack gap={6} align="stretch">
+                {/* Search */}
+                <SearchFilter
+                  value={filters.search}
+                  onChange={(search) => updateFilters({ search })}
+                  placeholder="Search store names..."
+                />
 
-              {showAdvanced && (
-                <>
-                  <Separator />
-                  
-                  {/* Date Range */}
-                  <DateRangeFilter
-                    startDate={filters.startDate}
-                    endDate={filters.endDate}
-                    onDateChange={(startDate, endDate) => 
-                      updateFilters({ startDate, endDate })
-                    }
-                  />
+                {showAdvanced && (
+                  <>
+                    <Separator />
+                    {/* Date Range */}
+                    <DateRangeFilter
+                      startDate={filters.startDate}
+                      endDate={filters.endDate}
+                      onDateChange={(startDate, endDate) =>
+                        updateFilters({ startDate, endDate })
+                      }
+                    />
 
-                  <Separator />
+                    <Separator />
 
-                  {/* Amount Range */}
-                  <AmountRangeFilter
-                    minAmount={filters.minAmount}
-                    maxAmount={filters.maxAmount}
-                    onChange={(minAmount, maxAmount) => 
-                      updateFilters({ minAmount, maxAmount })
-                    }
-                  />
+                    {/* Amount Range */}
+                    <AmountRangeFilter
+                      minAmount={filters.minAmount}
+                      maxAmount={filters.maxAmount}
+                      onChange={(minAmount, maxAmount) =>
+                        updateFilters({ minAmount, maxAmount })
+                      }
+                    />
 
-                  <Separator />
+                    <Separator />
 
-                  {/* Sort */}
-                  <SortFilter
-                    sortBy={filters.sortBy}
-                    sortOrder={filters.sortOrder}
-                    onChange={(sortBy, sortOrder) => 
-                      updateFilters({ sortBy, sortOrder })
-                    }
-                  />
-                </>
-              )}
-            </VStack>
-          )}
-        </VStack>
-      </CardBody>
-    </Card>
+                    {/* Sort */}
+                    <SortFilter
+                      sortBy={filters.sortBy}
+                      sortOrder={filters.sortOrder}
+                      onChange={(sortBy, sortOrder) =>
+                        updateFilters({ sortBy, sortOrder })
+                      }
+                    />
+                  </>
+                )}
+              </VStack>
+            )}
+          </VStack>
+        </CardBody>
+    </Card.Root>
   );
 };
