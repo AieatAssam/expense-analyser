@@ -7,10 +7,9 @@ import {
   Button,
   Input,
   Select,
-  Alert,
+  AlertRoot,
+  AlertIndicator,
   Card,
-  CardBody,
-  CardHeader,
   Heading,
   IconButton,
   Badge,
@@ -265,14 +264,14 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
         justifyContent="center"
         zIndex="1000"
       >
-        <Card>
-          <CardBody p={8}>
+        <Card.Root>
+          <Card.Body p={8}>
             <VStack gap={4}>
               <Spinner size="lg" />
               <Text>Loading receipt details...</Text>
             </VStack>
-          </CardBody>
-        </Card>
+          </Card.Body>
+        </Card.Root>
       </Box>
     );
   }
@@ -316,11 +315,12 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
               )}
               <IconButton
                 aria-label="Close"
-                icon={<FiX />}
                 variant="outline"
                 size="sm"
-                onClick={handleCancel}
-              />
+                onClick={onClose}
+              >
+                <FiX />
+              </IconButton>
             </HStack>
           </HStack>
         </Box>
@@ -330,23 +330,23 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
           <VStack gap={6} align="stretch">
             {/* Validation Errors */}
             {Object.keys(validationErrors).length > 0 && (
-              <Alert status="error">
-                <AlertIcon />
+              <AlertRoot status="error">
+                <AlertIndicator />
                 <VStack align="start" gap={1}>
                   <Text fontWeight="medium">Please fix the following errors:</Text>
                   {Object.entries(validationErrors).map(([field, error]) => (
                     <Text key={field} fontSize="sm">• {error}</Text>
                   ))}
                 </VStack>
-              </Alert>
+              </AlertRoot>
             )}
 
             {/* Receipt Basic Information */}
-            <Card>
-              <CardHeader>
+            <Card.Root>
+              <Card.Header>
                 <Heading size="md">Receipt Information</Heading>
-              </CardHeader>
-              <CardBody>
+              </Card.Header>
+              <Card.Body>
                 <VStack gap={4} align="stretch">
                   <HStack gap={4}>
                     <Box flex={1}>
@@ -424,16 +424,16 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                     />
                   </Box>
                 </VStack>
-              </CardBody>
-            </Card>
+              </Card.Body>
+            </Card.Root>
 
             {/* Line Items */}
-            <Card>
-              <CardHeader>
+            <Card.Root>
+              <Card.Header>
                 <HStack justify="space-between" align="center">
                   <Heading size="md">Line Items</Heading>
                   <Button
-                    leftIcon={<FiPlus />}
+                    
                     onClick={addLineItem}
                     size="sm"
                     colorPalette="blue"
@@ -441,8 +441,8 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                     Add Item
                   </Button>
                 </HStack>
-              </CardHeader>
-              <CardBody>
+              </Card.Header>
+              <Card.Body>
                 <VStack gap={4} align="stretch">
                   {formData.line_items.map((item, index) => (
                     <Box key={index} p={4} border="1px" borderColor="gray.200" borderRadius="md">
@@ -536,12 +536,13 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
 
                         <IconButton
                           aria-label="Remove item"
-                          icon={<FiTrash2 />}
                           onClick={() => removeLineItem(index)}
                           variant="outline"
                           colorPalette="red"
                           size="sm"
-                        />
+                        >
+                          <FiTrash2 />
+                        </IconButton>
                       </HStack>
                     </Box>
                   ))}
@@ -577,21 +578,21 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                     <Text color="red.500" fontSize="sm">{validationErrors.line_items}</Text>
                   )}
                   {validationErrors.total_mismatch && (
-                    <Alert status="warning" size="sm">
-                      <AlertIcon />
+                    <AlertRoot status="warning" size="sm">
+                      <AlertIndicator />
                       <Text fontSize="sm">{validationErrors.total_mismatch}</Text>
-                    </Alert>
+                    </AlertRoot>
                   )}
                 </VStack>
-              </CardBody>
-            </Card>
+              </Card.Body>
+            </Card.Root>
 
             {/* Verification */}
-            <Card>
-              <CardHeader>
+            <Card.Root>
+              <Card.Header>
                 <Heading size="md">Verification</Heading>
-              </CardHeader>
-              <CardBody>
+              </Card.Header>
+              <Card.Body>
                 <VStack gap={4} align="stretch">
                   <Box>
                     <HStack align="center">
@@ -622,8 +623,8 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
                     />
                   </Box>
                 </VStack>
-              </CardBody>
-            </Card>
+              </Card.Body>
+            </Card.Root>
           </VStack>
         </Box>
 
@@ -633,16 +634,16 @@ export const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
             <Button
               variant="outline"
               onClick={handleCancel}
-              isDisabled={isSaving}
+              disabled={isSaving}
             >
               Cancel
             </Button>
             <Button
               colorPalette="blue"
               onClick={handleSave}
-              isLoading={isSaving}
+              loading={isSaving}
               loadingText="Saving..."
-              leftIcon={<FiSave />}
+              
             >
               Save Changes
             </Button>

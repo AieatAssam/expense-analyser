@@ -8,6 +8,7 @@ import {
   AlertIndicator,
   useBreakpointValue,
   Button,
+
 } from '@chakra-ui/react';
 import { FiDollarSign, FiFileText, FiTrendingUp, FiShoppingBag, FiDownload } from 'react-icons/fi';
 import { format, subDays } from 'date-fns';
@@ -32,7 +33,7 @@ interface FilterState {
 
 const DashboardPage: React.FC = () => {
   const { isAuthenticated, userProfile } = useAuth();
-  const toast = useToast(); // Re-enabled for Chakra UI v3
+  // const toast = useToast(); // Disabled - not available in Chakra UI v3
   const [isExportOpen, setIsExportOpen] = useState(false);
   const onExportOpen = () => setIsExportOpen(true);
   const onExportClose = () => setIsExportOpen(false);
@@ -175,7 +176,6 @@ const DashboardPage: React.FC = () => {
               disabled={isLoading || !summary}
               gap={2}
             >
-              <FiDownload />
               Export
             </Button>
           </HStack>
@@ -189,7 +189,7 @@ const DashboardPage: React.FC = () => {
               value={summary?.total_receipts || 0}
               icon={FiFileText}
               isLoading={isLoading}
-              colorScheme="blue"
+
             />
           </DashboardCard>
           
@@ -199,7 +199,7 @@ const DashboardPage: React.FC = () => {
               value={`$${(summary?.total_amount || 0).toFixed(2)}`}
               icon={FiDollarSign}
               isLoading={isLoading}
-              colorScheme="green"
+
             />
           </DashboardCard>
           
@@ -209,7 +209,7 @@ const DashboardPage: React.FC = () => {
               value={`$${(summary?.average_receipt_amount || 0).toFixed(2)}`}
               icon={FiTrendingUp}
               isLoading={isLoading}
-              colorScheme="purple"
+
             />
           </DashboardCard>
           
@@ -220,7 +220,7 @@ const DashboardPage: React.FC = () => {
               helpText={categoryData[0] ? `$${categoryData[0].total_amount.toFixed(2)}` : undefined}
               icon={FiShoppingBag}
               isLoading={isLoading}
-              colorScheme="orange"
+
             />
           </DashboardCard>
         </DashboardGrid>

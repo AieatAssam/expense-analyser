@@ -7,7 +7,7 @@ const LogoutButton: React.FC = () => {
 
   return (
     <Button
-      onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+      onClick={() => logout()}
       colorPalette="red"
       variant="outline"
     >

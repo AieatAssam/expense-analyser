@@ -54,20 +54,21 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
         <Text fontSize="sm" mb={2} fontWeight="medium" color="gray.700">
           Current Account
         </Text>
-        <NativeSelectRoot><NativeSelectField
-          value={userProfile.currentAccount.id}
-          onChange={(e) => handleAccountSwitch(e.target.value)}
-          size={size}
-          bg="white"
-          borderColor="gray.200"
-          isDisabled={isLoading}
+        <Select.Root
+          value={[userProfile.currentAccount.id]}
+          onValueChange={(details) => handleAccountSwitch(details.value[0])}
         >
-          {userProfile.accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.name}
-            </option>
-          ))}
-        </NativeSelectField></NativeSelectRoot>
+          <Select.Trigger bg="white" borderColor="gray.200">
+            <Select.ValueText placeholder="Select account" />
+          </Select.Trigger>
+          <Select.Content>
+            {userProfile.accounts.map((account) => (
+              <Select.Item key={account.id} item={account.id}>
+                <Select.ItemText>{account.name}</Select.ItemText>
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
       </Box>
     );
   }
@@ -80,22 +81,29 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
       <MenuRoot>
         <MenuTrigger asChild>
           <Button
-          rightIcon={isLoading ? <Spinner size="sm" /> : <FiChevronDown />}
           variant="outline"
           size={size}
           w="full"
           justifyContent="space-between"
           bg="white"
           borderColor="gray.200"
-          isDisabled={isLoading}
+          disabled={isLoading}
         >
           <HStack gap={2}>
-            <Avatar
-              size="xs"
-              name={userProfile.currentAccount.name}
-              icon={<FiUser />}
+            <Box
+              w="6"
+              h="6"
+              borderRadius="full"
               bg="blue.500"
-            />
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              color="white"
+              fontSize="xs"
+              fontWeight="bold"
+            >
+              {userProfile.currentAccount.name?.charAt(0)?.toUpperCase()}
+            </Box>
             <VStack gap={0} align="start">
               <Text fontSize="sm" fontWeight="medium">
                 {userProfile.currentAccount.name}
@@ -118,14 +126,22 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
             >
               <HStack gap={2} mr={2}>
                 {account.id === userProfile.currentAccount.id ? (
-                  <FiCheck color="green" />
+                  <Text color="green.500" fontSize="sm">✓</Text>
                 ) : (
-                  <Avatar
-                    size="xs"
-                    name={account.name}
-                    icon={<FiUser />}
+                  <Box
+                    w="6"
+                    h="6"
+                    borderRadius="full"
                     bg="gray.400"
-                  />
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    color="white"
+                    fontSize="xs"
+                    fontWeight="bold"
+                  >
+                    {account.name?.charAt(0)?.toUpperCase()}
+                  </Box>
                 )}
               </HStack>
               <HStack justify="space-between" w="full">

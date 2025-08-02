@@ -373,7 +373,7 @@ const ReceiptEditModal: React.FC<ReceiptEditModalProps> = ({
               <Button
                 colorPalette="blue"
                 onClick={handleSave}
-                isLoading={saving}
+                loading={saving}
                 loadingText="Saving..."
               >
                 Save Changes

@@ -4,7 +4,7 @@ import {
   VStack,
   HStack,
   Text,
-  Avatar,
+
   Card,
   Badge,
   Separator,
@@ -40,17 +40,25 @@ const UserProfile: React.FC<UserProfileProps> = ({
   if (variant === 'compact') {
     return (
       <HStack gap={3} p={3}>
-        <Avatar
-          size="sm"
-          name={userProfile.user.name || userProfile.user.email}
-          src={userProfile.user.picture}
+        <Box
+          w="8"
+          h="8"
+          borderRadius="full"
           bg="blue.500"
-        />
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          color="white"
+          fontSize="sm"
+          fontWeight="bold"
+        >
+          {(userProfile.user.name || userProfile.user.email)?.charAt(0)?.toUpperCase()}
+        </Box>
         <VStack gap={0} align="start" flex="1">
-          <Text fontSize="sm" fontWeight="medium" noOfLines={1}>
+          <Text fontSize="sm" fontWeight="medium" lineClamp={1}>
             {userProfile.user.name || userProfile.user.email}
           </Text>
-          <Text fontSize="xs" color="gray.500" noOfLines={1}>
+          <Text fontSize="xs" color="gray.500" lineClamp={1}>
             {userProfile.currentAccount.name}
           </Text>
         </VStack>
@@ -80,17 +88,25 @@ const UserProfile: React.FC<UserProfileProps> = ({
         <VStack gap={4} align="stretch">
           {/* User Header */}
           <HStack gap={3}>
-            <Avatar
-              size="md"
-              name={userProfile.user.name || userProfile.user.email}
-              src={userProfile.user.picture}
+            <Box
+              w="12"
+              h="12"
+              borderRadius="full"
               bg="blue.500"
-            />
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              color="white"
+              fontSize="lg"
+              fontWeight="bold"
+            >
+              {(userProfile.user.name || userProfile.user.email)?.charAt(0)?.toUpperCase()}
+            </Box>
             <VStack gap={1} align="start" flex="1">
-              <Text fontWeight="bold" fontSize="md" noOfLines={1}>
+              <Text fontWeight="bold" fontSize="md" lineClamp={1}>
                 {userProfile.user.name || userProfile.user.email}
               </Text>
-              <Text fontSize="sm" color="gray.600" noOfLines={1}>
+              <Text fontSize="sm" color="gray.600" lineClamp={1}>
                 {userProfile.user.email}
               </Text>
               <HStack gap={2}>
@@ -140,10 +156,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
               w="full"
               gap={2}
             >
-              <FiSettings />
               Account Settings
             </Button>
-            <LogoutButton variant="outline" size="sm" width="full" />
+            <LogoutButton />
           </VStack>
         </VStack>
       </Card.Body>
