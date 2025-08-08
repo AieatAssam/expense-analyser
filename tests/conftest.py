@@ -52,12 +52,29 @@ def client():
     with TestClient(app) as test_client:
         yield test_client
 
-# PostgreSQL Docker container fixture
+# PostgreSQL container/connection fixture
 @pytest.fixture(scope="session")
 def postgres_container():
-    """Start a PostgreSQL container for testing and clean up when done"""
+    """Provide a PostgreSQL connection for tests.
+
+    If DATABASE_URL is provided (e.g., docker-compose tests service), reuse it and do NOT
+    start/stop containers from within tests. This avoids Docker-in-Docker.
+
+    Otherwise, start a local ephemeral PostgreSQL container via Docker SDK.
+    """
+    env_db_url = os.getenv("DATABASE_URL")
+    if env_db_url:
+        # Compose-managed DB; assume service healthchecks handle readiness
+        print(f"Using external DATABASE_URL for tests: {env_db_url}")
+        yield {
+            "container": None,
+            "db_url": env_db_url,
+            "managed": True,
+        }
+        return
+
+    # Fallback: manage a local Postgres container for tests
     client = docker.from_env()
-    
     # Stop and remove any existing test container
     try:
         existing_container = client.containers.get("expense_test_db")
@@ -66,15 +83,14 @@ def postgres_container():
         existing_container.remove()
         print("Existing container removed")
     except docker.errors.NotFound:
-        pass  # Container doesn't exist, which is fine
+        pass
     except Exception as e:
         print(f"Error cleaning up existing container: {e}")
-    
+
     # Clean up any processes using the test port
     import subprocess
     try:
-        result = subprocess.run(['lsof', '-ti', f':{POSTGRES_TEST_PORT}'], 
-                              capture_output=True, text=True)
+        result = subprocess.run(['lsof', '-ti', f':{POSTGRES_TEST_PORT}'], capture_output=True, text=True)
         if result.stdout.strip():
             pids = result.stdout.strip().split('\n')
             for pid in pids:
@@ -82,10 +98,10 @@ def postgres_container():
                     subprocess.run(['kill', '-9', pid], check=True)
                     print(f"Killed process {pid} using port {POSTGRES_TEST_PORT}")
                 except subprocess.CalledProcessError:
-                    pass  # Process might have already died
+                    pass
     except FileNotFoundError:
-        pass  # lsof not available on this system
-    
+        pass
+
     print("Starting PostgreSQL container for testing...")
     client.images.pull("postgres:16")
     container = client.containers.run(
@@ -98,9 +114,7 @@ def postgres_container():
             "POSTGRES_PASSWORD": POSTGRES_TEST_PASSWORD,
             "POSTGRES_DB": POSTGRES_TEST_DB,
         },
-        ports={
-            "5432/tcp": POSTGRES_TEST_PORT
-        }
+        ports={"5432/tcp": POSTGRES_TEST_PORT},
     )
     time.sleep(2)
     is_ready = False
@@ -126,7 +140,8 @@ def postgres_container():
         "db_name": POSTGRES_TEST_DB,
         "user": POSTGRES_TEST_USER,
         "password": POSTGRES_TEST_PASSWORD,
-        "port": POSTGRES_TEST_PORT
+        "port": POSTGRES_TEST_PORT,
+        "managed": False,
     }
     yield container_info
     print("Stopping PostgreSQL test container...")
@@ -136,7 +151,6 @@ def postgres_container():
         print("PostgreSQL test container stopped and removed")
     except Exception as e:
         print(f"Error stopping container: {e}")
-        # Try to force remove
         try:
             container.remove(force=True)
         except Exception:
@@ -148,12 +162,24 @@ def test_db_engine(postgres_container):
     """Create a SQLAlchemy engine connected to the test PostgreSQL container"""
     db_url = postgres_container["db_url"]
     engine = create_engine(db_url)
-    
+
+    # Ensure all model metadata is registered before creating tables
+    # Importing model modules populates Base.metadata with all tables
+    try:
+        import app.models.user  # noqa: F401
+        import app.models.account  # noqa: F401
+        import app.models.category  # noqa: F401
+        import app.models.receipt  # noqa: F401
+        import app.models.line_item  # noqa: F401
+        import app.models.invitation  # noqa: F401
+    except Exception as e:
+        print(f"Warning: failed to import models before create_all: {e}")
+
     # Create all tables
     Base.metadata.create_all(bind=engine)
-    
+
     yield engine
-    
+
     # Drop all tables after tests
     Base.metadata.drop_all(bind=engine)
 

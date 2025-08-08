@@ -77,6 +77,31 @@ services:
       - expense_network
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
+  # Backend test runner service (CI-friendly)
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: expense_analyser_tests
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: test
+      DATABASE_URL: postgresql://${POSTGRES_USER:-expense_user}:${POSTGRES_PASSWORD:-expense_password}@expense_analyser_db:5432/${POSTGRES_DB:-expense_db}
+      REDIS_URL: redis://expense_analyser_redis:6379/0
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DEFAULT_LLM_PROVIDER: ${DEFAULT_LLM_PROVIDER:-gemini}
+    working_dir: /app
+    volumes:
+      - ./:/app
+    networks:
+      - expense_network
+    command: sh -c "pytest -q"
+
 volumes:
   postgres_data:
     name: expense_analyser_postgres_data
