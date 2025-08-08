@@ -1,29 +1,33 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
+  roots: ['<rootDir>/src'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          jsx: 'react-jsx'
+        },
+        isolatedModules: true,
+        useESM: false
+      }
+    ],
   },
   moduleNameMapper: {
-    // Mock CSS imports
+    // CSS and assets
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    // Explicitly map module paths
-    '^@/(.*)$': '<rootDir>/src/$1'
+    // Path alias (if used)
+    '^@/(.*)$': '<rootDir>/src/$1',
+    // Chakra UI manual mock
+    '^@chakra-ui/react$': '<rootDir>/src/__mocks__/@chakra-ui/react.js'
   },
-  // Properly handle ESM modules
   transformIgnorePatterns: [
     'node_modules/(?!(axios|@auth0/auth0-react)/)'
   ],
-  setupFilesAfterEnv: [
-    '<rootDir>/src/setupTests.ts'
-  ],
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/'
-  ],
-  // Display test results with colors
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   verbose: true,
-  // Allow for jest.spyOn to work properly with React hooks
   restoreMocks: true,
   clearMocks: true,
   resetMocks: false,

@@ -14,7 +14,7 @@ const mockChakraComponent = (displayName) => {
       'w', 'h', 'minW', 'minH', 'maxW', 'maxH', 'size', 'overflow',
       'display', 'flex', 'alignItems', 'justifyContent', 'flexDirection', 'flexWrap',
       'position', 'top', 'right', 'bottom', 'left', 'zIndex',
-      'isLoading', 'variant', 'colorScheme', 'aria-label'
+      'isLoading', 'variant', 'colorScheme', 'colorPalette', 'aria-label'
     ];
     
     chakraProps.forEach(prop => {
@@ -51,15 +51,24 @@ const Stack = mockChakraComponent('Stack');
 const Text = mockChakraComponent('Text');
 const VStack = mockChakraComponent('VStack');
 const HStack = mockChakraComponent('HStack');
+// Chakra v3 Alert API
 const Alert = mockChakraComponent('Alert');
 const AlertIcon = mockChakraComponent('AlertIcon');
 const AlertTitle = mockChakraComponent('AlertTitle');
 const AlertDescription = mockChakraComponent('AlertDescription');
+const AlertRoot = mockChakraComponent('AlertRoot');
+const AlertIndicator = mockChakraComponent('AlertIndicator');
 const Grid = mockChakraComponent('Grid');
 const GridItem = mockChakraComponent('GridItem');
-const Card = mockChakraComponent('Card');
-const CardBody = mockChakraComponent('CardBody');
-const CardHeader = mockChakraComponent('CardHeader');
+// Chakra v3 Card API supports compound components: Card.Root, Card.Header, Card.Body
+const CardRoot = mockChakraComponent('Card.Root');
+const CardHeader = mockChakraComponent('Card.Header');
+const CardBody = mockChakraComponent('Card.Body');
+const Card = Object.assign(mockChakraComponent('Card'), {
+  Root: CardRoot,
+  Header: CardHeader,
+  Body: CardBody,
+});
 const Stat = mockChakraComponent('Stat');
 const StatLabel = mockChakraComponent('StatLabel');
 const StatNumber = mockChakraComponent('StatNumber');
@@ -136,11 +145,13 @@ module.exports = {
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  AlertRoot,
+  AlertIndicator,
   Grid,
   GridItem,
   Card,
-  CardBody,
   CardHeader,
+  CardBody,
   Stat,
   StatLabel,
   StatNumber,

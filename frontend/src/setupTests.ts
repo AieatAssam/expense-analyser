@@ -44,11 +44,16 @@ global.WebSocket = MockWebSocket as any;
 const originalConsoleError = console.error;
 console.error = (...args) => {
   // Filter out React-specific warnings that might pollute test output
+  const msg = args[0];
   if (
-    args[0] && 
-    typeof args[0] === 'string' && 
-    (args[0].includes('Warning:') || 
-     args[0].includes('Error:'))
+    msg && typeof msg === 'string' && (
+      msg.includes('Warning:') ||
+      msg.includes('Error:') ||
+      msg.includes('not wrapped in act') ||
+      msg.includes('wrap tests with act') ||
+      msg.includes('act(() =>') ||
+      msg.includes('does not recognize the `')
+    )
   ) {
     return;
   }

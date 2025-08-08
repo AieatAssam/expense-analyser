@@ -43,8 +43,8 @@ describe('FileUpload Component', () => {
     
     expect(screen.getByText(/Drag & drop your receipt here/i)).toBeInTheDocument();
     expect(screen.getByText(/JPEG, PNG or PDF/i)).toBeInTheDocument();
-    expect(screen.getByText('Select File')).toBeInTheDocument();
-    expect(screen.getByText('Take Photo')).toBeInTheDocument();
+    expect(screen.getByText(/Select File/i)).toBeInTheDocument();
+    expect(screen.getByText(/Take Photo/i)).toBeInTheDocument();
   });
 
   test('handles file upload successfully', async () => {

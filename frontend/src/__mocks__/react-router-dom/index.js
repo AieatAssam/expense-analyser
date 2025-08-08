@@ -1,19 +1,22 @@
 const React = require('react');
 
-// Mock the Router components
-const BrowserRouter = ({ children }) => <div data-testid="mock-browser-router">{children}</div>;
-const Routes = ({ children }) => <div data-testid="mock-routes">{children}</div>;
-const Route = ({ path, element }) => <div data-testid={`mock-route-${path}`}>{element}</div>;
+// Mock the Router components without JSX to keep Jest config simple
+const BrowserRouter = ({ children }) =>
+  React.createElement('div', { 'data-testid': 'mock-browser-router' }, children);
+
+const Routes = ({ children }) =>
+  React.createElement('div', { 'data-testid': 'mock-routes' }, children);
+
+const Route = ({ path, element }) =>
+  React.createElement('div', { 'data-testid': `mock-route-${path}` }, element);
 
 // Mock Navigate component
-const Navigate = ({ to }) => <div data-testid="mock-navigate" data-to={to} />;
+const Navigate = ({ to }) =>
+  React.createElement('div', { 'data-testid': 'mock-navigate', 'data-to': to });
 
 // Mock Link component
-const Link = ({ to, children, ...rest }) => (
-  <a href={to} data-testid="mock-link" {...rest}>
-    {children}
-  </a>
-);
+const Link = ({ to, children, ...rest }) =>
+  React.createElement('a', { href: to, 'data-testid': 'mock-link', ...rest }, children);
 
 // Mock the hooks
 const useNavigate = jest.fn().mockReturnValue(jest.fn());
