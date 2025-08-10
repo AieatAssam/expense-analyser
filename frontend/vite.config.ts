@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Ensure asset paths resolve correctly when served by FastAPI at '/'
+  base: '/',
   server: {
     port: 5173,
     open: true,
@@ -11,18 +13,6 @@ export default defineConfig({
   preview: {
     port: 5173,
   },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('@chakra-ui')) return 'chakra';
-            if (id.includes('react-router')) return 'react-router';
-            if (id.includes('react')) return 'react';
-            return 'vendor';
-          }
-        },
-      },
-    },
-  },
+  // Rely on Vite's default chunking to avoid execution order issues
+  build: {},
 });
