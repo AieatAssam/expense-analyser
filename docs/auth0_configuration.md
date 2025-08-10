@@ -28,12 +28,12 @@ Copy `.env.template` to `.env` in the project root and configure:
 AUTH0_DOMAIN=your-auth0-domain.auth0.com
 AUTH0_CLIENT_ID=your-auth0-client-id
 AUTH0_CLIENT_SECRET=your-auth0-client-secret  # Not used in current implementation but available for future use
-AUTH0_API_AUDIENCE=your-api-identifier
+AUTH0_AUDIENCE=your-api-identifier
 
 # Frontend Auth0 Configuration (React App)
 REACT_APP_AUTH0_DOMAIN=your-auth0-domain.auth0.com
 REACT_APP_AUTH0_CLIENT_ID=your-auth0-client-id
-REACT_APP_AUTH0_AUDIENCE=your-api-identifier
+REACT_APP_AUTH0_AUDIENCE=your-api-identifier  # injected automatically from AUTH0_AUDIENCE during Docker builds
 REACT_APP_API_URL=http://localhost:8000
 ```
 
@@ -85,7 +85,7 @@ This setup is fully compatible with Auth0's free tier:
 
 **Token Validation Fails**
 - Verify `AUTH0_DOMAIN` matches your Auth0 domain exactly
-- Ensure `AUTH0_API_AUDIENCE` matches your API identifier
+- Ensure `AUTH0_AUDIENCE` matches your API identifier
 - Check that JWKS endpoint is accessible: `https://{domain}/.well-known/jwks.json`
 
 **CORS Errors**

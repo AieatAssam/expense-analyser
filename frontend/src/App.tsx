@@ -13,7 +13,7 @@ import './App.css';
 // Auth0 configuration - using React environment variables
 const auth0Domain = process.env.REACT_APP_AUTH0_DOMAIN || '';
 const auth0ClientId = process.env.REACT_APP_AUTH0_CLIENT_ID || '';
-const auth0Audience = process.env.REACT_APP_AUTH0_API_AUDIENCE || '';
+const auth0Audience = process.env.REACT_APP_AUTH0_AUDIENCE || process.env.AUTH0_AUDIENCE || '';
 
 const App: React.FC = () => {
   const onRedirectCallback = (appState: any) => {

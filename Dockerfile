@@ -1,5 +1,5 @@
 # Stage 1: Build React frontend
-FROM node:18-alpine as frontend-builder
+FROM node:18-alpine AS frontend-builder
 
 # Install Python and build tools for native dependencies
 RUN apk add --no-cache python3 make g++
@@ -18,12 +18,12 @@ COPY frontend/ ./
 # Build arguments for React environment variables
 ARG REACT_APP_AUTH0_DOMAIN
 ARG REACT_APP_AUTH0_CLIENT_ID
-ARG REACT_APP_AUTH0_API_AUDIENCE
+ARG REACT_APP_AUTH0_AUDIENCE
 
 # Set environment variables for the build
 ENV REACT_APP_AUTH0_DOMAIN=$REACT_APP_AUTH0_DOMAIN
 ENV REACT_APP_AUTH0_CLIENT_ID=$REACT_APP_AUTH0_CLIENT_ID
-ENV REACT_APP_AUTH0_API_AUDIENCE=$REACT_APP_AUTH0_API_AUDIENCE
+ENV REACT_APP_AUTH0_AUDIENCE=$REACT_APP_AUTH0_AUDIENCE
 
 # Build the React app
 RUN npm run build

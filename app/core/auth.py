@@ -12,7 +12,7 @@ from app.models.account import Account
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN", "your-auth0-domain")
 AUTH0_CLIENT_ID = os.getenv("AUTH0_CLIENT_ID", "your-client-id")
 AUTH0_CLIENT_SECRET = os.getenv("AUTH0_CLIENT_SECRET", "your-client-secret")
-API_AUDIENCE = os.getenv("AUTH0_API_AUDIENCE", "your-api-audience")
+API_AUDIENCE = os.getenv("AUTH0_AUDIENCE", "your-api-audience")
 ALGORITHMS = ["RS256"]
 
 http_bearer = HTTPBearer()

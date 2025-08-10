@@ -1,7 +1,7 @@
 
 import os
 os.environ["AUTH0_DOMAIN"] = "test-auth0-domain.auth0.com"
-os.environ["AUTH0_API_AUDIENCE"] = "test-api-audience"
+os.environ["AUTH0_AUDIENCE"] = "test-api-audience"
 os.environ["AUTH0_CLIENT_ID"] = "test-client-id"
 os.environ["AUTH0_CLIENT_SECRET"] = "test-client-secret"
 import time

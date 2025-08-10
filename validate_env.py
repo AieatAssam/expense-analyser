@@ -24,7 +24,7 @@ def validate_env():
         'AUTH0_DOMAIN': r'^AUTH0_DOMAIN=(.+)$',
         'AUTH0_CLIENT_ID': r'^AUTH0_CLIENT_ID=(.+)$', 
         'AUTH0_CLIENT_SECRET': r'^AUTH0_CLIENT_SECRET=(.+)$',
-        'AUTH0_API_AUDIENCE': r'^AUTH0_API_AUDIENCE=(.+)$',
+        'AUTH0_AUDIENCE': r'^AUTH0_AUDIENCE=(.+)$',
         'API_URL': r'^API_URL=(.+)$',
         'WS_URL': r'^WS_URL=(.+)$'
     }
