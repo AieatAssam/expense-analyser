@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Auth0Provider } from '@auth0/auth0-react';
+import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import { ChakraProvider } from '@chakra-ui/react';
 import { system } from './theme';
 import { AuthProvider } from './contexts/AuthContext';
@@ -30,7 +30,7 @@ const App: React.FC = () => {
         domain={auth0Domain}
         clientId={auth0ClientId}
         authorizationParams={{
-          redirect_uri: window.location.origin,
+          redirect_uri: `${window.location.origin}/callback`,
           audience: auth0Audience,
         }}
         onRedirectCallback={onRedirectCallback}
@@ -58,6 +58,7 @@ const App: React.FC = () => {
               </header>
 
               <Routes>
+                <Route path="/callback" element={<AuthCallback />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/upload" element={<UploadPage />} />
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -68,6 +69,19 @@ const App: React.FC = () => {
       </Auth0Provider>
     </ChakraProvider>
   );
+};
+
+// Minimal callback gate to allow the Auth0 SDK to finish handling the code/state
+const AuthCallback: React.FC = () => {
+  const { isLoading } = useAuth0();
+
+  // While Auth0 processes the callback, keep a simple loading state.
+  if (isLoading) {
+    return <div style={{ padding: 24 }}>Signing you in…</div>;
+  }
+
+  // Once done, send the user to the dashboard (App's onRedirectCallback already cleaned the URL)
+  return <Navigate to="/dashboard" replace />;
 };
 
 export default App;

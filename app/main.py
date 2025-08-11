@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 
 from app.core.config import settings
+from app.db.session import Base, engine
+# Import models so tables are registered in SQLAlchemy metadata
+from app.models import user as user_model  # noqa: F401
+from app.models import account as account_model  # noqa: F401
+from app.models import invitation as invitation_model  # noqa: F401
 from app.core.middleware import RequestLoggingMiddleware
 from app.api.api import api_router
 from app.core.health import get_health_status
@@ -12,6 +17,16 @@ app = FastAPI(
     description="API for expense receipt analysis and tracking",
     version="0.1.0",
 )
+
+# Ensure database tables exist on startup (simple bootstrap for dev/docker)
+@app.on_event("startup")
+def on_startup_create_tables():
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        # Avoid crashing the app on startup; errors will surface in logs
+        import logging
+        logging.getLogger(__name__).error(f"DB init error: {e}")
 
 # Configure CORS
 app.add_middleware(
