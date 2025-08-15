@@ -3,7 +3,9 @@ import { Button } from '@chakra-ui/react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const LoginButton: React.FC = () => {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, isAuthenticated } = useAuth();
+
+  if (isAuthenticated) return null;
 
   return (
     <Button
