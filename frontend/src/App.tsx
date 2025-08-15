@@ -6,6 +6,7 @@ import { system } from './theme';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import UploadPage from './pages/UploadPage';
 import DashboardPage from './pages/DashboardPage';
+import ReceiptsPage from './pages/ReceiptsPage';
 import LoginButton from './components/auth/LoginButton';
 import LogoutButton from './components/auth/LogoutButton';
 
@@ -50,6 +51,7 @@ const App: React.FC = () => {
                 <Route path="/callback" element={<AuthCallback />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/upload" element={<UploadPage />} />
+                <Route path="/receipts" element={<ReceiptsPage />} />
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </div>
@@ -99,6 +101,7 @@ const HeaderBar: React.FC = () => {
             <nav style={{ display: 'flex', gap: 12 }}>
               <Link to="/dashboard">Dashboard</Link>
               <Link to="/upload">Upload</Link>
+              <Link to="/receipts">Receipts</Link>
             </nav>
           )}
         </div>

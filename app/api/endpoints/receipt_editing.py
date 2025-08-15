@@ -402,6 +402,7 @@ async def get_receipt_image(
 
 
 @router.get("/", response_model=List[ReceiptDetailResponse])
+@router.get("", response_model=List[ReceiptDetailResponse])
 async def get_receipts_for_review(
     status: Optional[str] = Query(None, description="Filter by processing status"),
     requires_review: bool = Query(False, description="Filter receipts requiring manual review"),
