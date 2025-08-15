@@ -3,14 +3,16 @@ from sqlalchemy.orm import Session
 
 from app.core.receipt_processor import ReceiptProcessingOrchestrator
 from app.core.processing_status import ProcessingStatusTracker
+import logging
 from app.db.session import get_db
 from app.core.auth import get_current_user
 from app.models.user import User
 from app.models.receipt import Receipt
 from app.schemas.receipt import (
-    ReceiptResponse, 
+    ReceiptResponse,
     ProcessingEventResponse,
-    ProcessingStatusResponse
+    ProcessingStatusResponse,
+    ReceiptInDB,
 )
 
 router = APIRouter()
@@ -35,10 +37,18 @@ async def process_receipt(
     if not receipt:
         raise HTTPException(status_code=404, detail="Receipt not found")
     
-    # Start processing in background
-    background_tasks.add_task(process_receipt_task, receipt_id, db)
+    # Record a queued event for immediate user feedback
+    tracker = ProcessingStatusTracker(db)
+    tracker.add_info_event(receipt_id, "Queued for background processing")
+
+    # Start processing in background (do not pass request-scoped session)
+    background_tasks.add_task(process_receipt_task, receipt_id)
     
-    return ReceiptResponse.from_orm(receipt)
+    # Return a proper response wrapper with data populated
+    return ReceiptResponse(
+        status="success",
+        data=ReceiptInDB.from_orm(receipt),
+    )
 
 
 @router.get("/{receipt_id}/processing/status", response_model=ProcessingStatusResponse)
@@ -80,7 +90,7 @@ async def get_receipt_processing_status(
     )
 
 
-def process_receipt_task(receipt_id: int, db: Session):
+def process_receipt_task(receipt_id: int):
     """
     Background task for processing receipt
     """
@@ -90,10 +100,12 @@ def process_receipt_task(receipt_id: int, db: Session):
     
     db_session = SessionLocal()
     try:
+        logging.getLogger(__name__).info(
+            "background task started", extra={"receipt_id": receipt_id}
+        )
         orchestrator = ReceiptProcessingOrchestrator(db_session)
         orchestrator.process_receipt(receipt_id)
     except Exception as e:
-        import logging
         logging.error(f"Error in background receipt processing: {str(e)}", exc_info=True)
     finally:
         db_session.close()

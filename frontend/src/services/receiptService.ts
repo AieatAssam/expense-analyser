@@ -33,6 +33,13 @@ export const receiptService = {
     };
   },
   
+  // Trigger processing for a receipt
+  processReceipt: async (id: string): Promise<{ queued: boolean }> => {
+    const response = await apiClient.post(`/receipts/${id}/process`);
+    // Expect 202 Accepted with some body; normalize to { queued: true }
+    return { queued: Boolean(response.status && response.status >= 200 && response.status < 300) };
+  },
+  
   // List receipts
   listReceipts: async (page: number = 1, limit: number = 10): Promise<{ receipts: Receipt[], total: number }> => {
     const response = await apiClient.get('/receipts', {

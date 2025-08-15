@@ -2,6 +2,7 @@ import logging
 from enum import Enum
 from typing import Dict, Any, Optional, List
 import base64
+import time
 
 from sqlalchemy.orm import Session
 
@@ -58,20 +59,42 @@ class ReceiptProcessingOrchestrator:
         Process a receipt through the entire workflow.
         Returns the updated receipt model.
         """
+        start_ts = time.time()
         try:
             # Get the receipt from the database
             receipt = self._get_receipt(receipt_id)
             if not receipt:
-                logger.error(f"Receipt {receipt_id} not found")
+                logger.error(
+                    "receipt not found",
+                    extra={"receipt_id": receipt_id},
+                )
                 return None
             
             # Update status to processing and record start event
             self._update_receipt_status(receipt, ProcessingStatus.PROCESSING)
             self.status_tracker.start_processing(receipt_id)
+            logger.info(
+                "processing started",
+                extra={
+                    "receipt_id": receipt_id,
+                    "image_format": getattr(receipt, "image_format", None),
+                    "has_image": bool(getattr(receipt, "image_data", None)),
+                    "llm_provider": self.llm_client.provider_name,
+                },
+            )
             
             # Extract data from receipt image
             self.status_tracker.record_progress(receipt_id, "extracting", "Extracting data from receipt image", 25)
+            step_ts = time.time()
             extracted_data = self._extract_receipt_data(receipt)
+            logger.info(
+                "extraction finished",
+                extra={
+                    "receipt_id": receipt_id,
+                    "duration_ms": int((time.time() - step_ts) * 1000),
+                    "ok": bool(extracted_data),
+                },
+            )
             
             if not extracted_data:
                 self._update_receipt_status(receipt, ProcessingStatus.FAILED, "Failed to extract data from receipt")
@@ -82,7 +105,17 @@ class ReceiptProcessingOrchestrator:
                 
             # Validate extracted data structure
             self.status_tracker.record_progress(receipt_id, "validating", "Validating extracted data structure", 60)
+            step_ts = time.time()
             is_valid, validation_errors = self.validator.validate(extracted_data)
+            logger.info(
+                "structure validation finished",
+                extra={
+                    "receipt_id": receipt_id,
+                    "duration_ms": int((time.time() - step_ts) * 1000),
+                    "is_valid": is_valid,
+                    "errors_count": len(validation_errors or []),
+                },
+            )
             
             if not is_valid:
                 self._update_receipt_status(
@@ -102,8 +135,18 @@ class ReceiptProcessingOrchestrator:
             
             # Perform accuracy validation
             self.status_tracker.record_progress(receipt_id, "accuracy_check", "Performing accuracy validation", 70)
+            step_ts = time.time()
             accuracy_result, confidence_score, accuracy_details = self.accuracy_validator.validate_receipt_accuracy(
                 receipt, extracted_data
+            )
+            logger.info(
+                "accuracy validation finished",
+                extra={
+                    "receipt_id": receipt_id,
+                    "duration_ms": int((time.time() - step_ts) * 1000),
+                    "result": str(accuracy_result),
+                    "confidence": float(confidence_score),
+                },
             )
             
             # Update receipt status based on accuracy validation
@@ -136,7 +179,15 @@ class ReceiptProcessingOrchestrator:
             
             # Map and store structured data
             self.status_tracker.record_progress(receipt_id, "storing", "Storing receipt data in database", 85)
+            step_ts = time.time()
             self._store_receipt_data(receipt, extracted_data)
+            logger.info(
+                "store finished",
+                extra={
+                    "receipt_id": receipt_id,
+                    "duration_ms": int((time.time() - step_ts) * 1000),
+                },
+            )
             
             # Update final status
             if receipt.processing_status != ProcessingStatus.MANUAL_REVIEW:
@@ -150,18 +201,33 @@ class ReceiptProcessingOrchestrator:
                     100
                 )
             
+            logger.info(
+                "processing finished",
+                extra={
+                    "receipt_id": receipt_id,
+                    "final_status": str(receipt.processing_status),
+                    "total_duration_ms": int((time.time() - start_ts) * 1000),
+                },
+            )
             return receipt
             
         except Exception as e:
-            logger.error(f"Error processing receipt {receipt_id}: {str(e)}", exc_info=True)
+            logger.error(
+                "processing error",
+                extra={"receipt_id": receipt_id, "error": str(e)},
+                exc_info=True,
+            )
             try:
                 receipt = self._get_receipt(receipt_id)
                 if receipt:
                     self._update_receipt_status(receipt, ProcessingStatus.ERROR, f"Error: {str(e)}")
                     self.status_tracker.record_error(receipt_id, f"Processing error: {str(e)}")
             except Exception as inner_e:
-                logger.error(f"Failed to update receipt status: {str(inner_e)}")
-            
+                logger.error(
+                    "failed to update receipt status after error",
+                    extra={"receipt_id": receipt_id, "error": str(inner_e)},
+                )
+
             raise
     
     def _get_receipt(self, receipt_id: int) -> Receipt:
@@ -213,7 +279,16 @@ class ReceiptProcessingOrchestrator:
             )
             
             # Retry logic built into LLMClient will handle retries and provider failover
+            req_ts = time.time()
             llm_response = self.llm_client.send(prompt, params=params)
+            logger.info(
+                "llm call finished",
+                extra={
+                    "receipt_id": receipt.id,
+                    "provider": self.llm_client.provider_name,
+                    "duration_ms": int((time.time() - req_ts) * 1000),
+                },
+            )
             
             if not llm_response or "response" not in llm_response:
                 error_msg = f"Invalid LLM response format for receipt {receipt.id}"
@@ -245,7 +320,10 @@ class ReceiptProcessingOrchestrator:
                 
                 return extracted_data
             except Exception as json_error:
-                logger.error(f"Failed to parse LLM response: {str(json_error)}")
+                logger.error(
+                    "failed to parse llm response",
+                    extra={"receipt_id": receipt.id, "error": str(json_error)},
+                )
                 self.status_tracker.record_warning(
                     receipt.id, 
                     f"Failed to parse LLM response: {str(json_error)}",
@@ -258,7 +336,7 @@ class ReceiptProcessingOrchestrator:
                 
                 # Try fallback parsing
                 if "response" in llm_response and isinstance(llm_response["response"], str):
-                    logger.info(f"Attempting fallback parsing for receipt {receipt.id}")
+                    logger.info("attempting fallback parsing", extra={"receipt_id": receipt.id})
                     self.status_tracker.add_info_event(
                         receipt.id, 
                         "Attempting fallback parsing with regex"
@@ -273,7 +351,11 @@ class ReceiptProcessingOrchestrator:
                 return None
                 
         except Exception as e:
-            logger.error(f"Error extracting data from receipt {receipt.id}: {str(e)}", exc_info=True)
+            logger.error(
+                "error extracting data from receipt",
+                extra={"receipt_id": receipt.id, "error": str(e)},
+                exc_info=True,
+            )
             self.status_tracker.record_error(
                 receipt.id, 
                 f"Error extracting data: {str(e)}"

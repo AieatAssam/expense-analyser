@@ -6,13 +6,15 @@ import FileUpload from '../components/upload/FileUpload';
 import ReceiptPreview from '../components/preview/ReceiptPreview';
 import StatusDisplay from '../components/status/StatusDisplay';
 // import UserProfile from '../components/user/UserProfile';
-import { Receipt } from '../types';
+import { Receipt, ReceiptProcessingStatus } from '../types';
+import receiptService from '../services/receiptService';
 
 const UploadPage: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [currentFileName, setCurrentFileName] = useState<string>('');
+  const [lastUploadedReceiptId, setLastUploadedReceiptId] = useState<string | null>(null);
 
   const handleUploadComplete = (receipt: Receipt) => {
     // Add receipt to the list
@@ -23,10 +25,28 @@ const UploadPage: React.FC = () => {
       receipt.imageUrl || `https://via.placeholder.com/400x600?text=${encodeURIComponent(receipt.fileName)}`
     );
     setCurrentFileName(receipt.fileName);
+    setLastUploadedReceiptId(String(receipt.id));
   };
 
-  const handlePreviewConfirm = () => {
-    // In a real app, you might send the confirmed image to the backend
+  const handlePreviewConfirm = async () => {
+    // Optimistically mark as pending/queued
+    if (lastUploadedReceiptId) {
+      setReceipts(prev => prev.map(r => (
+        String(r.id) === String(lastUploadedReceiptId)
+          ? { ...r, status: ReceiptProcessingStatus.PENDING }
+          : r
+      )));
+      try {
+        await receiptService.processReceipt(String(lastUploadedReceiptId));
+      } catch (e) {
+        // If triggering fails, reflect error state locally; polling will also surface issues
+        setReceipts(prev => prev.map(r => (
+          String(r.id) === String(lastUploadedReceiptId)
+            ? { ...r, status: ReceiptProcessingStatus.ERROR }
+            : r
+        )));
+      }
+    }
     setPreviewImage(null);
   };
 

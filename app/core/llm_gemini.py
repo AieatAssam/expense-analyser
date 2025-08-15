@@ -27,11 +27,22 @@ class GeminiProvider(LLMProviderBase):
         else:
             text = prompt
 
-        # Prefer query param key usage for Gemini
-        url = self.endpoint
+        # Build endpoint URL: allow template like .../models/{model}:generateContent
+        endpoint = self.endpoint or ""
+        try:
+            url = endpoint.format(model=model) if "{model}" in endpoint else endpoint
+        except Exception:
+            url = endpoint
+        # Ensure :generateContent is present (if a base models URL was provided)
+        if ":generateContent" not in url:
+            if url.endswith("/"):
+                url = url.rstrip("/")
+            # append action
+            url = f"{url}:{'generateContent'}"
+        # Append API key via query param
         if "key=" not in url:
             sep = "&" if "?" in url else "?"
-            url = f"{self.endpoint}{sep}key={self.api_key}"
+            url = f"{url}{sep}key={self.api_key}"
 
         payload = {
             "model": model,

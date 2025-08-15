@@ -60,7 +60,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
       };
 
       onUploadComplete(newReceipt);
-      setSuccessMessage('Receipt uploaded successfully and is being processed.');
+      setSuccessMessage('Receipt uploaded successfully. Review the preview and press Confirm to start processing.');
     } catch (error) {
       console.error('Upload error:', error);
       setErrorMessage('Failed to upload receipt. Please try again.');

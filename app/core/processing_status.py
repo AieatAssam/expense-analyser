@@ -188,7 +188,14 @@ class ProcessingStatusTracker:
                     "message": message or "",
                 },
             }
-            asyncio.create_task(manager.send_json_to_user(receipt.user_id, payload))
+            # Schedule on current loop if present; otherwise, submit to main loop via manager
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                # No running loop in this thread; submit to stored main loop
+                manager.run_in_loop(manager.send_json_to_user(receipt.user_id, payload))
+            else:
+                loop.create_task(manager.send_json_to_user(receipt.user_id, payload))
         except Exception:
             # Swallow errors to avoid breaking main flow
             logger.debug("Failed to schedule websocket notification", exc_info=True)

@@ -1,5 +1,6 @@
 import asyncio
-from typing import Dict, Set
+from asyncio import AbstractEventLoop
+from typing import Dict, Set, Optional, Coroutine, Any
 from fastapi import WebSocket
 
 class ConnectionManager:
@@ -11,6 +12,8 @@ class ConnectionManager:
         self.active_connections: Dict[int, Set[WebSocket]] = {}
         # simple lock to serialize map mutations
         self._lock = asyncio.Lock()
+        # main application loop for cross-thread scheduling
+        self._loop: Optional[AbstractEventLoop] = None
 
     async def connect(self, user_id: int, websocket: WebSocket) -> None:
         await websocket.accept()
@@ -43,6 +46,23 @@ class ConnectionManager:
                 await ws.send_json(message)
             except Exception:
                 pass
+
+    def set_event_loop(self, loop: AbstractEventLoop) -> None:
+        """Set the main event loop so background threads can schedule tasks safely."""
+        self._loop = loop
+
+    def run_in_loop(self, coro: Coroutine[Any, Any, Any]) -> None:
+        """Schedule a coroutine to run on the stored loop from any thread.
+
+        If no loop is stored, this is a no-op.
+        """
+        if self._loop is None:
+            return
+        try:
+            asyncio.run_coroutine_threadsafe(coro, self._loop)
+        except Exception:
+            # Best-effort; ignore scheduling errors
+            pass
 
 # Singleton instance
 manager = ConnectionManager()

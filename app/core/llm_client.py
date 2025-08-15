@@ -4,6 +4,9 @@ from typing import Any, Dict, Optional
 from .llm_gemini import GeminiProvider
 from .llm_openai import OpenAIProvider
 
+logger = logging.getLogger(__name__)
+
+
 class LLMClient:
     def __init__(self, config: Optional[Dict[str, Any]] = None, provider_cls: Optional[type] = None, cache_ttl: int = 60):
         self.config = config or self._load_config()
@@ -12,15 +15,21 @@ class LLMClient:
         self.provider = self._init_provider()
         self._cache = {}  # key: hash, value: (response, timestamp)
         self._cache_ttl = cache_ttl
-        logging.basicConfig(level=logging.INFO)
+        # Do not override global logging config here; rely on app-wide setup.
 
     def _load_config(self) -> Dict[str, Any]:
         return {
             "gemini_api_key": os.getenv("GEMINI_API_KEY", ""),
-            "gemini_endpoint": os.getenv("GEMINI_ENDPOINT", "https://gemini.googleapis.com/v1/chat"),
+            # Default to Generative Language API generateContent endpoint template
+            # Example final URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
+            "gemini_endpoint": os.getenv(
+                "GEMINI_ENDPOINT",
+                "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            ),
             "openai_api_key": os.getenv("OPENAI_API_KEY", ""),
             "openai_endpoint": os.getenv("OPENAI_ENDPOINT", "https://api.openai.com/v1/chat/completions"),
-            "provider": os.getenv("LLM_PROVIDER", "gemini"),
+            # Allow DEFAULT_LLM_PROVIDER for docker-compose compatibility
+            "provider": os.getenv("LLM_PROVIDER") or os.getenv("DEFAULT_LLM_PROVIDER", "gemini"),
         }
 
     def _init_provider(self):
@@ -39,11 +48,15 @@ class LLMClient:
             else:
                 raise ValueError(f"Unsupported provider: {self.provider_name}")
         if self.provider_name == "gemini":
+            if not self.config.get("gemini_api_key"):
+                logger.warning("LLMClient: GEMINI_API_KEY is empty; requests will fail until configured")
             return GeminiProvider(
                 api_key=self.config["gemini_api_key"],
                 endpoint=self.config["gemini_endpoint"]
             )
         elif self.provider_name == "openai":
+            if not self.config.get("openai_api_key"):
+                logger.warning("LLMClient: OPENAI_API_KEY is empty; requests will fail until configured")
             return OpenAIProvider(
                 api_key=self.config["openai_api_key"],
                 endpoint=self.config["openai_endpoint"]
@@ -64,31 +77,54 @@ class LLMClient:
         if cache_key in self._cache:
             cached_response, cached_time = self._cache[cache_key]
             if now - cached_time < self._cache_ttl:
-                logging.info(f"LLMClient: Returning cached response for key {cache_key}")
+                logger.info(f"LLMClient: returning cached response", extra={"cache_key": cache_key})
                 return cached_response
             else:
-                logging.info(f"LLMClient: Cache expired for key {cache_key}")
+                logger.info(f"LLMClient: cache expired", extra={"cache_key": cache_key})
                 del self._cache[cache_key]
         attempt = 0
         last_error = None
         provider = self.provider
         for attempt in range(max_retries):
             try:
-                logging.info(f"LLMClient: Using provider {self.provider_name} (attempt {attempt+1})")
+                start_ts = time.time()
+                logger.info(
+                    "LLMClient: sending request",
+                    extra={
+                        "provider": self.provider_name,
+                        "attempt": attempt + 1,
+                        "prompt_chars": len(prompt or ""),
+                        "has_image": bool(params and params.get("image_data")),
+                        "max_tokens": (params or {}).get("max_tokens"),
+                        "temperature": (params or {}).get("temperature"),
+                    },
+                )
                 response = provider.send_request(prompt, params)
+                duration = time.time() - start_ts
+                logger.info(
+                    "LLMClient: received response",
+                    extra={
+                        "provider": self.provider_name,
+                        "attempt": attempt + 1,
+                        "duration_ms": int(duration * 1000),
+                    },
+                )
                 if not response or "response" not in response:
                     raise ValueError("Malformed response from LLM provider")
                 self._cache[cache_key] = (response, now)
                 return response
             except Exception as e:
                 last_error = e
-                logging.warning(f"LLMClient: Error from provider '{self.provider_name}' on attempt {attempt+1}: {e}")
+                logger.warning(
+                    "LLMClient: provider error",
+                    extra={"provider": self.provider_name, "attempt": attempt + 1, "error": str(e)},
+                )
                 if self._is_permanent_error(e):
                     break
                 sleep_time = backoff_base * (2 ** attempt)
-                logging.info(f"LLMClient: Backing off for {sleep_time:.2f} seconds before retry.")
+                logger.info("LLMClient: backing off before retry", extra={"sleep_seconds": round(sleep_time, 2)})
                 time.sleep(sleep_time)
-        logging.error(f"LLMClient: All attempts failed. Last error: {last_error}")
+        logger.error("LLMClient: all attempts failed", extra={"provider": self.provider_name, "error": str(last_error)})
         raise last_error
 
     def _is_permanent_error(self, error: Exception) -> bool:

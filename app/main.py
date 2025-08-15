@@ -33,6 +33,15 @@ def on_startup_create_tables():
         import logging
         logging.getLogger(__name__).error(f"DB init error: {e}")
 
+    # Store the running event loop for cross-thread websocket notifications
+    try:
+        import asyncio
+        loop = asyncio.get_running_loop()
+        manager.set_event_loop(loop)
+    except Exception:
+        # If no loop yet (shouldn't happen in FastAPI), ignore
+        pass
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
