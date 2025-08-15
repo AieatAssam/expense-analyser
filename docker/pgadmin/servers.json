@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Local Postgres",
+      "Group": "Servers",
+      "Host": "expense_analyser_db",
+      "Port": 5432,
+      "MaintenanceDB": "expense_db",
+      "Username": "expense_user",
+      "SSLMode": "prefer"
+    }
+  }
+}
