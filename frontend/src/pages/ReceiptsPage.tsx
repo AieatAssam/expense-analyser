@@ -10,7 +10,7 @@ const formatDate = (iso?: string) => {
   try { return new Date(iso).toISOString().slice(0, 10); } catch { return ''; }
 };
 
-const ReceiptsPage: React.FC = () => {
+export default function ReceiptsPage() {
   const { isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -295,6 +295,104 @@ const ReceiptsPage: React.FC = () => {
                     <Input value={editing.currency || ''} onChange={(e) => updateField('currency', e.target.value)} />
                   </Box>
                 </HStack>
+
+                {/* Additional receipt fields */}
+                <HStack gap={3}>
+                  <Box w="200px">
+                    <Text fontSize="sm" fontWeight="semibold" mb={1}>Receipt #</Text>
+                    <Input value={editing.receipt_number || ''} onChange={(e) => updateField('receipt_number', e.target.value)} />
+                  </Box>
+                  <Box w="160px">
+                    <Text fontSize="sm" fontWeight="semibold" mb={1}>Tax Amount</Text>
+                    <Input type="number" value={String(editing.tax_amount ?? 0)} onChange={(e) => updateField('tax_amount', Number(e.target.value))} />
+                  </Box>
+                  <Box w="160px">
+                    <Text fontSize="sm" fontWeight="semibold" mb={1}>Total Amount</Text>
+                    <Input type="number" value={String(editing.total_amount ?? 0)} onChange={(e) => updateField('total_amount', Number(e.target.value))} />
+                  </Box>
+                  <Box>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 20 }}>
+                      <input
+                        type="checkbox"
+                        checked={!!editing.is_verified}
+                        onChange={(e) => updateField('is_verified', e.target.checked)}
+                      />
+                      Verified
+                    </label>
+                  </Box>
+                </HStack>
+
+                <Box>
+                  <Text fontSize="sm" fontWeight="semibold" mb={1}>Verification Notes</Text>
+                  <textarea
+                    value={editing.verification_notes || ''}
+                    onChange={(e) => updateField('verification_notes', e.target.value)}
+                    style={{ width: '100%', minHeight: 70, border: '1px solid #e2e8f0', borderRadius: 6, padding: 8 }}
+                  />
+                </Box>
+
+                {/* Receipt image preview (if available) */}
+                {imageUrl && (
+                  <Box>
+                    <Text fontSize="sm" fontWeight="semibold" mb={1}>Image</Text>
+                    <img src={imageUrl} alt={`Receipt ${editing.id}`} style={{ maxWidth: '100%', borderRadius: 6, border: '1px solid #e2e8f0' }} />
+                  </Box>
+                )}
+
+                {/* Line items editor */}
+                <HStack justify="space-between" align="center">
+                  <Text fontWeight="semibold">Line Items</Text>
+                  <Button size="sm" onClick={addLineItem} colorPalette="blue">Add Item</Button>
+                </HStack>
+
+                <VStack align="stretch" gap={2}>
+                  {editing.line_items.map((li, idx) => (
+                    <HStack key={idx} gap={2} align="flex-start" borderWidth={1} borderColor="gray.200" p={2} borderRadius="md">
+                      <Box flex="2">
+                        <Text fontSize="xs" color="gray.600" mb={1}>Name</Text>
+                        <Input value={li.name || ''} onChange={(e) => updateLineItem(idx, 'name', e.target.value)} />
+                      </Box>
+                      <Box flex="1">
+                        <Text fontSize="xs" color="gray.600" mb={1}>Category</Text>
+                        <Input value={li.category_name || ''} onChange={(e) => updateLineItem(idx, 'category_name', e.target.value)} />
+                      </Box>
+                      <Box w="110px">
+                        <Text fontSize="xs" color="gray.600" mb={1}>Qty</Text>
+                        <Input
+                          type="number"
+                          value={String(li.quantity ?? 1)}
+                          onChange={(e) => updateLineItem(idx, 'quantity', Number(e.target.value))}
+                          onBlur={() => recalcItemTotal(idx)}
+                        />
+                      </Box>
+                      <Box w="140px">
+                        <Text fontSize="xs" color="gray.600" mb={1}>Unit Price</Text>
+                        <Input
+                          type="number"
+                          value={String(li.unit_price ?? 0)}
+                          onChange={(e) => updateLineItem(idx, 'unit_price', Number(e.target.value))}
+                          onBlur={() => recalcItemTotal(idx)}
+                        />
+                      </Box>
+                      <Box w="140px">
+                        <Text fontSize="xs" color="gray.600" mb={1}>Total</Text>
+                        <Input
+                          type="number"
+                          value={String(li.total_price ?? 0)}
+                          onChange={(e) => updateLineItem(idx, 'total_price', Number(e.target.value))}
+                        />
+                      </Box>
+                      <Box>
+                        <Button size="sm" variant="outline" colorPalette="red" onClick={() => removeLineItem(idx)}>Remove</Button>
+                      </Box>
+                    </HStack>
+                  ))}
+                </VStack>
+
+                {/* Summary */}
+                <HStack justify="flex-end" fontWeight="semibold">
+                  <Text>Items Total: {totalFromItems.toFixed(2)} {editing.currency}</Text>
+                </HStack>
               </VStack>
             </Box>
           </Box>
@@ -304,4 +402,4 @@ const ReceiptsPage: React.FC = () => {
   </DashboardLayout>
 );
 
-export default ReceiptsPage;
+}
