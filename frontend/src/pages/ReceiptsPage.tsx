@@ -346,46 +346,68 @@ export default function ReceiptsPage() {
                 </HStack>
 
                 <VStack align="stretch" gap={2}>
+                  {/* Column headers */}
+                  <Box
+                    display="grid"
+                    gap={2}
+                    gridTemplateColumns="2fr 1fr 110px 140px 140px auto"
+                    px={1}
+                  >
+                    <Text fontSize="xs" color="gray.600">Name</Text>
+                    <Text fontSize="xs" color="gray.600">Category</Text>
+                    <Text fontSize="xs" color="gray.600">Qty</Text>
+                    <Text fontSize="xs" color="gray.600">Unit Price</Text>
+                    <Text fontSize="xs" color="gray.600">Total</Text>
+                    <Text fontSize="xs" color="gray.600" textAlign="right">Action</Text>
+                  </Box>
                   {editing.line_items.map((li, idx) => (
-                    <HStack key={idx} gap={2} align="flex-start" borderWidth={1} borderColor="gray.200" p={2} borderRadius="md">
-                      <Box flex="2">
-                        <Text fontSize="xs" color="gray.600" mb={1}>Name</Text>
-                        <Input value={li.name || ''} onChange={(e) => updateLineItem(idx, 'name', e.target.value)} />
+                    <Box
+                      key={idx}
+                      borderWidth={1}
+                      borderColor="gray.200"
+                      p={2}
+                      borderRadius="md"
+                      display="grid"
+                      gap={2}
+                      gridTemplateColumns="2fr 1fr 110px 140px 140px auto"
+                      alignItems="center"
+                    >
+                      <Box>
+                        <Input size="md" value={li.name || ''} onChange={(e) => updateLineItem(idx, 'name', e.target.value)} />
                       </Box>
-                      <Box flex="1">
-                        <Text fontSize="xs" color="gray.600" mb={1}>Category</Text>
-                        <Input value={li.category_name || ''} onChange={(e) => updateLineItem(idx, 'category_name', e.target.value)} />
+                      <Box>
+                        <Input size="md" value={li.category_name || ''} onChange={(e) => updateLineItem(idx, 'category_name', e.target.value)} />
                       </Box>
-                      <Box w="110px">
-                        <Text fontSize="xs" color="gray.600" mb={1}>Qty</Text>
+                      <Box>
                         <Input
+                          size="md"
                           type="number"
                           value={String(li.quantity ?? 1)}
                           onChange={(e) => updateLineItem(idx, 'quantity', Number(e.target.value))}
                           onBlur={() => recalcItemTotal(idx)}
                         />
                       </Box>
-                      <Box w="140px">
-                        <Text fontSize="xs" color="gray.600" mb={1}>Unit Price</Text>
+                      <Box>
                         <Input
+                          size="md"
                           type="number"
                           value={String(li.unit_price ?? 0)}
                           onChange={(e) => updateLineItem(idx, 'unit_price', Number(e.target.value))}
                           onBlur={() => recalcItemTotal(idx)}
                         />
                       </Box>
-                      <Box w="140px">
-                        <Text fontSize="xs" color="gray.600" mb={1}>Total</Text>
+                      <Box>
                         <Input
+                          size="md"
                           type="number"
                           value={String(li.total_price ?? 0)}
                           onChange={(e) => updateLineItem(idx, 'total_price', Number(e.target.value))}
                         />
                       </Box>
-                      <Box>
-                        <Button size="sm" variant="outline" colorPalette="red" onClick={() => removeLineItem(idx)}>Remove</Button>
+                      <Box display="flex" justifyContent="flex-end" alignItems="center">
+                        <Button h="40px" size="md" variant="outline" colorPalette="red" onClick={() => removeLineItem(idx)}>Remove</Button>
                       </Box>
-                    </HStack>
+                    </Box>
                   ))}
                 </VStack>
 
