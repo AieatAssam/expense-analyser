@@ -3,6 +3,7 @@ import { Box, VStack, HStack, Text, Button, Input } from '@chakra-ui/react';
 import { DashboardLayout } from '../components/dashboard';
 import { useAuth } from '../contexts/AuthContext';
 import receiptEditingService, { ReceiptDetailResponse, ReceiptEditRequest, LineItemEditRequest, LineItemResponse } from '../services/receiptEditingService';
+import receiptService from '../services/receiptService';
 
 const formatDate = (iso?: string) => {
   if (!iso) return '';
@@ -26,6 +27,7 @@ const ReceiptsPage: React.FC = () => {
   const [editing, setEditing] = useState<EditableReceipt | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [reprocessingId, setReprocessingId] = useState<number | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -49,6 +51,19 @@ const ReceiptsPage: React.FC = () => {
       setError('Failed to load receipts');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const reprocessReceipt = async (id: number) => {
+    try {
+      setReprocessingId(id);
+      await receiptService.processReceipt(String(id));
+      await loadReceipts();
+    } catch (e) {
+      console.error(e);
+      setError('Failed to reprocess receipt');
+    } finally {
+      setReprocessingId(null);
     }
   };
 
@@ -202,6 +217,7 @@ const ReceiptsPage: React.FC = () => {
               <option value="20">20</option>
               <option value="50">50</option>
             </select>
+
           </HStack>
 
           <HStack gap={2}>
@@ -209,174 +225,83 @@ const ReceiptsPage: React.FC = () => {
           </HStack>
         </HStack>
 
-        <Box borderWidth={1} borderColor="gray.200" bg="white" borderRadius="md">
-          <Box p={3} borderBottomWidth={1} borderColor="gray.200" fontWeight="semibold">Receipts</Box>
-          <Box>
-            <Box as="table" width="100%" style={{ borderCollapse: 'collapse' }}>
-              <Box as="thead" bg="gray.50">
-                <Box as="tr">
-                  <Box as="th" textAlign="left" p={2}>ID</Box>
-                  <Box as="th" textAlign="left" p={2}>Store</Box>
-                  <Box as="th" textAlign="left" p={2}>Date</Box>
-                  <Box as="th" textAlign="right" p={2}>Total</Box>
-                  <Box as="th" textAlign="left" p={2}>Status</Box>
-                  <Box as="th" textAlign="left" p={2}>Verified</Box>
-                  <Box as="th" textAlign="left" p={2}></Box>
+
+      {/* Receipts table */}
+      <Box borderWidth={1} borderColor="gray.200" bg="white" borderRadius="md">
+        <Box p={3} borderBottomWidth={1} borderColor="gray.200" fontWeight="semibold">Receipts</Box>
+        <Box>
+          {/* Table header */}
+          <HStack px={3} py={2} borderBottomWidth={1} borderColor="gray.200" fontSize="sm" color="gray.600">
+            <Box w="80px">ID</Box>
+            <Box flex="1">Store</Box>
+            <Box w="130px">Date</Box>
+            <Box w="110px" textAlign="right">Total</Box>
+            <Box w="150px">Status</Box>
+            <Box w="90px">Verified</Box>
+            <Box w="220px" textAlign="right">Actions</Box>
+          </HStack>
+
+          {/* Table body */}
+          <VStack align="stretch" gap={0}>
+            {(receipts || []).map((r) => (
+              <HStack key={r.id} px={3} py={2} bg="white" _hover={{ bg: '#fafafa' }}>
+                <Box w="80px">{r.id}</Box>
+                <Box flex="1">{r.store_name || '-'}</Box>
+                <Box w="130px">{formatDate(r.receipt_date)}</Box>
+                <Box w="110px" textAlign="right">{Number(r.total_amount || 0).toFixed(2)} {r.currency}</Box>
+                <Box w="150px">{r.processing_status}</Box>
+                <Box w="90px">{r.is_verified ? 'Yes' : 'No'}</Box>
+                <Box w="220px" textAlign="right">
+                  <HStack justify="flex-end" gap={2}>
+                    <Button size="sm" variant="outline" onClick={() => openEditor(r.id)}>View / Edit</Button>
+                    <Button size="sm" variant="solid" colorPalette="blue" loading={reprocessingId === r.id} onClick={() => reprocessReceipt(r.id)}>
+                      {reprocessingId === r.id ? 'Reprocessing...' : 'Reprocess'}
+                    </Button>
+                  </HStack>
                 </Box>
-              </Box>
-              <Box as="tbody">
-                {receipts.map(r => (
-                  <Box as="tr" key={r.id} borderTopWidth={1} borderColor="gray.100">
-                    <Box as="td" p={2}>{r.id}</Box>
-                    <Box as="td" p={2}>{r.store_name || '-'}</Box>
-                    <Box as="td" p={2}>{r.receipt_date ? formatDate(r.receipt_date as any) : '-'}</Box>
-                    <Box as="td" p={2} textAlign="right">{r.total_amount != null ? `$${Number(r.total_amount).toFixed(2)}` : '-'}</Box>
-                    <Box as="td" p={2}>{r.processing_status}</Box>
-                    <Box as="td" p={2}>{r.is_verified ? 'Yes' : 'No'}</Box>
-                    <Box as="td" p={2}>
-                      <Button size="sm" onClick={() => openEditor(r.id)}>View / Edit</Button>
-                    </Box>
+              </HStack>
+            ))}
+          </VStack>
+        </Box>
+      </Box>
+
+      {/* Simple editor panel */}
+      {editing && (
+        <Box position="fixed" inset={0} bg="blackAlpha.600" display="flex" alignItems="center" justifyContent="center">
+          <Box bg="white" borderRadius="md" width="min(100%, 960px)" maxH="90vh" overflowY="auto" boxShadow="lg">
+            <HStack justify="space-between" p={3} borderBottomWidth={1} borderColor="gray.200">
+              <Text fontWeight="semibold">Edit Receipt #{editing.id}</Text>
+              <HStack gap={2}>
+                <Button variant="outline" onClick={() => reprocessReceipt(editing.id)} loading={reprocessingId === editing.id}>Reprocess</Button>
+                <Button variant="outline" onClick={closeEditor}>Cancel</Button>
+                <Button onClick={saveChanges} loading={saving} colorPalette="green">Save</Button>
+              </HStack>
+            </HStack>
+
+            {/* Minimal fields (display-only for now) */}
+            <Box p={4}>
+              <VStack align="stretch" gap={3}>
+                <HStack gap={3}>
+                  <Box flex="1">
+                    <Text fontSize="sm" fontWeight="semibold" mb={1}>Store</Text>
+                    <Input value={editing.store_name || ''} onChange={(e) => updateField('store_name', e.target.value)} />
                   </Box>
-                ))}
-              </Box>
+                  <Box w="200px">
+                    <Text fontSize="sm" fontWeight="semibold" mb={1}>Date</Text>
+                    <Input type="date" value={formatDate(editing.receipt_date)} onChange={(e) => updateField('receipt_date', e.target.value)} />
+                  </Box>
+                  <Box w="140px">
+                    <Text fontSize="sm" fontWeight="semibold" mb={1}>Currency</Text>
+                    <Input value={editing.currency || ''} onChange={(e) => updateField('currency', e.target.value)} />
+                  </Box>
+                </HStack>
+              </VStack>
             </Box>
           </Box>
         </Box>
-      </VStack>
-
-      {/* Simple overlay editor */}
-      {editing && (
-        <Box position="fixed" top={0} left={0} w="100%" h="100%" bg="rgba(0,0,0,0.5)" display="flex" alignItems="center" justifyContent="center" zIndex={1000}>
-          <Box bg="white" borderRadius="md" p={4} maxW="1000px" w="95%" maxH="90%" overflow="auto" boxShadow="lg">
-            <HStack justify="space-between" mb={3}>
-              <Text fontSize="lg" fontWeight="bold">Edit Receipt #{editing.id}</Text>
-              <Button variant="outline" onClick={closeEditor}>Close</Button>
-            </HStack>
-
-            <HStack align="start" gap={4}>
-              {imageUrl && (
-                <Box flex="1" minW="320px">
-                  <Box borderWidth={1} borderColor="gray.200" borderRadius="md" overflow="hidden">
-                    <img src={imageUrl} alt="Receipt" style={{ width: '100%', display: 'block' }} />
-                  </Box>
-                </Box>
-              )}
-
-              <Box flex="2">
-                <VStack gap={3} align="stretch">
-                  <HStack gap={3}>
-                    <Box flex="1">
-                      <Text fontSize="sm" fontWeight="semibold" mb={1}>Store Name</Text>
-                      <Input value={editing.store_name || ''} onChange={(e) => updateField('store_name', e.target.value)} />
-                    </Box>
-                    <Box w="200px">
-                      <Text fontSize="sm" fontWeight="semibold" mb={1}>Date</Text>
-                      <Input type="date" value={formatDate(editing.receipt_date as any)} onChange={(e) => updateField('receipt_date', e.target.value)} />
-                    </Box>
-                    <Box w="130px">
-                      <Text fontSize="sm" fontWeight="semibold" mb={1}>Currency</Text>
-                      <Input value={editing.currency || ''} onChange={(e) => updateField('currency', e.target.value)} />
-                    </Box>
-                  </HStack>
-
-                  <HStack gap={3}>
-                    <Box w="200px">
-                      <Text fontSize="sm" fontWeight="semibold" mb={1}>Total Amount</Text>
-                      <Input type="number" step="0.01" value={editing.total_amount ?? 0} onChange={(e) => updateField('total_amount', Number(e.target.value))} />
-                    </Box>
-                    <Box w="200px">
-                      <Text fontSize="sm" fontWeight="semibold" mb={1}>Tax Amount</Text>
-                      <Input type="number" step="0.01" value={editing.tax_amount ?? 0} onChange={(e) => updateField('tax_amount', Number(e.target.value))} />
-                    </Box>
-                    <Box flex="1">
-                      <Text fontSize="sm" fontWeight="semibold" mb={1}>Receipt Number</Text>
-                      <Input value={editing.receipt_number || ''} onChange={(e) => updateField('receipt_number', e.target.value)} />
-                    </Box>
-                  </HStack>
-
-                  <HStack gap={3}>
-                    <Box w="200px">
-                      <Text fontSize="sm" fontWeight="semibold" mb={1}>Verified</Text>
-                      <select
-                        value={editing.is_verified ? 'true' : 'false'}
-                        onChange={(e: ChangeEvent<HTMLSelectElement>) => updateField('is_verified', e.target.value === 'true')}
-                        style={{ width: '100%', padding: '8px', border: '1px solid #e2e8f0', borderRadius: 6 }}
-                      >
-                        <option value="false">No</option>
-                        <option value="true">Yes</option>
-                      </select>
-                    </Box>
-                    <Box flex="1">
-                      <Text fontSize="sm" fontWeight="semibold" mb={1}>Verification Notes</Text>
-                      <Input value={editing.verification_notes || ''} onChange={(e) => updateField('verification_notes', e.target.value)} />
-                    </Box>
-                  </HStack>
-
-                  <Box borderWidth={1} borderColor="gray.200" borderRadius="md">
-                    <HStack justify="space-between" p={3} borderBottomWidth={1} borderColor="gray.200">
-                      <Text fontWeight="semibold">Line Items</Text>
-                      <Button size="sm" onClick={addLineItem}>+ Add Item</Button>
-                    </HStack>
-
-                    <VStack align="stretch" p={3} gap={3}>
-                      {editing.line_items.map((li, idx) => (
-                        <Box key={idx} borderWidth={1} borderColor="gray.100" borderRadius="md" p={3}>
-                          <HStack justify="space-between" mb={2}>
-                            <Text fontWeight="medium">Item {idx + 1}</Text>
-                            <Button size="xs" variant="outline" colorPalette="red" onClick={() => removeLineItem(idx)}>Remove</Button>
-                          </HStack>
-                          <HStack gap={3} align="start">
-                            <Box flex="2">
-                              <Text fontSize="sm" fontWeight="semibold" mb={1}>Name</Text>
-                              <Input value={li.name || ''} onChange={(e) => updateLineItem(idx, 'name', e.target.value)} />
-                            </Box>
-                            <Box flex="2">
-                              <Text fontSize="sm" fontWeight="semibold" mb={1}>Description</Text>
-                              <Input value={li.description || ''} onChange={(e) => updateLineItem(idx, 'description', e.target.value)} />
-                            </Box>
-                          </HStack>
-                          <HStack gap={3} mt={2}>
-                            <Box w="120px">
-                              <Text fontSize="sm" fontWeight="semibold" mb={1}>Quantity</Text>
-                              <Input type="number" step="0.01" value={li.quantity ?? 1} onChange={(e) => { updateLineItem(idx, 'quantity', Number(e.target.value)); recalcItemTotal(idx); }} />
-                            </Box>
-                            <Box w="140px">
-                              <Text fontSize="sm" fontWeight="semibold" mb={1}>Unit Price</Text>
-                              <Input type="number" step="0.01" value={li.unit_price ?? 0} onChange={(e) => { updateLineItem(idx, 'unit_price', Number(e.target.value)); recalcItemTotal(idx); }} />
-                            </Box>
-                            <Box w="140px">
-                              <Text fontSize="sm" fontWeight="semibold" mb={1}>Total</Text>
-                              <Input type="number" step="0.01" value={li.total_price ?? 0} onChange={(e) => updateLineItem(idx, 'total_price', Number(e.target.value))} />
-                            </Box>
-                            <Box flex="2">
-                              <Text fontSize="sm" fontWeight="semibold" mb={1}>Category</Text>
-                              <Input value={li.category_name || ''} onChange={(e) => updateLineItem(idx, 'category_name', e.target.value)} />
-                            </Box>
-                          </HStack>
-                        </Box>
-                      ))}
-
-                      <Box bg="gray.50" borderRadius="md" p={3} borderWidth={1} borderColor="gray.200">
-                        <HStack justify="space-between">
-                          <Text fontWeight="semibold">Items Total</Text>
-                          <Text fontWeight="bold">${totalFromItems.toFixed(2)}</Text>
-                        </HStack>
-                      </Box>
-                    </VStack>
-                  </Box>
-
-                  <HStack justify="flex-end" gap={2}>
-                    <Button variant="outline" onClick={closeEditor}>Cancel</Button>
-                    <Button onClick={saveChanges} disabled={saving}>{saving ? 'Saving…' : 'Save Changes'}</Button>
-                  </HStack>
-                </VStack>
-              </Box>
-            </HStack>
-          </Box>
-        </Box>
       )}
-    </DashboardLayout>
-  );
-};
+    </VStack>
+  </DashboardLayout>
+);
 
 export default ReceiptsPage;
