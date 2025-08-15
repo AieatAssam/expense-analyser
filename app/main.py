@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi import WebSocket, WebSocketDisconnect
+from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
@@ -11,6 +13,9 @@ from app.models import invitation as invitation_model  # noqa: F401
 from app.core.middleware import RequestLoggingMiddleware
 from app.api.api import api_router
 from app.core.health import get_health_status
+from app.core.websocket_manager import manager
+from app.core.auth import get_user_from_token
+from app.db.session import SessionLocal
 
 app = FastAPI(
     title="Expense Analyser API",
@@ -120,3 +125,38 @@ if os.path.isdir(static_dir):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+# WebSocket endpoint at root so the frontend can connect to the same host
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket, token: Optional[str] = None):
+    """
+    Authenticate via `token` query parameter (Auth0 JWT), then attach the
+    socket to the authenticated user's connection set. Keeps the socket
+    open and ignores client messages except to keep the connection alive.
+    """
+    # Validate token
+    if not token:
+        # Reject without accepting to mirror 403 behavior
+        await websocket.close(code=1008)
+        return
+
+    # Open a DB session manually (can't use Depends with websocket params)
+    db = SessionLocal()
+    try:
+        # Validate JWT and get user
+        user = get_user_from_token(token, db)
+
+        # Accept and register connection
+        await manager.connect(user.id, websocket)
+
+        try:
+            while True:
+                # We don't require messages from client; just drain to keep alive
+                _ = await websocket.receive_text()
+                # Optionally echo pings or ignore
+        except WebSocketDisconnect:
+            pass
+        finally:
+            await manager.disconnect(user.id, websocket)
+    finally:
+        db.close()

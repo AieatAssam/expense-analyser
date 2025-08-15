@@ -7,29 +7,35 @@ export const receiptService = {
     const formData = new FormData();
     formData.append('file', file);
     
-    const response = await apiClient.post('/api/receipts/upload', formData, {
+    const response = await apiClient.post('/receipts/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return response.data;
+    // Backend returns snake_case keys at top-level per FileUploadResponse
+    const receiptId = String(response.data?.receipt_id ?? '');
+    return { receiptId };
   },
   
   // Get receipt by ID
   getReceiptById: async (id: string): Promise<Receipt> => {
-    const response = await apiClient.get(`/api/receipts/${id}`);
+    const response = await apiClient.get(`/receipts/${id}`);
     return response.data;
   },
   
   // Get receipt status
   getReceiptStatus: async (id: string): Promise<{ status: string, message?: string }> => {
-    const response = await apiClient.get(`/api/receipts/${id}/status`);
-    return response.data;
+    const response = await apiClient.get(`/receipts/${id}/processing/status`);
+    const data = response.data;
+    return {
+      status: data?.current_status,
+      message: data?.latest_event?.message,
+    };
   },
   
   // List receipts
   listReceipts: async (page: number = 1, limit: number = 10): Promise<{ receipts: Receipt[], total: number }> => {
-    const response = await apiClient.get('/api/receipts', {
+    const response = await apiClient.get('/receipts', {
       params: { page, limit }
     });
     return response.data;

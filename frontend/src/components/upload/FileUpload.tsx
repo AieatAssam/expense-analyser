@@ -56,6 +56,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
         fileName: file.name,
         uploadDate: new Date().toISOString(),
         status: ReceiptProcessingStatus.PENDING,
+        imageUrl: URL.createObjectURL(file),
       };
 
       onUploadComplete(newReceipt);

@@ -36,9 +36,10 @@ def upgrade() -> None:
     )
     
     # Index for line items with receipt and category for category breakdown
+    # Table name is 'lineitem' (no underscore) per initial migration a96b03e13043
     op.create_index(
         'ix_line_item_receipt_category', 
-        'line_item', 
+        'lineitem', 
         ['receipt_id', 'category_id', 'total_price']
     )
     
@@ -78,6 +79,7 @@ def downgrade() -> None:
     op.drop_index('ix_receipt_store_name_search', table_name='receipt')
     op.drop_index('ix_receipt_status_verified', table_name='receipt')
     op.drop_index('ix_category_parent_name', table_name='category')
-    op.drop_index('ix_line_item_receipt_category', table_name='line_item')
+    # Match the correct table name
+    op.drop_index('ix_line_item_receipt_category', table_name='lineitem')
     op.drop_index('ix_receipt_date_range', table_name='receipt')
     op.drop_index('ix_receipt_user_date_amount', table_name='receipt')

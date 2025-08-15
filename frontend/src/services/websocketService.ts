@@ -10,7 +10,9 @@ class WebSocketService {
   private isConnecting: boolean = false;
 
   constructor() {
-    this.url = `${process.env.WS_URL || 'ws://localhost:8000'}/ws`;
+    const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const host = typeof window !== 'undefined' ? window.location.host : 'localhost:8000';
+    this.url = `${protocol}://${host}/ws`;
   }
 
   // Connect to WebSocket server

@@ -52,5 +52,14 @@ COPY --from=frontend-builder /frontend/dist /app/static
 RUN echo 'from app.main import app' > /app/main.py
 RUN chmod +x /app/main.py
 
-# Run the application
+# Copy Alembic configuration and migrations for DB migrations
+COPY alembic.ini /app/alembic.ini
+COPY migrations/ /app/migrations/
+
+# Copy entrypoint that runs migrations before starting the app
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Run migrations then start the application
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

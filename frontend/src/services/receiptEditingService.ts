@@ -76,19 +76,19 @@ export interface BulkEditRequest {
 export const receiptEditingService = {
   // Get receipt details for editing
   getReceiptForEditing: async (receiptId: number): Promise<ReceiptDetailResponse> => {
-    const response = await apiClient.get(`/api/receipts/editing/${receiptId}`);
+    const response = await apiClient.get(`/receipts/editing/${receiptId}`);
     return response.data;
   },
 
   // Update receipt
   updateReceipt: async (receiptId: number, editRequest: ReceiptEditRequest): Promise<ReceiptEditResponse> => {
-    const response = await apiClient.put(`/api/receipts/editing/${receiptId}`, editRequest);
+    const response = await apiClient.put(`/receipts/editing/${receiptId}`, editRequest);
     return response.data;
   },
 
   // Bulk edit receipts
   bulkEditReceipts: async (bulkRequest: BulkEditRequest): Promise<ReceiptEditResponse> => {
-    const response = await apiClient.post('/api/receipts/editing/bulk-edit', bulkRequest);
+    const response = await apiClient.post('/receipts/editing/bulk-edit', bulkRequest);
     return response.data;
   },
 
@@ -99,13 +99,13 @@ export const receiptEditingService = {
     skip?: number;
     limit?: number;
   }): Promise<ReceiptDetailResponse[]> => {
-    const response = await apiClient.get('/api/receipts/editing', { params });
+    const response = await apiClient.get('/receipts/editing', { params });
     return response.data;
   },
 
   // Get receipt image
   getReceiptImage: async (receiptId: number): Promise<Blob> => {
-    const response = await apiClient.get(`/api/receipts/editing/${receiptId}/image`, {
+    const response = await apiClient.get(`/receipts/editing/${receiptId}/image`, {
       responseType: 'blob',
     });
     return response.data;

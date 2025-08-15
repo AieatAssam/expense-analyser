@@ -33,6 +33,11 @@ const App: React.FC = () => {
           redirect_uri: `${window.location.origin}/callback`,
           audience: auth0Audience,
         }}
+        // Persist the session across reloads and in browsers that block 3rd-party cookies
+        // Uses Rotating Refresh Tokens and stores the cache in localStorage
+        cacheLocation="localstorage"
+        useRefreshTokens={true}
+        useRefreshTokensFallback={true}
         onRedirectCallback={onRedirectCallback}
       >
         <AuthProvider>

@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import Dict, Any, Optional, List
 from enum import Enum
 from datetime import datetime
@@ -7,6 +8,8 @@ from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import Session, relationship
 
 from app.models.base import BaseModel
+from app.models.receipt import Receipt
+from app.core.websocket_manager import manager
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +101,13 @@ class ProcessingStatusTracker:
             self.db.add(event)
             self.db.commit()
             self.db.refresh(event)
+
+            # Fire-and-forget websocket notification to the receipt owner
+            try:
+                self._notify_status_update(event.receipt_id, event.status, truncated_message)
+            except Exception:
+                # Notification failures must not affect core workflow
+                logger.debug("WebSocket notification suppressed due to error", exc_info=True)
             return event
         except Exception as e:
             self.db.rollback()
@@ -159,6 +169,29 @@ class ProcessingStatusTracker:
             message=message,
             details=details
         )
+
+    def _notify_status_update(self, receipt_id: int, status: str, message: Optional[str]) -> None:
+        """Resolve the receipt owner and send a status update over websockets.
+
+        Non-blocking: schedules an asyncio task to deliver the message.
+        """
+        try:
+            # Resolve user_id for targeted broadcast
+            receipt = self.db.query(Receipt).filter(Receipt.id == receipt_id).first()
+            if not receipt:
+                return
+            payload = {
+                "type": "receipt_status",
+                "payload": {
+                    "receiptId": str(receipt_id),
+                    "status": status,
+                    "message": message or "",
+                },
+            }
+            asyncio.create_task(manager.send_json_to_user(receipt.user_id, payload))
+        except Exception:
+            # Swallow errors to avoid breaking main flow
+            logger.debug("Failed to schedule websocket notification", exc_info=True)
     
     def start_processing(self, receipt_id: int, message: str = "Processing started") -> None:
         """Record processing start"""

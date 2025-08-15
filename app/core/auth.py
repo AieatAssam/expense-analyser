@@ -125,3 +125,100 @@ def get_current_user(
     except JWTError as e:
         logger.error(f"Security incident: JWTError during token validation: {e}")
         raise HTTPException(status_code=401, detail="Invalid token")
+
+def get_user_from_token(token: str, db: Session) -> User:
+    """Validate a raw JWT token and return the authenticated `User`.
+
+    Mirrors the logic of `get_current_user` but accepts a raw token string
+    and an explicit DB session for use outside normal dependency injection
+    flows (e.g., WebSocket connections).
+    """
+    import logging
+    logger = logging.getLogger("auth.security")
+    logger.info("Auth event: Received token for validation (websocket)")
+    logger.debug(f"Token: {token}")
+    try:
+        # Inspect header to determine algorithm
+        unverified_header = jwt.get_unverified_header(token)
+        logger.info(f"JWT header alg={unverified_header.get('alg')} kid={unverified_header.get('kid')}")
+
+        alg = unverified_header.get("alg")
+        if alg == "HS256":
+            payload = jwt.decode(
+                token,
+                AUTH0_CLIENT_SECRET,
+                algorithms=["HS256"],
+                audience=API_AUDIENCE,
+                issuer=f"https://{AUTH0_DOMAIN}/",
+            )
+        else:
+            jwks = get_jwks()
+            rsa_key = {}
+            kid = unverified_header.get("kid")
+            for key in jwks["keys"]:
+                if key.get("kid") == kid:
+                    rsa_key = {
+                        "kty": key.get("kty"),
+                        "kid": key.get("kid"),
+                        "use": key.get("use"),
+                        "n": key.get("n"),
+                        "e": key.get("e"),
+                    }
+                    break
+            logger.debug(f"RSA key used for JWT validation: {rsa_key}")
+            if not rsa_key:
+                logger.error("Security incident: No RSA key found for JWT kid")
+                raise HTTPException(status_code=401, detail="Invalid token header")
+            payload = jwt.decode(
+                token,
+                rsa_key,
+                algorithms=["RS256"],
+                audience=API_AUDIENCE,
+                issuer=f"https://{AUTH0_DOMAIN}/",
+            )
+
+        logger.info(
+            "Auth event: JWT validated: sub=%s aud=%s iss=%s",
+            payload.get("sub"), payload.get("aud"), payload.get("iss")
+        )
+        logger.debug(f"JWT payload: {payload}")
+        sub = payload.get("sub")
+        email = payload.get("email")
+        if not sub:
+            logger.error("Security incident: sub missing in JWT payload")
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+
+        account = db.query(Account).filter(Account.provider=="auth0", Account.provider_account_id==sub).first()
+        logger.info(f"Auth event: Account lookup for sub {sub} result: {bool(account)}")
+        logger.debug(f"Account object: {account}")
+        if account:
+            user = db.query(User).filter(User.id==account.user_id).first()
+            logger.info(f"Auth event: User lookup for account {account.id} result: {bool(user)}")
+            logger.debug(f"User object: {user}")
+            if not user:
+                logger.error("Security incident: User not found for account")
+                raise HTTPException(status_code=401, detail="User not found")
+            logger.info(f"Auth event: Authenticated user {user.email}")
+            return user
+
+        # If no users exist, auto-create first user
+        user_count = db.query(User).count()
+        logger.info(f"Auth event: User count in DB: {user_count}")
+        if user_count == 0:
+            synthesized_email = email or f"user-{str(sub).replace('|','_')}@local"
+            user = User(email=synthesized_email, hashed_password="", is_active=True, is_superuser=True)
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            account = Account(provider="auth0", provider_account_id=sub, user_id=user.id)
+            db.add(account)
+            db.commit()
+            db.refresh(account)
+            logger.info(f"Auth event: Auto-created first user {user.email} and account {account.id}")
+            return user
+
+        logger.warning(f"Security incident: Account {sub} not linked. Invitation required.")
+        raise HTTPException(status_code=403, detail="Account not linked. Ask admin for invitation.")
+    except JWTError as e:
+        logger.error(f"Security incident: JWTError during token validation: {e}")
+        raise HTTPException(status_code=401, detail="Invalid token")

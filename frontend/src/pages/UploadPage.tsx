@@ -18,9 +18,10 @@ const UploadPage: React.FC = () => {
     // Add receipt to the list
     setReceipts(prev => [receipt, ...prev]);
     
-    // For demo purposes, create a fake preview URL using the file name
-    // In a real app, this would be the actual image URL from the backend
-    setPreviewImage(`https://via.placeholder.com/400x600?text=${encodeURIComponent(receipt.fileName)}`);
+    // Prefer local object URL from upload if available; fallback to placeholder
+    setPreviewImage(
+      receipt.imageUrl || `https://via.placeholder.com/400x600?text=${encodeURIComponent(receipt.fileName)}`
+    );
     setCurrentFileName(receipt.fileName);
   };
 
