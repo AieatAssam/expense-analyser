@@ -3,6 +3,8 @@ from fastapi import WebSocket, WebSocketDisconnect
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import sys
+import logging
 
 from app.core.config import settings
 from app.db.session import Base, engine
@@ -16,6 +18,14 @@ from app.core.health import get_health_status
 from app.core.websocket_manager import manager
 from app.core.auth import get_user_from_token
 from app.db.session import SessionLocal
+
+# Configure root/application logging to stdout so logs appear in container logs
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(
+    level=getattr(logging, LOG_LEVEL, logging.INFO),
+    format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
 
 app = FastAPI(
     title="Expense Analyser API",

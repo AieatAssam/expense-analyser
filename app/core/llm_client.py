@@ -72,7 +72,11 @@ class LLMClient:
         import hashlib
         import json
         import time
-        cache_key = hashlib.sha256((prompt + json.dumps(params or {}, sort_keys=True)).encode()).hexdigest()
+        # Build a cache key from prompt and params (with image data stripped to avoid huge keys)
+        safe_for_key = dict(params or {})
+        if "image_data" in safe_for_key:
+            safe_for_key["image_data"] = "<omitted>"
+        cache_key = hashlib.sha256((prompt + json.dumps(safe_for_key, sort_keys=True)).encode()).hexdigest()
         now = time.time()
         if cache_key in self._cache:
             cached_response, cached_time = self._cache[cache_key]
@@ -85,29 +89,43 @@ class LLMClient:
         attempt = 0
         last_error = None
         provider = self.provider
+        def _truncate(text: str, limit: int = 1000) -> str:
+            if text is None:
+                return ""
+            return text if len(text) <= limit else text[:limit] + "...<truncated>"
+
+        def _redact(p: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+            p = dict(p or {})
+            if "image_data" in p:
+                p["image_data"] = f"<base64 {len(str(p['image_data']))} chars>"
+            if "api_key" in p:
+                p["api_key"] = "<redacted>"
+            return p
+
         for attempt in range(max_retries):
             try:
                 start_ts = time.time()
                 logger.info(
-                    "LLMClient: sending request",
-                    extra={
-                        "provider": self.provider_name,
-                        "attempt": attempt + 1,
-                        "prompt_chars": len(prompt or ""),
-                        "has_image": bool(params and params.get("image_data")),
-                        "max_tokens": (params or {}).get("max_tokens"),
-                        "temperature": (params or {}).get("temperature"),
-                    },
+                    "LLMClient: sending request | provider=%s attempt=%s prompt_preview=%s params=%s",
+                    self.provider_name,
+                    attempt + 1,
+                    _truncate(prompt, 400),
+                    _redact(params),
                 )
                 response = provider.send_request(prompt, params)
                 duration = time.time() - start_ts
+                # Try to extract a response text preview
+                preview = None
+                try:
+                    preview = response.get("response") if isinstance(response, dict) else None
+                except Exception:
+                    preview = None
                 logger.info(
-                    "LLMClient: received response",
-                    extra={
-                        "provider": self.provider_name,
-                        "attempt": attempt + 1,
-                        "duration_ms": int(duration * 1000),
-                    },
+                    "LLMClient: received response | provider=%s attempt=%s duration_ms=%s response_preview=%s",
+                    self.provider_name,
+                    attempt + 1,
+                    int(duration * 1000),
+                    _truncate(preview or str(response), 400),
                 )
                 if not response or "response" not in response:
                     raise ValueError("Malformed response from LLM provider")

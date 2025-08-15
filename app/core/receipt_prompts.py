@@ -57,6 +57,9 @@ JSON:
     {{"name": "Bread", "category": "Bakery", "amount": 2.00}}
   ]
 }}
+
+Do not format output as markdown or explain anything, just analyse the receipt and extract information from it.
+Do not make anything up and only respond in JSON with the extracted information.
 """
     },
     "grocery": {

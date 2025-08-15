@@ -293,7 +293,7 @@ class ReceiptProcessingOrchestrator:
                 "image_data": image_base64,
                 "image_format": receipt.image_format,
                 "temperature": 0.2,  # Lower temperature for more deterministic output
-                "max_tokens": 1024
+                "max_tokens": 65536
             }
             
             self.status_tracker.add_info_event(
