@@ -43,7 +43,7 @@ class OpenAIProvider(LLMProviderBase):
             else:
                 messages = [{"role": "user", "content": prompt}]
         temperature = params.get("temperature", 0.2)
-        timeout = params.get("timeout", 20)
+        timeout = params.get("timeout", 300)
         max_tokens = params.get("max_tokens")
 
         headers = {

@@ -17,7 +17,7 @@ class GeminiProvider(LLMProviderBase):
 
         # Support two styles: Google Generative Language API generateContent, or a simple chat endpoint
         model = params.get("model", "gemini-2.5-flash")
-        timeout = params.get("timeout", 20)
+        timeout = params.get("timeout", 300)
         messages = params.get("messages")  # optional [{role, content}]
 
         # Build a best-effort payload compatible with "generateContent"
