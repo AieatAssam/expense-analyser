@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import Tuple
 from fastapi import UploadFile, HTTPException
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 from sqlalchemy.orm import Session
 
 from app.models.receipt import Receipt
@@ -50,6 +50,13 @@ class ReceiptUploadService:
             
             # Process image files
             image = Image.open(io.BytesIO(file.file.read()))
+
+            # Normalize orientation using EXIF if present (common for mobile photos)
+            try:
+                image = ImageOps.exif_transpose(image)
+            except Exception:
+                # If no EXIF or unsupported, skip silently
+                pass
             
             # Convert to RGB mode if image is in RGBA mode
             if image.mode == 'RGBA':

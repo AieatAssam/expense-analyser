@@ -3,6 +3,8 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 import logging
+import io
+from PIL import Image, ImageOps
 
 from app.db.session import get_db
 from app.core.auth import get_current_user
@@ -380,18 +382,45 @@ async def get_receipt_image(
         
         # Determine content type based on image format
         content_type = "image/jpeg"  # Default
-        if receipt.image_format:
-            format_lower = receipt.image_format.lower()
-            if format_lower in ["png"]:
-                content_type = "image/png"
-            elif format_lower in ["pdf"]:
-                content_type = "application/pdf"
-        
+        format_lower = (receipt.image_format or "jpg").lower()
+        if format_lower == "png":
+            content_type = "image/png"
+        elif format_lower == "pdf":
+            content_type = "application/pdf"
+
+        # For PDFs, return raw bytes
+        if content_type == "application/pdf":
+            from fastapi.responses import Response
+            return Response(
+                content=receipt.image_data,
+                media_type=content_type,
+                headers={"Content-Disposition": f"inline; filename=receipt_{receipt_id}.pdf"}
+            )
+
+        # For images, normalize orientation using EXIF data to avoid rotated display
+        try:
+            with Image.open(io.BytesIO(receipt.image_data)) as img:
+                img = ImageOps.exif_transpose(img)
+                # Ensure RGB for JPEG output
+                if content_type == "image/jpeg" and img.mode in ("RGBA", "P"):
+                    img = img.convert("RGB")
+                output = io.BytesIO()
+                save_format = "PNG" if content_type == "image/png" else "JPEG"
+                save_kwargs = {"optimize": True}
+                if save_format == "JPEG":
+                    save_kwargs.update({"quality": 85})
+                img.save(output, format=save_format, **save_kwargs)
+                corrected_bytes = output.getvalue()
+        except Exception:
+            # Fallback to stored bytes if any processing fails
+            corrected_bytes = receipt.image_data
+
         from fastapi.responses import Response
+        ext = "png" if content_type == "image/png" else "jpg"
         return Response(
-            content=receipt.image_data,
+            content=corrected_bytes,
             media_type=content_type,
-            headers={"Content-Disposition": f"inline; filename=receipt_{receipt_id}.{receipt.image_format or 'jpg'}"}
+            headers={"Content-Disposition": f"inline; filename=receipt_{receipt_id}.{ext}"}
         )
         
     except HTTPException:

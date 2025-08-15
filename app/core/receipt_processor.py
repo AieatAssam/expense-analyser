@@ -3,6 +3,8 @@ from enum import Enum
 from typing import Dict, Any, Optional, List
 import base64
 import time
+import io
+from PIL import Image, ImageOps
 
 from sqlalchemy.orm import Session
 
@@ -256,7 +258,28 @@ class ReceiptProcessingOrchestrator:
                 raise ValueError("Receipt has no image data")
             
             # Encode image as base64 for LLM processing
-            image_base64 = base64.b64encode(receipt.image_data).decode('utf-8')
+            # Normalize orientation using EXIF (skip PDFs)
+            corrected_bytes = receipt.image_data
+            try:
+                fmt_lower = (receipt.image_format or "jpg").lower()
+                if fmt_lower != "pdf" and receipt.image_data:
+                    with Image.open(io.BytesIO(receipt.image_data)) as img:
+                        img = ImageOps.exif_transpose(img)
+                        # Ensure RGB for JPEG output
+                        if fmt_lower in ("jpg", "jpeg") and img.mode in ("RGBA", "P"):
+                            img = img.convert("RGB")
+                        out = io.BytesIO()
+                        save_format = "PNG" if fmt_lower == "png" else "JPEG"
+                        save_kwargs = {"optimize": True}
+                        if save_format == "JPEG":
+                            save_kwargs.update({"quality": 85})
+                        img.save(out, format=save_format, **save_kwargs)
+                        corrected_bytes = out.getvalue()
+            except Exception:
+                # On any error, fall back to original bytes
+                corrected_bytes = receipt.image_data
+
+            image_base64 = base64.b64encode(corrected_bytes).decode('utf-8')
             
             # Get prompt template for receipt type
             prompt = get_prompt(self.receipt_type)
