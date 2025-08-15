@@ -401,6 +401,9 @@ class ReceiptProcessingOrchestrator:
             )
             
             receipt.store_name = data.get("store_name", "Unknown Store")
+            # Set currency if provided by extraction; otherwise keep existing/default
+            if data.get("currency"):
+                receipt.currency = str(data.get("currency")).upper()[:3]
             
             # Parse and set date
             try:

@@ -54,6 +54,7 @@ class LLMReceiptValidator:
             "store_name": data.get("store_name"),
             "receipt_date": data.get("date"),
             "total_amount": data.get("total_amount"),
+            "currency": data.get("currency"),
             "line_items": [
                 {
                     "name": item.get("name"),
@@ -72,11 +73,19 @@ class LLMReceiptValidator:
         store_name = lines[0] if lines else "Unknown"
         date_match = re.search(r"\d{4}-\d{2}-\d{2}", raw_text)
         date = date_match.group(0) if date_match else "1970-01-01"
-        total_match = re.search(r"Total[:]?\s*\$?(\d+\.\d{2})", raw_text)
+        total_match = re.search(r"Total[:]??\s*[$£€]?(\d+\.\d{2})", raw_text)
         total = float(total_match.group(1)) if total_match else 0.0
+        # Infer currency from symbols present in the text
+        currency = None
+        if re.search(r"\$", raw_text):
+            currency = "USD"
+        if re.search(r"£", raw_text):
+            currency = "GBP"
+        if re.search(r"€", raw_text):
+            currency = "EUR"
         line_items = []
         for line in lines[1:]:
-            m = re.match(r"(.+)\s+\$([\d\.]+)\s*\((.+)\)", line)
+            m = re.match(r"(.+)\s+[$£€]?([\d\.]+)\s*\((.+)\)", line)
             if m:
                 line_items.append({
                     "name": m.group(1).strip(),
@@ -87,5 +96,6 @@ class LLMReceiptValidator:
             "store_name": store_name,
             "date": date,
             "total_amount": total,
+            "currency": currency,
             "line_items": line_items
         }

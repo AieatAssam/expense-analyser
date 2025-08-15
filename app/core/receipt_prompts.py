@@ -9,6 +9,7 @@ RECEIPT_SCHEMA = {
         "store_name": {"type": "string"},
         "date": {"type": "string", "format": "date"},
         "total_amount": {"type": "number"},
+        "currency": {"type": "string", "minLength": 3, "maxLength": 3, "description": "ISO 4217 currency code, e.g., USD, EUR, GBP"},
         "line_items": {
             "type": "array",
             "items": {
@@ -34,6 +35,7 @@ You are an expert at parsing receipts. Extract the following fields from the rec
 - Store name
 - Date (YYYY-MM-DD)
 - Total amount
+- Currency code (ISO 4217 like USD, EUR, GBP) if present; otherwise infer from symbols ($, £, €)
 - Line items (name, category, amount)
 
 Return the result as a JSON object matching this schema:
@@ -52,6 +54,7 @@ JSON:
   "store_name": "Walmart Supercenter",
   "date": "2025-07-01",
   "total_amount": 5.50,
+  "currency": "USD",
   "line_items": [
     {{"name": "Milk", "category": "Dairy", "amount": 3.50}},
     {{"name": "Bread", "category": "Bakery", "amount": 2.00}}
@@ -65,7 +68,7 @@ Do not make anything up and only respond in JSON with the extracted information.
     "grocery": {
         "version": "v1",
         "prompt": """
-Extract grocery receipt details as JSON. Fields: store_name, date, total_amount, line_items (name, category, amount).
+Extract grocery receipt details as JSON. Fields: store_name, date, total_amount, currency (ISO code if available), line_items (name, category, amount).
 Example:
 Receipt:
 Trader Joe's
@@ -79,6 +82,7 @@ JSON:
   "store_name": "Trader Joe's",
   "date": "2025-07-02",
   "total_amount": 7.00,
+  "currency": "USD",
   "line_items": [
     {{"name": "Eggs", "category": "Dairy", "amount": 4.00}},
     {{"name": "Apples", "category": "Produce", "amount": 3.00}}
