@@ -32,6 +32,8 @@ class OpenAIProvider(LLMProviderBase):
             "model": model,
             "messages": messages,
             "temperature": temperature,
+            # Force JSON object responses from OpenAI chat completions
+            "response_format": {"type": "json_object"},
         }
 
         logging.info(f"OpenAIProvider: Sending request to {self.endpoint} with model={model}")

@@ -44,6 +44,12 @@ class GeminiProvider(LLMProviderBase):
             sep = "&" if "?" in url else "?"
             url = f"{url}{sep}key={self.api_key}"
 
+        # Build generation config with structured output default
+        gen_config = params.get("generation_config", {}) if isinstance(params, dict) else {}
+        if not isinstance(gen_config, dict):
+            gen_config = {}
+        gen_config.setdefault("responseMimeType", "application/json")
+
         payload = {
             "model": model,
             "contents": [
@@ -52,6 +58,7 @@ class GeminiProvider(LLMProviderBase):
                     "role": "user",
                 }
             ],
+            "generationConfig": gen_config,
         }
 
         headers = {"Content-Type": "application/json"}
