@@ -50,11 +50,27 @@ class GeminiProvider(LLMProviderBase):
             gen_config = {}
         gen_config.setdefault("responseMimeType", "application/json")
 
+        # Build parts: always include text; optionally include inline image
+        parts = [{"text": text}]
+        image_b64 = (params or {}).get("image_data")
+        image_fmt = (params or {}).get("image_format") or "jpeg"
+        if image_b64:
+            mime = f"image/{str(image_fmt).lower()}"
+            # Normalize common extensions
+            if mime == "image/jpg":
+                mime = "image/jpeg"
+            parts.append({
+                "inline_data": {
+                    "mime_type": mime,
+                    "data": image_b64,
+                }
+            })
+
         payload = {
             "model": model,
             "contents": [
                 {
-                    "parts": [{"text": text}],
+                    "parts": parts,
                     "role": "user",
                 }
             ],

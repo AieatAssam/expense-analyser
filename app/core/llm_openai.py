@@ -20,9 +20,31 @@ class OpenAIProvider(LLMProviderBase):
             return {"provider": "openai", "response": "mocked response"}
 
         model = params.get("model", "gpt-4o-mini")
-        messages = params.get("messages") or [{"role": "user", "content": prompt}]
+        # Build messages, supporting multimodal input when image_data is provided
+        image_b64 = params.get("image_data")
+        image_fmt = params.get("image_format") or "jpeg"
+        if params.get("messages"):
+            messages = params.get("messages")
+        else:
+            if image_b64:
+                mime = f"image/{str(image_fmt).lower()}"
+                if mime == "image/jpg":
+                    mime = "image/jpeg"
+                data_url = f"data:{mime};base64,{image_b64}"
+                messages = [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {"type": "image_url", "image_url": {"url": data_url}},
+                        ],
+                    }
+                ]
+            else:
+                messages = [{"role": "user", "content": prompt}]
         temperature = params.get("temperature", 0.2)
         timeout = params.get("timeout", 20)
+        max_tokens = params.get("max_tokens")
 
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -35,6 +57,8 @@ class OpenAIProvider(LLMProviderBase):
             # Force JSON object responses from OpenAI chat completions
             "response_format": {"type": "json_object"},
         }
+        if isinstance(max_tokens, int) and max_tokens > 0:
+            payload["max_tokens"] = max_tokens
 
         logging.info(f"OpenAIProvider: Sending request to {self.endpoint} with model={model}")
         try:
